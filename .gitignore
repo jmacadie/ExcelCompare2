@@ -1,0 +1,9 @@
+lib
+bin
+classes
+install_stage
+ivy
+ExcelCompare*.zip
+nbproject
+build
+dist
