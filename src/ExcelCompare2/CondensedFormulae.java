@@ -21,11 +21,11 @@ import org.apache.poi.ss.usermodel.Cell;
 public class CondensedFormulae {
     
     // Ordered (by FormulaR1C1) list of unique formulae on a given sheet 
-    private final List<UniqueFormula> _formulae;
+    private final List<UniqueFormula> _uniqueFormulae;
     
     // Constructor with no parameters
     public CondensedFormulae() {
-        this._formulae = new LinkedList<>();
+        this._uniqueFormulae = new LinkedList<>();
     }
     
     // Constructor with worksheet
@@ -36,7 +36,7 @@ public class CondensedFormulae {
         Iterator<Cell> cellIterator;
         Cell cell;
         
-        this._formulae = new LinkedList<>();
+        this._uniqueFormulae = new LinkedList<>();
         
         // Loop through all rows
         while (rowIterator.hasNext()) {
@@ -65,7 +65,7 @@ public class CondensedFormulae {
     // This ensures the list of unquie formulae is mainted as an ordered list,
     // which make subsequent searching more efficient
     public void add(Formula formula) {
-        ListIterator<UniqueFormula> iter = _formulae.listIterator();
+        ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
         boolean found = false;
         UniqueFormula curr;
         int res;
