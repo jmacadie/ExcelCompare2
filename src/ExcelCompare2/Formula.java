@@ -150,6 +150,11 @@ public class Formula {
     private String getValue(Cell cell) {
         String formula;
         int cellType = cell.getCellType();
+        // TODO: dates get stored as numbers
+        // not sure if this should be changed as dates are techincally just
+        // formatting but the end user might get confused when all thier dates
+        // get reported back as numbers
+        // e.g. 1st April 2017 currently gets reported as 42826.0
         switch (cellType) {
             case Cell.CELL_TYPE_FORMULA:
                 formula = "=" + cell.getCellFormula();
