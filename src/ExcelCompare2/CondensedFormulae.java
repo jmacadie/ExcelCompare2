@@ -22,10 +22,15 @@ public class CondensedFormulae {
     
     // Ordered (by FormulaR1C1) list of unique formulae on a given sheet 
     private final List<UniqueFormula> _uniqueFormulae;
+    // Track size of sheet
+    private final int _maxCols;
+    private final int _maxRows;
     
     // Constructor with no parameters
     public CondensedFormulae() {
         this._uniqueFormulae = new LinkedList<>();
+        this._maxCols = 0;
+        this._maxRows = 0;
     }
     
     // Constructor with worksheet
@@ -37,6 +42,8 @@ public class CondensedFormulae {
         Cell cell;
         
         this._uniqueFormulae = new LinkedList<>();
+        this._maxCols = 0;
+        this._maxRows = 0;
         
         // Loop through all rows
         while (rowIterator.hasNext()) {
