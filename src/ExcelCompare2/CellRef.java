@@ -102,4 +102,16 @@ public class CellRef {
                 (comp._rowAbs == _rowAbs) &&
                 (comp._colAbs == _colAbs);
     }
+    
+    public int getCol() {
+        return _col;
+    }
+    
+    public int getRow() {
+        return _row;
+    }
+    
+    public String getStringRef() {
+        return String.valueOf(_row) + "-" + String.valueOf(_col);
+    }
 }
