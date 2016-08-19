@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,6 +24,9 @@ public class CondensedFormulae {
     
     // Ordered (by FormulaR1C1) list of unique formulae on a given sheet 
     private final List<UniqueFormula> _uniqueFormulae;
+    // Fast lookup map to covert a cell ref to it's index in the unique formulae
+    // list
+    private final Map<String, Integer> _refMap;
     // Track size of sheet
     private final int _maxCols;
     private final int _maxRows;
@@ -29,6 +34,7 @@ public class CondensedFormulae {
     // Constructor with no parameters
     public CondensedFormulae() {
         this._uniqueFormulae = new LinkedList<>();
+        this._refMap = new HashMap<>();
         this._maxCols = 0;
         this._maxRows = 0;
     }
@@ -42,6 +48,7 @@ public class CondensedFormulae {
         Cell cell;
         
         this._uniqueFormulae = new LinkedList<>();
+        this._refMap = new HashMap<>();
         this._maxCols = 0;
         this._maxRows = 0;
         
@@ -58,6 +65,9 @@ public class CondensedFormulae {
                 add(new Formula(cell));
             }
         }
+        
+        // and then finally build the ref map
+        buildRefMap();
     }
     
     // Adds a new formula to the condensed formula map
@@ -106,4 +116,20 @@ public class CondensedFormulae {
         }
     }
     
+    // Loop through the unique formula list and create a lookup map of cell ref
+    // to position index in the formulae list
+    private void buildRefMap() {
+        ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
+        CompoundRange range;
+        CellRef cell;
+        String key;
+        while (iter.hasNext()) {
+            range = iter.next().getRange();
+            range.moveFirst();
+            while (range.hasNext()) {
+                cell = range.next();
+                _refMap.put(cell.getStringRef(), iter.previousIndex());
+            }
+        }
+    }
 }
