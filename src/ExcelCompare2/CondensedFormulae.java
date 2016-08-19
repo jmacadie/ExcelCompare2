@@ -71,7 +71,7 @@ public class CondensedFormulae {
     //      - not yet proved if formula already found so keep iterating
     // This ensures the list of unquie formulae is mainted as an ordered list,
     // which make subsequent searching more efficient
-    public void add(Formula formula) {
+    private void add(Formula formula) {
         ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
         boolean found = false;
         UniqueFormula curr;
