@@ -81,15 +81,104 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     public CompoundRange intersect(CompoundRange cr) {
-        return new CompoundRange();
+        // Start with empty compoundRange
+        CompoundRange out = new CompoundRange();
+        CellRef cell;
+        // Save index position
+        this.savePosition();
+        // Then loop through this range adding any common refs
+        this.moveFirst();
+        while (this.hasNext()) {
+            cell = this.next();
+            if (cr.contains(cell))
+                out.addCell(cell);
+        }
+        this.moveSaved();
+        return out;
     }
     
-    public CompoundRange isMissingFrom(CompoundRange cr) {
-        return new CompoundRange();
+    public CompoundRange union(CompoundRange cr) {
+        // Clone this coumpound range
+        CompoundRange out = new CompoundRange(this);
+        CellRef cell;
+        // Save index position
+        cr.savePosition();
+        // Then loop through other range adding any missing refs
+        cr.moveFirst();
+        while (cr.hasNext()) {
+            cell = cr.next();
+            if (!this.contains(cell))
+                out.addCell(cell);
+        }
+        cr.moveSaved();
+        return out;
     }
     
-    public CompoundRange isAdditionalTo(CompoundRange cr) {
-        return new CompoundRange();
+    public CompoundRange missingFrom(CompoundRange cr) {
+        // Start with empty compoundRange
+        CompoundRange out = new CompoundRange();
+        CellRef cell;
+        // Save index position
+        this.savePosition();
+        // Then loop through this range adding any missing refs
+        this.moveFirst();
+        while (this.hasNext()) {
+            cell = this.next();
+            if (!cr.contains(cell))
+                out.addCell(cell);
+        }
+        this.moveSaved();
+        return out;
+    }
+    
+    public CompoundRange removeFrom(CompoundRange cr) {
+        // Start with empty compoundRange
+        CompoundRange out = new CompoundRange();
+        CellRef cell;
+        // Save index position
+        cr.savePosition();
+        // Then loop through other range adding any missing refs
+        cr.moveFirst();
+        while (cr.hasNext()) {
+            cell = cr.next();
+            if (!this.contains(cell))
+                out.addCell(cell);
+        }
+        cr.moveSaved();
+        return out;
+    }
+    
+    public boolean contains(CellRef cell) {
+        // Save index position
+        this.savePosition();
+        this.moveFirst();
+        while (this.hasNext()) {
+            if (cell.equals(this.next())) {
+                this.moveSaved();
+                return true;
+            }
+        }
+        this.moveSaved();
+        return false;
+    }
+    
+    public boolean equals(CompoundRange cr) {
+        // If not same size then not same
+        if (this.size() != cr.size())
+            return false;
+        
+        // Save index position
+        this.savePosition();
+        
+        // Otherwise loop through all cells
+        while (this.hasNext()) {
+            if (!cr.contains(this.next())) {
+                this.moveSaved();
+                return false;
+            }
+        }
+        this.moveSaved();
+        return true;
     }
     
     public void moveFirst() {
