@@ -1,0 +1,10 @@
+Write tests and move to TDD style
+Loop through all sheets to do a proper diff of a workbook (rather than just first sheet)
+Set up tool to build so can be used as a command line tool
+Figure out how to add dependent libraries without just copying and pasting from na-kana's project
+Deal with triple letter cell references
+Deal with whole column / row cell references
+Dteas as dates not numbers?
+Decouple diff finding and reporting
+Diff output more like git??
+Detect transformations (e.g. inserting rows, deleting columns, cutting cells etc.)
