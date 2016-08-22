@@ -70,6 +70,7 @@ public class CondensedFormulae {
         buildRefMap();
     }
     
+    private void add(Formula formula) {
     // Adds a new formula to the condensed formula map
     // Iterates through the current list of unique formulae and finds if:
     //   1) the formula is equal
@@ -81,7 +82,6 @@ public class CondensedFormulae {
     //      - not yet proved if formula already found so keep iterating
     // This ensures the list of unquie formulae is mainted as an ordered list,
     // which make subsequent searching more efficient
-    private void add(Formula formula) {
         ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
         boolean found = false;
         UniqueFormula curr;
@@ -116,9 +116,9 @@ public class CondensedFormulae {
         }
     }
     
+    private void buildRefMap() {
     // Loop through the unique formula list and create a lookup map of cell ref
     // to position index in the formulae list
-    private void buildRefMap() {
         ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
         CompoundRange range;
         CellRef cell;
