@@ -111,7 +111,7 @@ public class CellRef {
         return _row;
     }
     
-    public String getStringRef() {
+    public String getAsKey() {
         return String.valueOf(_row) + "-" + String.valueOf(_col);
     }
 }

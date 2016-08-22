@@ -128,7 +128,7 @@ public class CondensedFormulae {
             range.moveFirst();
             while (range.hasNext()) {
                 cell = range.next();
-                _refMap.put(cell.getStringRef(), iter.previousIndex());
+                _refMap.put(cell.getAsKey(), iter.previousIndex());
             }
         }
     }
