@@ -111,6 +111,16 @@ public class CellRef {
         return _row;
     }
     
+    @Override
+    public String toString() {
+        String out = "";
+        if (_colAbs) out += "$";
+        out += SpreadSheetUtils.convertToLetter(_col);
+        if (_rowAbs) out += "$";
+        out += String.valueOf(_row);
+        return out;
+    }
+    
     public String getAsKey() {
         return String.valueOf(_row) + "-" + String.valueOf(_col);
     }
