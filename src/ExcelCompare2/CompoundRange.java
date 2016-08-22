@@ -20,12 +20,14 @@ public class CompoundRange implements Iterator<CellRef> {
     private final List<CellRef> _compoundRange;
     private int _idx;
     private int _idxMax;
+    private int _idxSave;
     
     // Constructor with no parameters
     public CompoundRange() {
         this._compoundRange = new LinkedList<>();
         this._idx = 0;
         this._idxMax = -1;
+        this._idxSave = 0;
     }
     
     // Constructor with single cell
@@ -34,11 +36,16 @@ public class CompoundRange implements Iterator<CellRef> {
         _compoundRange.add(cr);
         this._idx = 0;
         this._idxMax = 0;
+        this._idxSave = 0;
     }
     
     public void addCell(CellRef cr) {
         _compoundRange.add(cr);
         _idxMax++;
+    }
+    
+    public void savePosition() {
+        _idxSave = _idx;
     }
     
     public CompoundRange intersect(CompoundRange cr) {
@@ -55,6 +62,10 @@ public class CompoundRange implements Iterator<CellRef> {
     
     public void moveFirst() {
         _idx = 0;
+    }
+    
+    public void moveSaved() {
+        _idx = _idxSave;
     }
     
     @Override
