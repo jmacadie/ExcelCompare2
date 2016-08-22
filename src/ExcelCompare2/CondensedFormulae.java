@@ -23,7 +23,7 @@ import org.apache.poi.ss.usermodel.Cell;
 public class CondensedFormulae {
     
     // Ordered (by FormulaR1C1) list of unique formulae on a given sheet 
-    private final List<UniqueFormula> _uniqueFormulae;
+    private final List<AnalysedFormula> _uniqueFormulae;
     // Fast lookup map to covert a cell ref to it's index in the unique formulae
     // list
     private final Map<String, Integer> _refMap;
@@ -82,9 +82,9 @@ public class CondensedFormulae {
     //      - not yet proved if formula already found so keep iterating
     // This ensures the list of unquie formulae is mainted as an ordered list,
     // which make subsequent searching more efficient
-        ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
+        ListIterator<AnalysedFormula> iter = _uniqueFormulae.listIterator();
         boolean found = false;
-        UniqueFormula curr;
+        AnalysedFormula curr;
         int res;
         while (iter.hasNext()) {
             curr = iter.next();
@@ -103,7 +103,7 @@ public class CondensedFormulae {
                 // Move cursor back one space, so insert happens in right place
                 if (iter.hasPrevious())
                         curr = iter.previous();
-                iter.add(new UniqueFormula(formula));
+                iter.add(new AnalysedFormula(formula));
                 // Quit iteration loop as found the correct action
                 found = true;
                 break;
@@ -112,14 +112,14 @@ public class CondensedFormulae {
         // If not found in our loop then just add the formula as a new unique
         // formula at the end of the list
         if (!found) {
-            iter.add(new UniqueFormula(formula));
+            iter.add(new AnalysedFormula(formula));
         }
     }
     
     private void buildRefMap() {
     // Loop through the unique formula list and create a lookup map of cell ref
     // to position index in the formulae list
-        ListIterator<UniqueFormula> iter = _uniqueFormulae.listIterator();
+        ListIterator<AnalysedFormula> iter = _uniqueFormulae.listIterator();
         CompoundRange range;
         CellRef cell;
         String key;
