@@ -59,6 +59,13 @@ public class CompoundRange implements Iterator<CellRef> {
         _idxMax++;
     }
     
+    public void removeCell(CellRef cr) {
+        if (_compoundRange.remove(cr))
+            _idxMax--;
+        // TODO: Decrement _idx too.
+        // Depends on current index being "above" removed cell
+    }
+    
     public int size() {
         return (_idxMax + 2);
     }
