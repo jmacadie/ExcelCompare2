@@ -28,8 +28,8 @@ public class CondensedFormulae {
     // list
     private final Map<String, Integer> _refMap;
     // Track size of sheet
-    private final int _maxCols;
-    private final int _maxRows;
+    private int _maxCols;
+    private int _maxRows;
     
     // Constructor with no parameters
     public CondensedFormulae() {
@@ -114,6 +114,16 @@ public class CondensedFormulae {
         if (!found) {
             iter.add(new AnalysedFormula(formula));
         }
+        
+        // Increment the row and col counters
+        CellRef cell = formula.getCellRef();
+        int row = cell.getRow();
+        int col = cell.getCol();
+        if (row > _maxRows)
+            _maxRows = row;
+        
+        if (col > _maxCols)
+            _maxCols = col;
     }
     
     private void buildRefMap() {
