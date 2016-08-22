@@ -24,7 +24,7 @@ public class SpreadSheetUtils {
       int mod26 = (col % 26);
       return convertToLetter(((col - mod26) / 26) - 1) + convertToLetter(mod26);
     } else {
-      return String.valueOf((char) (col + 65));
+      return String.valueOf((char) (col + 64));
     }
   }
 
