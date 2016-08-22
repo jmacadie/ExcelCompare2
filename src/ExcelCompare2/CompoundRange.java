@@ -59,6 +59,10 @@ public class CompoundRange implements Iterator<CellRef> {
         _idxMax++;
     }
     
+    public boolean isEmpty() {
+        return (_idxMax == -1);
+    }
+    
     public void savePosition() {
         _idxSave = _idx;
     }
