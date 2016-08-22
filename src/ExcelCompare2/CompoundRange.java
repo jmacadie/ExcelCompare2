@@ -55,6 +55,8 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     public void addCell(CellRef cr) {
+        // TODO: store sorted?
+        // Will affect the compartive methods below
         _compoundRange.add(cr);
         _idxMax++;
     }
