@@ -26,8 +26,8 @@ public class Formula {
     
     public Formula(Cell cell) {
         this._formula = getValue(cell);
-        this._cellRef = new CellRef(cell.getColumnIndex() + 1,
-                                    cell.getRowIndex() + 1);
+        this._cellRef = new CellRef(cell.getRowIndex() + 1,
+                                    cell.getColumnIndex() + 1);
         this._formulaR1C1 = convertToR1C1();
     }
     
