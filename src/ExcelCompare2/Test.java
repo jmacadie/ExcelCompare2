@@ -22,13 +22,23 @@ public class Test {
     }
     
     private static void testCondense() {
-        String file = "U:/a.xlsx";
+        String fileTo = "resources/a.xlsx";
+        String fileFrom = "resources/b.xlsx";
         
         try {
-            Workbook workbook = SpreadSheetUtils.loadSpreadSheet(file);
-            Sheet sheet = workbook.getSheetAt(2);
-            CondensedFormulae map = new CondensedFormulae(sheet);
-            System.out.println("--> break here :)");
+            Workbook workbook = SpreadSheetUtils.loadSpreadSheet(fileFrom);
+            Sheet sheet = workbook.getSheetAt(0);
+            CondensedFormulae cfFrom = new CondensedFormulae(sheet);
+            System.out.println("*** Loaded From ***");
+            
+            workbook = SpreadSheetUtils.loadSpreadSheet(fileTo);
+            sheet = workbook.getSheetAt(0);
+            CondensedFormulae cfTo = new CondensedFormulae(sheet);
+            System.out.println("*** Loaded To ***");
+            
+            cfTo.diff(cfFrom);
+            System.out.println("*** Done Diff ***");
+            
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
         }
