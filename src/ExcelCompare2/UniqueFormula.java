@@ -29,6 +29,10 @@ public class UniqueFormula {
         return compareTo(formula.getFormulaR1C1());
     }
     
+    public int compareTo(UniqueFormula formula) {
+        return compareTo(formula.getFormulaR1C1());
+    }
+    
     public void addCell(CellRef newCell) {
         _range.addCell(newCell);
     }
