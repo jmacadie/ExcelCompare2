@@ -203,7 +203,86 @@ public class CompoundRange implements Iterator<CellRef> {
     
     @Override
     public String toString() {
-        return "This is a compound range";
+        String out = "";
+        // TODO: better to initialise here or as a private field of the object?
+        // Suspect better here as every time you add / remove / construct
+        // you'll have to re-generate the blocks
+        List<CellsBlock> blocks = toBlocks();
+        
+        // Loop through teh blocks building an outputy string
+        for (CellsBlock b : blocks) {
+            if(out == "") {
+                out = b.toString();
+            } else {
+                out += "," + b.toString();
+            }
+        }
+        
+        return out;
+    }
+    
+    private List<CellsBlock> toBlocks() {
+        CompoundRange remaining = new CompoundRange(this);
+        CellsBlock block;
+        List<CellsBlock> blocks = new LinkedList<>();
+        
+        // Loop through until have blocked all cells
+        while (!remaining.isEmpty()) {
+            block = getMaxBlock(remaining);
+            blocks.add(block);
+            remaining = remaining.missingFrom(block.toCompoundRange());
+        }
+        return blocks;
+    }
+    
+    private CellsBlock getMaxBlock(CompoundRange cr) {
+        // TODO: feels inefficient
+        CellsBlock maxBlock;
+        CellsBlock block;
+        CellRef start;
+        CellRef end;
+        
+        // Set to null to start
+        maxBlock = null;
+        
+        // New compound range so we can loop again
+        CompoundRange cr2 = new CompoundRange(cr);
+        
+        // Loop through every cell as a potential start of the biggest block
+        cr.moveFirst();
+        while (cr.hasNext()) {
+            
+            // Set potential start cell
+            start = cr.next();
+            
+            // Loop through every cell as a potential end of the biggest block
+            cr2.moveFirst();
+            while (cr2.hasNext()) {
+                
+                // Set potential start cell
+                end = cr2.next();
+                
+                // Test if end is below, right of start
+                // Not a proper start - end otherwise
+                if (end.getCol() >= start.getCol() &&
+                    end.getRow() >= start.getRow()) {
+                    // Create block
+                    block = new CellsBlock(start, end);
+                    // Test if block is valid
+                    // i.e. all cells in the compound range are found in the
+                    // proposed block
+                    if (block.isWithin(cr2)) {
+                        // If the max block is not yet set or the proposed block
+                        // is bigger then set the max block as the proposed
+                        if (maxBlock == null || block.size() > maxBlock.size())
+                            maxBlock = block;
+                    }
+                }
+            }
+        }
+        
+        // Having looped through every cell pair this is the biggest cell block
+        return maxBlock;
     }
     
 }
