@@ -253,7 +253,6 @@ public class CondensedFormulae {
                 newRange = new CompoundRange();
                 
                 // Loop through range
-                // TODO: group using intersect and other mothods
                 while (toRange.hasNext()) {
                     
                     cell = toRange.next();
@@ -304,7 +303,6 @@ public class CondensedFormulae {
             newRange = new CompoundRange();
             
             // Loop through range
-            // TODO: group using intersect and other mothods
             while (range.hasNext()) {
 
                 cell = range.next();
