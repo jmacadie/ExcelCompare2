@@ -39,6 +39,21 @@ public class CompoundRange implements Iterator<CellRef> {
         this._idxSave = 0;
     }
     
+    // Constructor with another coupound range
+    // i.e. clone the current compound range
+    public CompoundRange(CompoundRange cr) {
+        this._compoundRange = new LinkedList<>();
+        cr.savePosition();
+        cr.moveFirst();
+        while (cr.hasNext()) {
+            _compoundRange.add(cr.next());
+        }
+        cr.moveSaved();
+        this._idx = 0;
+        this._idxMax = cr.size() - 2;
+        this._idxSave = 0;
+    }
+    
     public void addCell(CellRef cr) {
         _compoundRange.add(cr);
         _idxMax++;
