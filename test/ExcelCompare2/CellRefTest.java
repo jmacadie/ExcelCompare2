@@ -18,25 +18,42 @@ import static org.junit.Assert.*;
  */
 public class CellRefTest {
     
-    protected CellRef cA1 = new CellRef("A1");
-    protected CellRef c$A$1 = new CellRef("$A$1");
-    protected CellRef c$A1 = new CellRef("$A1");
-    protected CellRef cA$1 = new CellRef("A$1");
-    protected CellRef cA2 = new CellRef("A2");
-    protected CellRef cB1 = new CellRef("B1");
-    protected CellRef cB2 = new CellRef("B2");
-    protected CellRef cJ1 = new CellRef("J1");
-    protected CellRef c$J$1 = new CellRef("$J$1");
-    protected CellRef c$J1 = new CellRef("$J1");
-    protected CellRef cJ$1 = new CellRef("J$1");
-    protected CellRef cAB123 = new CellRef("AB123");
-    protected CellRef cA1000 = new CellRef("A1000");
-    protected CellRef c$A$1000 = new CellRef("$A$1000");
-    protected CellRef cDEF542 = new CellRef("DEF542");
-    protected CellRef cDEF$542 = new CellRef("DEF$542");
-    protected CellRef c$DEF542 = new CellRef("$DEF542");
+    protected final CellRef cA1;
+    protected final CellRef c$A$1;
+    protected final CellRef c$A1;
+    protected final CellRef cA$1;
+    protected final CellRef cA2;
+    protected final CellRef cB1;
+    protected final CellRef cB2;
+    protected final CellRef cJ1;
+    protected final CellRef c$J$1;
+    protected final CellRef c$J1;
+    protected final CellRef cJ$1;
+    protected final CellRef cAB123;
+    protected final CellRef cA1000;
+    protected final CellRef c$A$1000;
+    protected final CellRef cDEF542;
+    protected final CellRef cDEF$542;
+    protected final CellRef c$DEF542;
     
     public CellRefTest() {
+        cA1 = new CellRef("A1");
+        c$A$1 = new CellRef("$A$1");
+        c$A1 = new CellRef("$A1");
+        cA$1 = new CellRef("A$1");
+        cA2 = new CellRef("A2");
+        cB1 = new CellRef("B1");
+        cB2 = new CellRef("B2");
+        cJ1 = new CellRef("J1");
+        c$J$1 = new CellRef("$J$1");
+        c$J1 = new CellRef("$J1");
+        cJ$1 = new CellRef("J$1");
+        cAB123 = new CellRef("AB123");
+        cA1000 = new CellRef("A1000");
+        c$A$1000 = new CellRef("$A$1000");
+        cDEF542 = new CellRef("DEF542");
+        cDEF$542 = new CellRef("DEF$542");
+        c$DEF542 = new CellRef("$DEF542");
     }
     
     @BeforeClass
