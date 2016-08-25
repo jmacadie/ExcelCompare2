@@ -20,7 +20,7 @@ public class CellRef {
     private final boolean _rowAbs;
     
     // Constructor with numeric rows and columns
-    public CellRef(int row, int col, boolean colAbs, boolean rowAbs) {
+    public CellRef(int row, int col, boolean rowAbs, boolean colAbs) {
         this._col = col;
         this._row = row;
         this._colAbs = colAbs;
