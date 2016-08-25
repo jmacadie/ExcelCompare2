@@ -67,24 +67,24 @@ public class CellRef {
         this._rowAbs = tmpRowAbs;
     }
     
-    public String toR1C1(CellRef orig) {
+    public String toR1C1(CellRef origin) {
         String out;
         if (_rowAbs) {
             out = "R" + _row;
         } else {
-            if (orig._row == _row) {
+            if (origin._row == _row) {
                 out = "R";
             } else {
-                out = "R[" + (_row - orig._row) + "]";
+                out = "R[" + (_row - origin._row) + "]";
             }
         }
         if (_colAbs) {
             out += "C" + _col;
         } else {
-            if (orig._col == _col) {
+            if (origin._col == _col) {
                 out += "C";
             } else {
-                out += "C[" + (_col - orig._col) + "]";
+                out += "C[" + (_col - origin._col) + "]";
             }
         }
         return out;
