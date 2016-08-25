@@ -19,10 +19,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 public class SpreadSheetUtils {
 
   public static String convertToLetter(int col) {
-      // TODO: deal with triple letter cel refs
     if (col >= 26) {
       int mod26 = (col % 26);
-      return convertToLetter(((col - mod26) / 26) - 1) + convertToLetter(mod26);
+      return convertToLetter((col - mod26) / 26) + convertToLetter(mod26);
     } else {
       return String.valueOf((char) (col + 64));
     }
