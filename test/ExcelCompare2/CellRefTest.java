@@ -58,12 +58,15 @@ public class CellRefTest {
     
     @BeforeClass
     public static void setUpClass() {
-        System.out.println("*   test CellRef class");
-        System.out.println("======================");
+        System.out.println("   test CellRef class");
+        System.out.println("=========================");
     }
     
     @AfterClass
     public static void tearDownClass() {
+        System.out.println("   END");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("");
     }
     
     @Before
@@ -79,7 +82,7 @@ public class CellRefTest {
      */
     @Test
     public void testConstructors() {
-        System.out.println("**  test constructors");
+        System.out.println("*   test constructors");
         
         CellRef test = new CellRef(1, 1);
         assertTrue("(1, 1) -> A1 does not give true", cA1.equalsStrict(test));
@@ -114,7 +117,7 @@ public class CellRefTest {
     
     @Test()
     public void testInvalidConstructors() {
-        System.out.println("**  test invalid constructors");
+        System.out.println("*   test invalid constructors");
         
         testInvalidConstructorsInner("$DEF", "Illegal cell specifier $DEF", "$DEF constructs a valid new cell reference");
         testInvalidConstructorsInner("A1A", "Illegal cell specifier A1A", "A1A constructs a valid new cell reference");
@@ -139,7 +142,7 @@ public class CellRefTest {
      */
     @Test
     public void testToR1C1() {
-        System.out.println("**  test toR1C1() method");
+        System.out.println("*   test toR1C1() method");
         
         assertEquals("A1 -> A1 does not give RC", "RC", cA1.toR1C1(cA1));
         assertEquals("A1 -> $A$1 does not give R1C1", "R1C1", c$A$1.toR1C1(cA1));
@@ -162,7 +165,7 @@ public class CellRefTest {
      */
     @Test
     public void testEquals() {
-        System.out.println("**  test equals() method");
+        System.out.println("*   test equals() method");
         
         assertTrue("A1 -> A1 does not give true", cA1.equals(cA1));
         assertTrue("A1 -> $A$1 does not give true", cA1.equals(c$A$1));
@@ -186,7 +189,7 @@ public class CellRefTest {
      */
     @Test
     public void testEqualsStrict() {
-        System.out.println("**  test equalsStrict() method");
+        System.out.println("*   test equalsStrict() method");
         
         assertTrue("A1 -> A1 does not give true", cA1.equalsStrict(cA1));
         assertFalse("A1 -> $A$1 does not give false", cA1.equalsStrict(c$A$1));
@@ -210,7 +213,7 @@ public class CellRefTest {
      */
     @Test
     public void testGetCol() {
-        System.out.println("**  test getCol() method");
+        System.out.println("*   test getCol() method");
         
         assertEquals("A1 does not give 1", 1, cA1.getCol());
         assertEquals("A2 does not give 1", 1, cA2.getCol());
@@ -222,7 +225,7 @@ public class CellRefTest {
      */
     @Test
     public void testGetRow() {
-        System.out.println("**  test getRow() method");
+        System.out.println("*   test getRow() method");
         
         assertEquals("A1 does not give 1", 1, cA1.getRow());
         assertEquals("A2 does not give 2", 2, cA2.getRow());
@@ -234,7 +237,7 @@ public class CellRefTest {
      */
     @Test
     public void testToString() {
-        System.out.println("**  test toString() method");
+        System.out.println("*   test toString() method");
         
         assertEquals("A1 does not give A1", "A1", cA1.toString());
         assertEquals("$A$1 does not give $A$1", "$A$1", c$A$1.toString());
@@ -254,7 +257,7 @@ public class CellRefTest {
      */
     @Test
     public void testGetAsKey() {
-        System.out.println("**  test getAsKey() method");
+        System.out.println("*   test getAsKey() method");
         
         assertEquals("A1 does not give 1-1", "1-1", cA1.getAsKey());
         assertEquals("$A$1 does not give 1-1", "1-1", c$A$1.getAsKey());
