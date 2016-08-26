@@ -64,10 +64,22 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     public void removeCell(CellRef cr) {
-        if (_compoundRange.remove(cr))
+        if (_compoundRange.contains(cr)) {
+            // Adjust current index
+            if (_compoundRange.indexOf(cr) <= _idx)
+                _idx--;
+            
+            // Adjust saved position index
+            if (_compoundRange.indexOf(cr) == _idxSave) {
+                _idxSave = 0;
+            } else if (_compoundRange.indexOf(cr) < _idxSave) {
+                _idxSave--;
+            }
+            
+            // Finally remove the item and decrement the overall counter
+            _compoundRange.remove(cr);
             _idxMax--;
-        // TODO: Decrement _idx too.
-        // Depends on current index being "above" removed cell
+        }
     }
     
     public int size() {
