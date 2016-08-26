@@ -64,7 +64,6 @@ public class CellRefTest {
     
     @AfterClass
     public static void tearDownClass() {
-        System.out.println("   END");
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("");
     }
