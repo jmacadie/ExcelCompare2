@@ -42,6 +42,7 @@ public class CompoundRange implements Iterator<CellRef> {
     // Constructor with another coupound range
     // i.e. clone the current compound range
     public CompoundRange(CompoundRange cr) {
+        // TODO: clone cell refs too?
         this._compoundRange = new LinkedList<>();
         cr.savePosition();
         cr.moveFirst();
@@ -223,7 +224,7 @@ public class CompoundRange implements Iterator<CellRef> {
         // you'll have to re-generate the blocks
         List<CellsBlock> blocks = toBlocks();
         
-        // Loop through teh blocks building an outputy string
+        // Loop through the blocks building an output string
         for (CellsBlock b : blocks) {
             if(out == "") {
                 out = b.toString();
