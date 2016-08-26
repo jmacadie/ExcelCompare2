@@ -24,7 +24,7 @@ public class SpreadSheetUtilsTest {
     
     @BeforeClass
     public static void setUpClass() {
-        System.out.println("   test CellRef class");
+        System.out.println("   test SpreadSheetUtils class");
         System.out.println("=========================");
     }
     
