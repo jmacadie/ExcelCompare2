@@ -71,9 +71,9 @@ public class CellsBlock {
     @Override
     public String toString() {
         if (size() == 1) {
-            return _topLeftCell.toString();
+            return _topLeftCell.makeRelative().toString();
         } else {
-            return _topLeftCell.toString() + ":" + _bottomRightCell.toString();
+            return _topLeftCell.makeRelative().toString() + ":" + _bottomRightCell.makeRelative().toString();
         }
     }
     

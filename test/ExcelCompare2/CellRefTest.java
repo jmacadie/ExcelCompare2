@@ -231,6 +231,53 @@ public class CellRefTest {
         assertEquals("A2 does not give 2", 2, cA2.getRow());
         assertEquals("B1 does not give 1", 1, cB1.getRow());
     }
+    
+    /**
+     * Test of makeAbsolute method, of class CellRef.
+     */
+    @Test
+    public void testMakeAbsolute() {
+        System.out.println("*   test makeAbsolute() method");
+        
+        assertTrue("$A$1 is not equal to A1 absolute", c$A$1.equalsStrict(cA1.makeAbsolute()));
+        assertTrue("$A$1 is not equal to $A1 absolute", c$A$1.equalsStrict(c$A1.makeAbsolute()));
+        assertTrue("$A$1 is not equal to A$1 absolute", c$A$1.equalsStrict(cA$1.makeAbsolute()));
+    }
+    
+    /**
+     * Test of makeRelative method, of class CellRef.
+     */
+    @Test
+    public void testMakeRelative() {
+        System.out.println("*   test makeRelative() method");
+        
+        assertTrue("A1 is not equal to $A$1 relative", cA1.equalsStrict(c$A$1.makeRelative()));
+        assertTrue("A1 is not equal to $A1 relative", cA1.equalsStrict(c$A1.makeRelative()));
+        assertTrue("A1 is not equal to A$1 relative", cA1.equalsStrict(cA$1.makeRelative()));
+    }
+    
+    /**
+     * Test of setAbsolute method, of class CellRef.
+     */
+    @Test
+    public void testSetAbsolute() {
+        System.out.println("*   test setAbsolute() & clone() methods");
+        
+        CellRef test = cA1.clone();
+        assertTrue("A1 is not equal to cloned A1", cA1.equalsStrict(test));
+        
+        test.setAbsolute(true, true);
+        assertFalse("A1 is equal to cloned, absolute A1", cA1.equalsStrict(test));
+        assertTrue("$A$1 is not equal to cloned, absolute A1", c$A$1.equalsStrict(test));
+        
+        test.setAbsolute(true, false);
+        assertFalse("A1 is equal to cloned, row absolute A1", cA1.equalsStrict(test));
+        assertTrue("A$1 is not equal to cloned, row absolute A1", cA$1.equalsStrict(test));
+        
+        test.setAbsolute(false, true);
+        assertFalse("A1 is equal to cloned, column absolute A1", cA1.equalsStrict(test));
+        assertTrue("$A1 is not equal to cloned, column absolute A1", c$A1.equalsStrict(test));
+    }
 
     /**
      * Test of toString method, of class CellRef.

@@ -16,8 +16,8 @@ public class CellRef {
     // TODO: deal with whole columns / rows
     private final int _col;
     private final int _row;
-    private final boolean _colAbs;
-    private final boolean _rowAbs;
+    private boolean _colAbs;
+    private boolean _rowAbs;
     
     // Constructor with numeric rows and columns
     public CellRef(int row, int col, boolean rowAbs, boolean colAbs) {
@@ -67,6 +67,12 @@ public class CellRef {
         this._rowAbs = tmpRowAbs;
     }
     
+    @Override
+    public CellRef clone() {
+        CellRef out = new CellRef(this._row, this._col, this._rowAbs, this._colAbs);
+        return out;
+    }
+    
     public String toR1C1(CellRef origin) {
         String out;
         if (_rowAbs) {
@@ -109,6 +115,25 @@ public class CellRef {
     
     public int getRow() {
         return _row;
+    }
+    
+    public void setAbsolute(boolean rowAbs, boolean colAbs) {
+        _rowAbs = rowAbs;
+        _colAbs = colAbs;
+    }
+    
+    public CellRef makeRelative() {
+        // Clopne to make sure we don't disturb the original object
+        CellRef out = clone();
+        out.setAbsolute(false, false);
+        return out;
+    }
+    
+    public CellRef makeAbsolute() {
+        // Clopne to make sure we don't disturb the original object
+        CellRef out = clone();
+        out.setAbsolute(true, true);
+        return out;
     }
     
     @Override
