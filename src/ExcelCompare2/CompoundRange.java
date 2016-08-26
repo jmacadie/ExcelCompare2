@@ -50,7 +50,7 @@ public class CompoundRange implements Iterator<CellRef> {
         }
         cr.moveSaved();
         this._idx = 0;
-        this._idxMax = cr.size() - 2;
+        this._idxMax = cr.size() - 1;
         this._idxSave = 0;
     }
     
@@ -69,7 +69,7 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     public int size() {
-        return (_idxMax + 2);
+        return (_idxMax + 1);
     }
     
     public boolean isEmpty() {
