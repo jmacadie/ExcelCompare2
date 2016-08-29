@@ -39,20 +39,18 @@ public class CompoundRange implements Iterator<CellRef> {
         this._idxSave = 0;
     }
     
-    // Constructor with another coupound range
-    // i.e. clone the current compound range
-    public CompoundRange(CompoundRange cr) {
-        // TODO: clone cell refs too?
-        this._compoundRange = new LinkedList<>();
-        cr.savePosition();
-        cr.moveFirst();
-        while (cr.hasNext()) {
-            _compoundRange.add(cr.next());
+    @Override
+    public CompoundRange clone() {
+        CompoundRange out = new CompoundRange();
+
+        savePosition();
+        moveFirst();
+        while (hasNext()) {
+            out.addCell(next().clone());
         }
-        cr.moveSaved();
-        this._idx = 0;
-        this._idxMax = cr.size() - 1;
-        this._idxSave = 0;
+        moveSaved();
+        
+        return out;
     }
     
     public void addCell(CellRef cr) {
@@ -114,7 +112,7 @@ public class CompoundRange implements Iterator<CellRef> {
     
     public CompoundRange union(CompoundRange cr) {
         // Clone this coumpound range
-        CompoundRange out = new CompoundRange(this);
+        CompoundRange out = this.clone();
         CellRef cell;
         // Save index position
         cr.savePosition();
@@ -237,7 +235,7 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     private List<CellsBlock> toBlocks() {
-        CompoundRange remaining = new CompoundRange(this);
+        CompoundRange remaining = this.clone();
         CellsBlock block;
         List<CellsBlock> blocks = new LinkedList<>();
         
@@ -261,7 +259,7 @@ public class CompoundRange implements Iterator<CellRef> {
         maxBlock = null;
         
         // New compound range so we can loop again
-        CompoundRange cr2 = new CompoundRange(cr);
+        CompoundRange cr2 = cr.clone();
         
         // Loop through every cell as a potential start of the biggest block
         cr.moveFirst();
