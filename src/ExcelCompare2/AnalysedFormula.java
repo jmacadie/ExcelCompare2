@@ -23,8 +23,11 @@ public class AnalysedFormula extends UniqueFormula {
     
     @Override
     public void addCell(CellRef newCell) {
-        super.addCell(newCell);
-        _unanalysedRange.addCell(newCell);
+        if (!super.getRange().contains(newCell)) {
+            super.addCell(newCell);
+            _unanalysedRange.addCell(newCell);
+            _analysed = false;
+        }
     }
     
     public void setAnalysed(boolean analysed) {
