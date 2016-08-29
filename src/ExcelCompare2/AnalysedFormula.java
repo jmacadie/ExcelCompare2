@@ -30,10 +30,6 @@ public class AnalysedFormula extends UniqueFormula {
         }
     }
     
-    public void setAnalysed(boolean analysed) {
-        _analysed = analysed;
-    }
-    
     public void setAnalysed(CellRef analysed) {
         setAnalysed(new CompoundRange(analysed));
     }
