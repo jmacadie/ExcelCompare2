@@ -31,14 +31,7 @@ public class Formula {
         this._formulaR1C1 = convertToR1C1();
     }
     
-    // Convert formula to R1C1
-    private String convertToR1C1() {
-        
-        // TODO: break up into smaller parts?
-        
-        String editFormula;
-        editFormula = this._formula;
-        
+    private static String getCellRefRegex() {
         // Individual cell ref patern
         String cellPatUnit = "(\\$)?([A-Z]{1,3})(\\$)?(\\d+)";
         // TODO: Full columns and rows
@@ -64,7 +57,18 @@ public class Formula {
                              delimiters + cellPatUnit + "$|" + // find cell ref at end
                              "^" + cellPatUnit + delimiters + "|" + // find cell ref at start
                              delimiters + cellPatUnit + delimiters; // find cell ref in middle
-        Pattern cellPat = Pattern.compile(cellPatFull);
+        return cellPatFull;
+    }
+    
+    // Convert formula to R1C1
+    private String convertToR1C1() {
+        
+        // TODO: break up into smaller parts?
+        
+        String editFormula;
+        editFormula = this._formula;
+        
+        Pattern cellPat = Pattern.compile(getCellRefRegex());
         Matcher matcher = cellPat.matcher(_formula);
         
         int posn = 0;
@@ -76,7 +80,6 @@ public class Formula {
         String cleanCellRef;
         
         while (matcher.find(posn)) {
-            
             // Look for column absolute
             colAbs = false;
             for (int i = 1; i < 17; i = i + 4) {
