@@ -18,21 +18,21 @@ import static org.junit.Assert.*;
  */
 public class CompoundRangeTest {
     
-    protected final CellRef cA1;
-    protected final CellRef cA2;
-    protected final CellRef cA3;
-    protected final CellRef cB1;
-    protected final CellRef cB2;
-    protected final CellRef cB3;
-    protected final CellRef cC1;
-    protected final CellRef cC2;
-    protected final CellRef cC3;
-    protected final CellRef cDE1;
-    protected final CellRef cA105;
-    protected final CellRef cE10;
+    private final CellRef cA1;
+    private final CellRef cA2;
+    private final CellRef cA3;
+    private final CellRef cB1;
+    private final CellRef cB2;
+    private final CellRef cB3;
+    private final CellRef cC1;
+    private final CellRef cC2;
+    private final CellRef cC3;
+    private final CellRef cDE1;
+    private final CellRef cA105;
+    private final CellRef cE10;
     
-    protected CompoundRange cr;
-    protected CompoundRange cr2;
+    private CompoundRange cr;
+    private CompoundRange cr2;
     
     public CompoundRangeTest() {
         cA1 = new CellRef("A1");

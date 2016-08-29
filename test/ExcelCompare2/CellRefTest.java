@@ -18,23 +18,23 @@ import static org.junit.Assert.*;
  */
 public class CellRefTest {
     
-    protected final CellRef cA1;
-    protected final CellRef c$A$1;
-    protected final CellRef c$A1;
-    protected final CellRef cA$1;
-    protected final CellRef cA2;
-    protected final CellRef cB1;
-    protected final CellRef cB2;
-    protected final CellRef cJ1;
-    protected final CellRef c$J$1;
-    protected final CellRef c$J1;
-    protected final CellRef cJ$1;
-    protected final CellRef cAB123;
-    protected final CellRef cA1000;
-    protected final CellRef c$A$1000;
-    protected final CellRef cDEF542;
-    protected final CellRef cDEF$542;
-    protected final CellRef c$DEF542;
+    private final CellRef cA1;
+    private final CellRef c$A$1;
+    private final CellRef c$A1;
+    private final CellRef cA$1;
+    private final CellRef cA2;
+    private final CellRef cB1;
+    private final CellRef cB2;
+    private final CellRef cJ1;
+    private final CellRef c$J$1;
+    private final CellRef c$J1;
+    private final CellRef cJ$1;
+    private final CellRef cAB123;
+    private final CellRef cA1000;
+    private final CellRef c$A$1000;
+    private final CellRef cDEF542;
+    private final CellRef cDEF$542;
+    private final CellRef c$DEF542;
     
     public CellRefTest() {
         cA1 = new CellRef("A1");

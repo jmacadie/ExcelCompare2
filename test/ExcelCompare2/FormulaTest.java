@@ -18,8 +18,8 @@ import static org.junit.Assert.*;
  */
 public class FormulaTest {
     
-    protected final CellRef cA1;
-    protected final Formula f;
+    private final CellRef cA1;
+    private final Formula f;
     
     public FormulaTest() {
         cA1 = new CellRef("A1");
