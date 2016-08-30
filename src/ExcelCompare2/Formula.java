@@ -5,6 +5,8 @@
  */
 package ExcelCompare2;
 
+import java.util.List;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,18 +19,28 @@ public class Formula {
     private final String _formula;
     private final String _formulaR1C1;
     private final CellRef _cellRef;
+    private final String _shellFormula;
+    private final List<CellRefR1C1> _references;
     
     public Formula(String formula, CellRef cellRef) {
         this._formula = formula;
         this._cellRef = cellRef;
-        this._formulaR1C1 = convertToR1C1();
+        this._references = new LinkedList<>();
+        
+        String[] tmp = convertToR1C1();
+        this._formulaR1C1 = tmp[0];
+        this._shellFormula = tmp[1];
     }
     
     public Formula(Cell cell) {
         this._formula = getValue(cell);
         this._cellRef = new CellRef(cell.getRowIndex() + 1,
                                     cell.getColumnIndex() + 1);
-        this._formulaR1C1 = convertToR1C1();
+        this._references = new LinkedList<>();
+        
+        String[] tmp = convertToR1C1();
+        this._formulaR1C1 = tmp[0];
+        this._shellFormula = tmp[1];
     }
     
     private static String getCellRefRegex() {
@@ -61,12 +73,16 @@ public class Formula {
     }
     
     // Convert formula to R1C1
-    private String convertToR1C1() {
+    private String[] convertToR1C1() {
         
         // TODO: break up into smaller parts?
+        // TODO: don't find cell refs in sheet names or workbook names
         
         String editFormula;
         editFormula = this._formula;
+        
+        String shellFormula;
+        shellFormula = this._formula;
         
         Pattern cellPat = Pattern.compile(getCellRefRegex());
         Matcher matcher = cellPat.matcher(_formula);
@@ -115,6 +131,7 @@ public class Formula {
             
             // Build cell reference object and get it's R1C1 representation
             formulaCellRef = new CellRef(col, row, colAbs, rowAbs).toR1C1(_cellRef);
+            _references.add(formulaCellRef);
             
             // Clean cell reference by removing starting and trailing cell
             // refernces, if they exist.
@@ -126,6 +143,10 @@ public class Formula {
             editFormula = editFormula.replaceAll(
                     cleanCellRef, formulaCellRef.toString());
             
+            // ... and just strip the cell ref for the shell
+            shellFormula = shellFormula.replaceAll(
+                    cleanCellRef, "");
+            
             // TODO: can we short-curcuit the fact we might have replaced the
             // same cell reference multiple times?
             
@@ -135,7 +156,7 @@ public class Formula {
             posn = matcher.end() - 1; 
         }
         
-        return editFormula;
+        return new String[] {editFormula, shellFormula};
     }
     
     public String getFormulaR1C1() {
@@ -177,5 +198,21 @@ public class Formula {
         }
         return formula;
       }
+    
+    public double translatedDistance(Formula comp) {
+        
+        // If the rest of the formula doesn't match return -1
+        // TODO: could consider some residual Levenstien distance measure to
+        // capture formuale that have been moved and (moderately!) edited
+        if (!comp._shellFormula.equals(_shellFormula))
+            return -1;
+        
+        // TODO: verify lists retain pairwise order
+        double dist = 0;
+        for (int i = 0; i < _references.size(); i++) {
+            dist += _references.get(i).distance(comp._references.get(i));
+        }
+        return dist;
+    }
     
 }
