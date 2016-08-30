@@ -143,20 +143,20 @@ public class CellRefTest {
     public void testToR1C1() {
         System.out.println("*   test toR1C1() method");
         
-        assertEquals("A1 -> A1 does not give RC", "RC", cA1.toR1C1(cA1));
-        assertEquals("A1 -> $A$1 does not give R1C1", "R1C1", c$A$1.toR1C1(cA1));
-        assertEquals("A1 -> $A1 does not give RC1", "RC1", c$A1.toR1C1(cA1));
-        assertEquals("A1 -> A$1 does not give R1C", "R1C", cA$1.toR1C1(cA1));
+        assertEquals("A1 -> A1 does not give RC", "RC", cA1.toR1C1(cA1).toString());
+        assertEquals("A1 -> $A$1 does not give R1C1", "R1C1", c$A$1.toR1C1(cA1).toString());
+        assertEquals("A1 -> $A1 does not give RC1", "RC1", c$A1.toR1C1(cA1).toString());
+        assertEquals("A1 -> A$1 does not give R1C", "R1C", cA$1.toR1C1(cA1).toString());
         
-        assertEquals("A1 -> J1 does not give RC[9]", "RC[9]", cJ1.toR1C1(cA1));
-        assertEquals("A1 -> $J$1 does not give R1C10", "R1C10", c$J$1.toR1C1(cA1));
-        assertEquals("A1 -> $J1 does not give RC10", "RC10", c$J1.toR1C1(cA1));
-        assertEquals("A1 -> J$1 does not give R1C[9]", "R1C[9]", cJ$1.toR1C1(cA1));
+        assertEquals("A1 -> J1 does not give RC[9]", "RC[9]", cJ1.toR1C1(cA1).toString());
+        assertEquals("A1 -> $J$1 does not give R1C10", "R1C10", c$J$1.toR1C1(cA1).toString());
+        assertEquals("A1 -> $J1 does not give RC10", "RC10", c$J1.toR1C1(cA1).toString());
+        assertEquals("A1 -> J$1 does not give R1C[9]", "R1C[9]", cJ$1.toR1C1(cA1).toString());
         
-        assertEquals("AB123 -> J1 does not give R[-122]C[-18]", "R[-122]C[-18]", cJ1.toR1C1(cAB123));
-        assertEquals("AB123 -> $J$1 does not give R1C10", "R1C10", c$J$1.toR1C1(cAB123));
-        assertEquals("AB123 -> $J1 does not give R[-122]C10", "R[-122]C10", c$J1.toR1C1(cAB123));
-        assertEquals("AB123 -> J$1 does not give R1C[-18]", "R1C[-18]", cJ$1.toR1C1(cAB123));
+        assertEquals("AB123 -> J1 does not give R[-122]C[-18]", "R[-122]C[-18]", cJ1.toR1C1(cAB123).toString());
+        assertEquals("AB123 -> $J$1 does not give R1C10", "R1C10", c$J$1.toR1C1(cAB123).toString());
+        assertEquals("AB123 -> $J1 does not give R[-122]C10", "R[-122]C10", c$J1.toR1C1(cAB123).toString());
+        assertEquals("AB123 -> J$1 does not give R1C[-18]", "R1C[-18]", cJ$1.toR1C1(cAB123).toString());
     }
 
     /**

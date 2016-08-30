@@ -76,7 +76,7 @@ public class Formula {
         int row;
         boolean colAbs;
         boolean rowAbs;
-        CellRef formulaCellRef;
+        CellRefR1C1 formulaCellRef;
         String cleanCellRef;
         
         while (matcher.find(posn)) {
@@ -114,7 +114,7 @@ public class Formula {
             }
             
             // Build cell reference object and get it's R1C1 representation
-            formulaCellRef = new CellRef(col, row, colAbs, rowAbs);
+            formulaCellRef = new CellRef(col, row, colAbs, rowAbs).toR1C1(_cellRef);
             
             // Clean cell reference by removing starting and trailing cell
             // refernces, if they exist.
@@ -124,7 +124,7 @@ public class Formula {
             
             // Finally replace the A1 style reference with its R1C1 counterpart
             editFormula = editFormula.replaceAll(
-                    cleanCellRef, formulaCellRef.toR1C1(_cellRef));
+                    cleanCellRef, formulaCellRef.toString());
             
             // TODO: can we short-curcuit the fact we might have replaced the
             // same cell reference multiple times?

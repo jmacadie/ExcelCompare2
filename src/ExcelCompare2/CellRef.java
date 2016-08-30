@@ -72,27 +72,10 @@ public class CellRef {
         return new CellRef(this._row, this._col, this._rowAbs, this._colAbs);
     }
     
-    public String toR1C1(CellRef origin) {
-        String out;
-        if (_rowAbs) {
-            out = "R" + _row;
-        } else {
-            if (origin._row == _row) {
-                out = "R";
-            } else {
-                out = "R[" + (_row - origin._row) + "]";
-            }
-        }
-        if (_colAbs) {
-            out += "C" + _col;
-        } else {
-            if (origin._col == _col) {
-                out += "C";
-            } else {
-                out += "C[" + (_col - origin._col) + "]";
-            }
-        }
-        return out;
+    public CellRefR1C1 toR1C1(CellRef origin) {
+        int row = (_rowAbs) ? _row : (_row - origin._row);
+        int col = (_colAbs) ? _col : (_col - origin._col);
+        return new CellRefR1C1(_rowAbs, row, _colAbs, col);
     }
     
     // Is one cell the same as another
