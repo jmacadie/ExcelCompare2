@@ -69,8 +69,7 @@ public class CellRef {
     
     @Override
     public CellRef clone() {
-        CellRef out = new CellRef(this._row, this._col, this._rowAbs, this._colAbs);
-        return out;
+        return new CellRef(this._row, this._col, this._rowAbs, this._colAbs);
     }
     
     public String toR1C1(CellRef origin) {
