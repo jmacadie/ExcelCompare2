@@ -29,12 +29,11 @@ public class Test {
             Workbook workbook = SpreadSheetUtils.loadSpreadSheet(fileFrom);
             Sheet sheet = workbook.getSheetAt(0);
             CondensedFormulae cfFrom = new CondensedFormulae(sheet);
-            System.out.println("*** Loaded From ***");
             
             workbook = SpreadSheetUtils.loadSpreadSheet(fileTo);
             sheet = workbook.getSheetAt(0);
             CondensedFormulae cfTo = new CondensedFormulae(sheet);
-            System.out.println("*** Loaded To ***");
+            System.out.println("*** Loaded ***");
             
             cfTo.diff(cfFrom);
             System.out.println("*** Done Diff ***");
@@ -45,11 +44,4 @@ public class Test {
         
     }
     
-    private static void testR1C1Conversion() {
-        String fStr = "'=IF(Z1815,-SUM(Z1818:Z1819),IF(Z1316>0,(IF(OR(Z1806=0,Z1809=0),0,Z1806*Z1812/Z1809)+IF(OR(Z1807=0,Z1810=0),0,Z1807*Z1813/Z1810)),0))";
-        CellRef cr = new CellRef("$Z$1820");
-        Formula f = new Formula(fStr, cr);
-        
-        System.out.println(f.getFormulaR1C1());
-    }
 }
