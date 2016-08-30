@@ -70,6 +70,24 @@ public class CondensedFormulae {
         buildRefMap();
     }
     
+    // Build condensed formulae map from an array of Formulae
+    public CondensedFormulae(List<Formula> formulae) {
+        this._uniqueFormulae = new LinkedList<>();
+        this._refMap = new HashMap<>();
+        this._maxCols = 0;
+        this._maxRows = 0;
+        
+        // Loop through all rows
+        ListIterator<Formula> iter = formulae.listIterator();
+        while (iter.hasNext()) {
+            // Add cell to condensed formulae map
+            add(iter.next());
+        }
+        
+        // and then finally build the ref map
+        buildRefMap();
+    }
+    
     private void add(Formula formula) {
     // Adds a new formula to the condensed formula map
     // Iterates through the current list of unique formulae and finds if:
