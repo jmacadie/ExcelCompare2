@@ -181,13 +181,13 @@ public class CondensedFormulae {
         return null;
     }
     
-    public boolean findCell(CellRef find) {
+    private boolean findCell(CellRef find) {
         
         return _refMap.containsKey(find.getAsKey());
         
     }
     
-    public void setAnalysed(CellRef analysed) {
+    private void setAnalysed(CellRef analysed) {
         // Find if cell ref exists in current map
         if (_refMap.containsKey(analysed.getAsKey())) {
             int i = _refMap.get(analysed.getAsKey());
@@ -196,7 +196,7 @@ public class CondensedFormulae {
         }
     }
     
-    public void setAnalysed(CompoundRange analysed) {
+    private void setAnalysed(CompoundRange analysed) {
         // Save index position
         analysed.savePosition();
         // Then loop the range setting the analysed state for each cell
@@ -207,7 +207,7 @@ public class CondensedFormulae {
         analysed.moveSaved();
     }
     
-    public ListIterator<AnalysedFormula> listIterator() {
+    private ListIterator<AnalysedFormula> listIterator() {
         return _uniqueFormulae.listIterator();
     }
     
