@@ -20,12 +20,14 @@ public class Formula {
     private final String _formulaR1C1;
     private final CellRef _cellRef;
     private final String _shellFormula;
-    private final List<CellRefR1C1> _references;
+    private final List<CellRef> _references;
+    private final List<CellRefR1C1> _referencesR1C1;
     
     public Formula(String formula, CellRef cellRef) {
         this._formula = formula;
         this._cellRef = cellRef;
         this._references = new LinkedList<>();
+        this._referencesR1C1 = new LinkedList<>();
         
         String[] tmp = convertToR1C1();
         this._formulaR1C1 = tmp[0];
@@ -37,6 +39,7 @@ public class Formula {
         this._cellRef = new CellRef(cell.getRowIndex() + 1,
                                     cell.getColumnIndex() + 1);
         this._references = new LinkedList<>();
+        this._referencesR1C1 = new LinkedList<>();
         
         String[] tmp = convertToR1C1();
         this._formulaR1C1 = tmp[0];
@@ -92,7 +95,7 @@ public class Formula {
         int row;
         boolean colAbs;
         boolean rowAbs;
-        CellRefR1C1 formulaCellRef;
+        CellRef formulaCellRef;
         String cleanCellRef;
         
         while (matcher.find(posn)) {
@@ -130,8 +133,9 @@ public class Formula {
             }
             
             // Build cell reference object and get it's R1C1 representation
-            formulaCellRef = new CellRef(col, row, colAbs, rowAbs).toR1C1(_cellRef);
+            formulaCellRef = new CellRef(col, row, colAbs, rowAbs);
             _references.add(formulaCellRef);
+            _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
             
             // Clean cell reference by removing starting and trailing cell
             // refernces, if they exist.
@@ -141,7 +145,7 @@ public class Formula {
             
             // Finally replace the A1 style reference with its R1C1 counterpart
             editFormula = editFormula.replaceAll(
-                    cleanCellRef, formulaCellRef.toString());
+                    cleanCellRef, formulaCellRef.toR1C1(_cellRef).toString());
             
             // ... and just strip the cell ref for the shell
             shellFormula = shellFormula.replaceAll(
@@ -209,8 +213,8 @@ public class Formula {
         
         // TODO: verify lists retain pairwise order
         double dist = 0;
-        for (int i = 0; i < _references.size(); i++) {
-            dist += _references.get(i).distance(comp._references.get(i));
+        for (int i = 0; i < _referencesR1C1.size(); i++) {
+            dist += _referencesR1C1.get(i).distance(comp._referencesR1C1.get(i));
         }
         return dist;
     }
