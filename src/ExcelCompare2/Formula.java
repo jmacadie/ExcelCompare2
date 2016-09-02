@@ -203,6 +203,27 @@ public class Formula {
         return formula;
       }
     
+    public Formula getCopiedTo(CellRef cell) {
+        if (cell.equals(_cellRef))
+            return this;
+        
+        String newFormula = _formula;
+        int rows = cell.getRow() - _cellRef.getRow();
+        int cols = cell.getCol() - _cellRef.getCol();
+        CellRef trans;
+        String find;
+        
+        // Loop through the references moving them and replacing them in formula
+        for (CellRef orig : _references) {
+            trans = orig.move(rows, cols);
+            // Escape the dollars in the cell ref
+            find = orig.toString().replaceAll("\\$", "\\\\\\$");
+            newFormula = newFormula.replaceAll(
+                    find, trans.toString());
+        }
+        return new Formula(newFormula, cell);
+    }
+    
     public double translatedDistance(Formula comp) {
         
         // If the rest of the formula doesn't match return -1

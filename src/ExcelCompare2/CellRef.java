@@ -118,6 +118,16 @@ public class CellRef {
         return out;
     }
     
+    public CellRef move(int rows, int cols) {
+        int row = _row;
+        if (!_rowAbs)
+            row += rows;
+        int col = _col;
+        if (!_colAbs)
+            col += cols;
+        return new CellRef(row, col, _rowAbs, _colAbs);
+    }
+    
     @Override
     public String toString() {
         String out = "";

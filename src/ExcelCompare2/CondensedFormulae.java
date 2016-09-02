@@ -228,6 +228,48 @@ public class CondensedFormulae {
         return null;
     }
     
+    public CondensedFormulae getRow(int row) {
+        List<Formula> f = new LinkedList<> ();
+        
+        // Loop along the row finding formulae
+        // TODO: more effieicnt to do bulk finds of same formula?
+        CellRef cell;
+        AnalysedFormula af;
+        for (int i = 1; i <= _maxCols; i++) {
+            cell = new CellRef(row, i);
+            af = getForumla(cell);
+            if (af != null)
+                // TODO: might not be adding the right formula as only store the
+                // first formula in a block but this want to extract a cell from
+                // anywhere in the block
+                f.add(af.getFormula().getCopiedTo(cell));
+        }
+        
+        // Create a new compound rage out of just
+        return new CondensedFormulae(f);
+    }
+    
+    public CondensedFormulae getColumn(int column) {
+        List<Formula> f = new LinkedList<> ();
+        
+        // Loop along the column finding formulae
+        // TODO: more effieicnt to do bulk finds of same formula?
+        CellRef cell;
+        AnalysedFormula af;
+        for (int i = 1; i <= _maxRows; i++) {
+            cell = new CellRef(i, column);
+            af = getForumla(cell);
+            if (af != null)
+                // TODO: might not be adding the right formula as only store the
+                // first formula in a block but this want to extract a cell from
+                // anywhere in the block
+                f.add(af.getFormula().getCopiedTo(cell));
+        }
+        
+        // Create a new compound rage out of just
+        return new CondensedFormulae(f);
+    }
+    
     public void diff(CondensedFormulae from) {
         // TODO: return a diff class as reporting on differences should be
         // de-coupled from the act of identifying them
