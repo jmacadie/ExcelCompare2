@@ -161,6 +161,14 @@ public class CondensedFormulae {
         }
     }
     
+    public int getMaxRows() {
+        return _maxRows;
+    }
+    
+    public int getMaxCols() {
+        return _maxCols;
+    }
+    
     public CompoundRange findFormula(AnalysedFormula f) {
         ListIterator<AnalysedFormula> iter = _uniqueFormulae.listIterator();
         AnalysedFormula curr;
