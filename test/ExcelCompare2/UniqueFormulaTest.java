@@ -117,7 +117,7 @@ public class UniqueFormulaTest {
     @Test
     public void testGetFormula() {
         System.out.println("*   test getFormula() method");
-        assertEquals("'=B1' is not the formula of the unique formula", "=B1", uf.getFormula());
+        assertEquals("'=B1' is not the formula of the unique formula", "=B1", uf.getFormula().getA1());
     }
 
     /**
@@ -126,7 +126,7 @@ public class UniqueFormulaTest {
     @Test
     public void testGetFormulaR1C1() {
         System.out.println("*   test getFormulaR1C1() method");
-        assertEquals("'=RC[1]' is not the formula of the unique formula", "=RC[1]", uf.getFormulaR1C1());
+        assertEquals("'=RC[1]' is not the formula of the unique formula", "=RC[1]", uf.getFormula().getR1C1());
     }
 
     

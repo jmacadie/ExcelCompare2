@@ -53,7 +53,7 @@ public class FormulaTest {
     public void testGetFormulaR1C1() {
         System.out.println("*   test getFormulaR1C1() method");
         
-        assertEquals("R1C1 formula of '=B1' in cell 'A1' is not '=RC[1]'", "=RC[1]", f.getFormulaR1C1());
+        assertEquals("R1C1 formula of '=B1' in cell 'A1' is not '=RC[1]'", "=RC[1]", f.getR1C1());
         
         // The 8 worst examples from the headlease module
         testGetFormulaR1C1Inner(
@@ -103,7 +103,7 @@ public class FormulaTest {
                                 "' in cell '" + cell + 
                                 "' is not '" + expected + "'";
         Formula fx = new Formula(formula, new CellRef(cell));
-        assertEquals(errorMessage, expected, fx.getFormulaR1C1());
+        assertEquals(errorMessage, expected, fx.getR1C1());
     }
 
     /**
@@ -113,7 +113,7 @@ public class FormulaTest {
     public void testGetFormula() {
         System.out.println("*   test getFormula() method");
         
-        assertEquals("Cannot retieve the input cell formula", "=B1", f.getFormula());
+        assertEquals("Cannot retieve the input cell formula", "=B1", f.getA1());
     }
 
     /**

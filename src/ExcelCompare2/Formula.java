@@ -163,11 +163,11 @@ public class Formula {
         return new String[] {editFormula, shellFormula};
     }
     
-    public String getFormulaR1C1() {
+    public String getR1C1() {
         return _formulaR1C1;
     }
     
-    public String getFormula() {
+    public String getA1() {
         return _formula;
     }
     
