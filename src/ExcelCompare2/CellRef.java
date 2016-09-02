@@ -105,14 +105,14 @@ public class CellRef {
     }
     
     public CellRef makeRelative() {
-        // Clopne to make sure we don't disturb the original object
+        // Clone to make sure we don't disturb the original object
         CellRef out = clone();
         out.setAbsolute(false, false);
         return out;
     }
     
     public CellRef makeAbsolute() {
-        // Clopne to make sure we don't disturb the original object
+        // Clone to make sure we don't disturb the original object
         CellRef out = clone();
         out.setAbsolute(true, true);
         return out;
