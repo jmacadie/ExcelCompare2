@@ -10,39 +10,38 @@ package ExcelCompare2;
  * @author james.macadie
  */
 public class UniqueFormula {
-    private final String _formula;
-    private final String _formulaR1C1;
+    private final Formula _formula;
     private final CompoundRange _range;
     
-    // Constructor with no parameters
     public UniqueFormula(Formula f) {
-        this._formula = f.getFormula();
-        this._formulaR1C1 = f.getFormulaR1C1();
+        this._formula = f;
         this._range = new CompoundRange(f.getCellRef());
     }
     
     public int compareTo(String formulaR1C1) {
-        return _formulaR1C1.compareTo(formulaR1C1);
+        return _formula.getR1C1().compareTo(formulaR1C1);
     }
     
     public int compareTo(Formula formula) {
-        return compareTo(formula.getFormulaR1C1());
+        return compareTo(formula.getR1C1());
     }
     
     public int compareTo(UniqueFormula formula) {
-        return compareTo(formula.getFormulaR1C1());
+        return compareTo(formula.getFormula());
     }
     
     public void addCell(CellRef newCell) {
         _range.addCell(newCell);
     }
     
-    public String getFormula() {
+    public Formula getFormula() {
         return _formula;
     }
     
-    public String getFormulaR1C1() {
-        return _formulaR1C1;
+    public Formula getFormula(CellRef cell) {
+        //if (new CompoundRange(cell).intersect(_range).isEmpty())
+        //    throw new OutOfBoundsError;
+        return _formula.getCopiedTo(cell);
     }
     
     public CompoundRange getRange() {

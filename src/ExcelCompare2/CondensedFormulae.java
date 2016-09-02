@@ -280,7 +280,7 @@ public class CondensedFormulae {
                         changedRange = from.getForumla(cell).getRange();
                         changedRange = changedRange.intersect(toRange);
                         
-                        System.out.println("FORMULA CHANGED: " + changedRange.toString() + " - " + from.getForumla(cell).getFormula() + " -> " + uf.getFormula());
+                        System.out.println("FORMULA CHANGED: " + changedRange.toString() + " - " + from.getForumla(cell).getFormula().getA1() + " -> " + uf.getFormula().getA1());
                         // Log analysed formula in From
                         from.setAnalysed(changedRange);
                     } else {
@@ -291,7 +291,7 @@ public class CondensedFormulae {
                 }
                 
                 if (!newRange.isEmpty())
-                    System.out.println("NEW FORMULA: " + newRange.toString() + " - " + uf.getFormula());
+                    System.out.println("NEW FORMULA: " + newRange.toString() + " - " + uf.getFormula().getA1());
                 
                 // Move to next unique formula in To set
                 continue;
@@ -299,7 +299,7 @@ public class CondensedFormulae {
             
             //2. Formulae match, ranges match                            => DO NOTHING
             if (fromRange.equals(toRange)) {
-                System.out.println("DO NOTHING, FORMULAE & RANGES MATCH: " + toRange.toString() + " - "  + uf.getFormula());
+                System.out.println("DO NOTHING, FORMULAE & RANGES MATCH: " + toRange.toString() + " - "  + uf.getFormula().getA1());
                 // Log analysed formula in From
                 from.setAnalysed(fromRange);
                 
@@ -312,7 +312,7 @@ public class CondensedFormulae {
             //3.1 Sub ranges match                                     => DO NOTHING
             range = fromRange.intersect(toRange);
             if (!range.isEmpty())
-                System.out.println("DO NOTHING, FORMULAE & RANGES MATCH: " + range.toString() + " - "  + uf.getFormula());
+                System.out.println("DO NOTHING, FORMULAE & RANGES MATCH: " + range.toString() + " - "  + uf.getFormula().getA1());
             // Log analysed formula in From
             from.setAnalysed(range);
             
@@ -330,7 +330,7 @@ public class CondensedFormulae {
                     changedRange = from.getForumla(cell).getRange();
                     changedRange = changedRange.intersect(range);
 
-                    System.out.println("FORMULA CHANGED: " + changedRange.toString() + " - " + from.getForumla(cell).getFormula() + " -> " + uf.getFormula());
+                    System.out.println("FORMULA CHANGED: " + changedRange.toString() + " - " + from.getForumla(cell).getFormula().getA1() + " -> " + uf.getFormula().getA1());
                     // Log analysed formula in From
                     from.setAnalysed(changedRange);
                 } else {
