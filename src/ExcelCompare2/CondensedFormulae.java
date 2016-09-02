@@ -215,7 +215,7 @@ public class CondensedFormulae {
         analysed.moveSaved();
     }
     
-    private ListIterator<AnalysedFormula> listIterator() {
+    public ListIterator<AnalysedFormula> listIterator() {
         return _uniqueFormulae.listIterator();
     }
     
