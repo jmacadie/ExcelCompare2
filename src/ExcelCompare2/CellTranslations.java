@@ -135,8 +135,7 @@ public class CellTranslations {
                     }
                 }
             }
-        }
-        
+        } 
     }
     
     private enum RowCol {
@@ -172,8 +171,8 @@ public class CellTranslations {
             // Also don't check an already mapped row
             j = searchPosPos + i;
             if (j <= maxLimit &&
-                ((direction == Direction.FROM_TO && currentMap.isToMapped(j)) ||
-                (direction == Direction.TO_FROM && currentMap.isFromMapped(j)))) {
+                ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
+                (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
                 d = distance(option, matchTo);
@@ -187,8 +186,8 @@ public class CellTranslations {
             // Also don't check an already mapped row
             j = searchNegPos - i;
             if (j > 0 &&
-                ((direction == Direction.FROM_TO && currentMap.isToMapped(j)) ||
-                (direction == Direction.TO_FROM && currentMap.isFromMapped(j)))) {
+                ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
+                (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
                 d = distance(option, matchTo);
