@@ -277,7 +277,7 @@ public class CellTranslations {
         
         public void add(int from, int to) {
             _from.set(from, to);
-            _from.set(to, from);
+            _to.set(to, from);
         }
 
     }
