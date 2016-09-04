@@ -156,12 +156,21 @@ public class CellTranslations {
             int startPos,
             int offset) {
         
-        // Set the starting search positions
+        // Get the limits of the searched sheet
+        int maxLimit = (searching == RowCol.ROW) ? findIn.getMaxRows() : findIn.getMaxCols();
+        
+        // Don't search out of the bounds of the searched sheet
+        startPos = Math.min(startPos, maxLimit);
+        
+        // Set start search position
         int searchPosPos = startPos + offset;
         int searchNegPos = startPos - offset;
+        searchPosPos = Math.min(searchPosPos, maxLimit);
+        searchNegPos = Math.max(searchNegPos, 1);
+        
         CondensedFormulae option;
         double d;
-        int maxLimit = (searching == RowCol.ROW) ? findIn.getMaxRows() : findIn.getMaxCols();
+        
         int limit = Math.max(startPos - 1, (maxLimit - startPos));
         
         // Loop over a block of 10, up and down
