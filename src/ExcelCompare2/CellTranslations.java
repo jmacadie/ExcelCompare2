@@ -47,7 +47,8 @@ public class CellTranslations {
         createAtoBMap(from, to, map, Direction.FROM_TO, searchBy);
         
         // Map To -> From
-        createAtoBMap(to, from, map, Direction.TO_FROM, searchBy);
+        // Not needed, I think?
+        //createAtoBMap(to, from, map, Direction.TO_FROM, searchBy);
         
         return map;
         
@@ -67,6 +68,9 @@ public class CellTranslations {
             RowColMap map, 
             Direction direction, 
             RowCol searchBy) {
+        
+        // TODO: remove direction optionality as think we only ever need to
+        // search from -> to
         
         CondensedFormulae aRowCol;
         CondensedFormulae bRowCol;
