@@ -69,8 +69,8 @@ public class Test {
 //        
 //        CellTranslations.test(from, to);
 
-        String fileTo = "resources/a.xlsx";
-        String fileFrom = "resources/b.xlsx";
+        String fileFrom = "resources/a1.xlsx";
+        String fileTo = "resources/b1.xlsx";
         
         try {
             Workbook workbook = SpreadSheetUtils.loadSpreadSheet(fileFrom);
@@ -83,7 +83,7 @@ public class Test {
             System.out.println("*** Loaded ***");
             
             CellTranslations.test(cfFrom, cfTo);
-            System.out.println("*** Done Diff ***");
+            System.out.println("*** Done Map ***");
             
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());
