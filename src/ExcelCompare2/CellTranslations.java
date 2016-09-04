@@ -189,7 +189,7 @@ public class CellTranslations {
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                d = distance(option, matchTo);
+                d = distance(matchTo, option);
                 // If we have a shell match return
                 if (d != -1)
                     return new Match(j, d);
@@ -204,7 +204,7 @@ public class CellTranslations {
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                d = distance(option, matchTo);
+                d = distance(matchTo, option);
                 // If we have a shell match return
                 if (d != -1)
                     return new Match(j, d);
