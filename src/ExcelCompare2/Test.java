@@ -48,26 +48,46 @@ public class Test {
     
     private static void testRowMap() {
         
-        CellRef cA1 = new CellRef("A1");
-        CellRef cA2 = new CellRef("A2");
-        CellRef cB1 = new CellRef("B1");
-        CellRef cB2 = new CellRef("B2");
+//        CellRef cA1 = new CellRef("A1");
+//        CellRef cA2 = new CellRef("A2");
+//        CellRef cB1 = new CellRef("B1");
+//        CellRef cB2 = new CellRef("B2");
+//        
+//        List<Formula> f = new ArrayList<> ();
+//        f.add(new Formula("=B1", cA1));
+//        f.add(new Formula("=C1", cB1));
+//        f.add(new Formula("=A3", cA2));
+//        f.add(new Formula("=B3", cB2));
+//        CondensedFormulae from = new CondensedFormulae(f);
+//        
+//        f = new ArrayList<> ();
+//        f.add(new Formula("=B1", cA1));
+//        f.add(new Formula("=C1", cB1));
+//        f.add(new Formula("=A3", cA2));
+//        f.add(new Formula("=B3", cB2));
+//        CondensedFormulae to = new CondensedFormulae(f);
+//        
+//        CellTranslations.test(from, to);
+
+        String fileTo = "resources/a.xlsx";
+        String fileFrom = "resources/b.xlsx";
         
-        List<Formula> f = new ArrayList<> ();
-        f.add(new Formula("=B1", cA1));
-        f.add(new Formula("=C1", cB1));
-        f.add(new Formula("=A3", cA2));
-        f.add(new Formula("=B3", cB2));
-        CondensedFormulae from = new CondensedFormulae(f);
-        
-        f = new ArrayList<> ();
-        f.add(new Formula("=B1", cA1));
-        f.add(new Formula("=C1", cB1));
-        f.add(new Formula("=A3", cA2));
-        f.add(new Formula("=B3", cB2));
-        CondensedFormulae to = new CondensedFormulae(f);
-        
-        CellTranslations.test(from, to);
+        try {
+            Workbook workbook = SpreadSheetUtils.loadSpreadSheet(fileFrom);
+            Sheet sheet = workbook.getSheetAt(0);
+            CondensedFormulae cfFrom = new CondensedFormulae(sheet);
+            
+            workbook = SpreadSheetUtils.loadSpreadSheet(fileTo);
+            sheet = workbook.getSheetAt(0);
+            CondensedFormulae cfTo = new CondensedFormulae(sheet);
+            System.out.println("*** Loaded ***");
+            
+            CellTranslations.test(cfFrom, cfTo);
+            System.out.println("*** Done Diff ***");
+            
+        } catch (Exception e) {
+            System.err.println("Failed: " + e.getMessage());
+        }
     }
     
 }
