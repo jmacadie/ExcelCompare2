@@ -81,7 +81,8 @@ public class CellTranslations {
         // Loop through all A rows / cols
         for (int i = 1; i <= limit; i++) {
             // Only search rows / cols not already mapped
-            if (!map.isFromMapped(i)) {
+            if ((direction == Direction.FROM_TO && !map.isFromMapped(i)) ||
+                (direction == Direction.TO_FROM && !map.isToMapped(i))) {
                 aRowCol = (searchBy == RowCol.ROW) ? a.getRow(i) : a.getColumn(i);
                 // Find 1st match
                 m1 = fanSearch(
