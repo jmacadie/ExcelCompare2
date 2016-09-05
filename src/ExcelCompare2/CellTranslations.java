@@ -233,6 +233,12 @@ public class CellTranslations {
                 if (d != -1)
                     tmp = (tmp == -1) ? d : Math.min(tmp, d);
             }
+            // TODO: cannot cope with a single delete in both dimensions
+            // This is beacuse on either rows or columns the whole of the source
+            // row / col cannot be found in the target
+            // A fix would be to allow a match if more than [70%] of cells have
+            // a direct match, rather than the 100% threshold currently. Having
+            // a threshold introduces the risk of funny matches though
             // If no match on any formula then whole row is considered not
             // matched so break
             if (tmp == -1) {
