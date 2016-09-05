@@ -69,8 +69,8 @@ public class Test {
 //        
 //        CellTranslations.test(from, to);
 
-        String fileFrom = "resources/a1.xlsx";
-        String fileTo = "resources/b1.xlsx";
+        String fileFrom = "resources/a2.xlsx";
+        String fileTo = "resources/b2.xlsx";
         
         try {
             Workbook workbook = SpreadSheetUtils.loadSpreadSheet(fileFrom);
