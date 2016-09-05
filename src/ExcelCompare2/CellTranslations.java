@@ -154,8 +154,8 @@ public class CellTranslations {
         // Set start search position
         int searchPosPos = startPos + offset;
         int searchNegPos = startPos - offset;
-        searchPosPos = Math.min(searchPosPos, maxLimit);
-        searchNegPos = Math.max(searchNegPos, 1);
+        searchPosPos = Math.max(Math.min(searchPosPos, maxLimit),1);
+        searchNegPos = Math.max(Math.min(searchNegPos, maxLimit),1);
         
         CondensedFormulae option;
         double d;
