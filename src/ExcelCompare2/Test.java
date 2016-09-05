@@ -82,7 +82,7 @@ public class Test {
             CondensedFormulae cfTo = new CondensedFormulae(sheet);
             System.out.println("*** Loaded ***");
             
-            CellTranslations.test(cfFrom, cfTo);
+            CellTranslations ct = new CellTranslations(cfFrom, cfTo);
             System.out.println("*** Done Map ***");
             
         } catch (Exception e) {

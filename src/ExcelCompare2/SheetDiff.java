@@ -17,8 +17,8 @@ public class SheetDiff {
     private final CellTranslations _translations;
     private final List<CellDiff> _differences;
     
-    SheetDiff () {
-        _translations = new CellTranslations();
+    SheetDiff (CondensedFormulae from, CondensedFormulae to) {
+        _translations = new CellTranslations(from, to);
         _differences = new LinkedList<> ();
     }
     

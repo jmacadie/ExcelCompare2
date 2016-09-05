@@ -23,19 +23,194 @@ public class CellTranslations {
     private final List<CellTransInsertDelete> _columnDeletes;
     private final List<CellTransMove> _columnMoves;
     
-    public CellTranslations () {
+    public CellTranslations (CondensedFormulae from, CondensedFormulae to) {
         _rowInserts = new LinkedList<> ();
         _rowDeletes = new LinkedList<> ();
         _rowMoves = new LinkedList<> ();
         _columnInserts = new LinkedList<> ();
         _columnDeletes = new LinkedList<> ();
         _columnMoves = new LinkedList<> ();
+        
+        RowColMap rowMap = createRowColMap(from, to, RowCol.ROW);
+        RowColMap colMap = createRowColMap(from, to, RowCol.COL);
+        
+        findTransFromMap(rowMap, RowCol.ROW, from.getMaxRows());
+        findTransFromMap(colMap, RowCol.COL, from.getMaxCols());
+        
+        System.out.println("*** Break here ***");
     }
     
-    public static void test(CondensedFormulae from, CondensedFormulae to) {
+    private void findTransFromMap (RowColMap map, RowCol type, int limit) {
         
-        RowColMap r = createRowColMap(from, to, RowCol.ROW);
-        System.out.println("*** Break here ***");
+        Integer actualToPos;
+        Integer actualFromPos;
+        TransTracker t;
+        CellTransInsertDelete e;
+        int maxMove;
+        
+        // Loop through all the FROM rows
+        t = new TransTracker(limit);
+        for (int i = 1; i <= limit; i++) {
+            // Get mapped TO row
+            actualToPos = map.fromIsMappedTo(i);
+            // If is null then ...
+            if (actualToPos == null) {
+                actualFromPos = map.toIsMappedTo(t.pos());
+                // ... either other side is also null
+                if (actualFromPos == null) {
+                    // in which case assume row not moved just edited
+                    // so do nothing other than increment the target counter
+                    t.match();
+                } else {
+                    // ... or other side is non-null
+                    // Row deleted
+                    // TODO: group multiple deletes
+                    t.delete(i, 1);
+                    e = new CellTransInsertDelete(
+                            CellTransInsertDelete.CellTranslationType.DELETED, i, 1);
+                    if(type == RowCol.ROW) {
+                        this._rowDeletes.add(e);
+                    } else {
+                        this._columnDeletes.add(e);
+                    }
+                }
+            } else {
+                // Not null so mapped somewhere
+                // If is the same as target then have found row / col where we
+                // expected it
+                if (actualToPos == t.pos()) {
+                    // so do nothing other than increment the target counter
+                    t.match();
+                } else if (actualToPos > t.pos()) {
+                    // Loop over skipped to rows and see where they went to
+                    maxMove = 0;
+                    for (int j = t.pos(); j < actualToPos; j++) {
+                        actualFromPos = map.toIsMappedTo(j);
+                        if (actualFromPos == null) {
+                            // Unmapped so must mean an insert
+                            // TODO: group multiple inserts
+                            t.insert(i, 1);
+                            e = new CellTransInsertDelete(
+                                    CellTransInsertDelete.CellTranslationType.INSERTED, i, 1);
+                            if(type == RowCol.ROW) {
+                                this._rowInserts.add(e);
+                            } else {
+                                this._columnInserts.add(e);
+                            }
+                        } else {
+                            // Row Moved
+                            // TODO: group multiple inserts
+                            maxMove = Math.max(maxMove, actualFromPos - i);
+                        }
+                    }
+                    if (maxMove > 0) {
+                        // Have moved so add the transform
+                        if(type == RowCol.ROW) {
+                            this._rowMoves.add(new CellTransMove(i, i + maxMove, 1));
+                        } else {
+                            this._columnMoves.add(new CellTransMove(i, i + maxMove, 1));
+                        }
+                        // and record the move
+                        t.move(i, i + maxMove, 1);
+                    } else {
+                        // Was just an insert / inserts
+                        // Log same row found after insert / inserts
+                        t.match();
+                    }
+                } else { // actual position is less then expected
+                    // TODO: do we ever get here?
+                }
+            }
+        }
+    }
+    
+    private class TransTracker {
+        
+        List<Integer> _toMapped;
+        List<Integer> _fromCurMap;
+        int _idx;
+        
+        TransTracker(int fromSize) {
+            // Start index at 1st row / col
+            _idx = 1;
+            // Create a linked list with 0 everywhere
+            _toMapped = new LinkedList<> ();
+            // put null in first slot as we're 1 basing all arrays
+            _toMapped.add(null); 
+            for (int i = 1; i <= fromSize; i++) {
+                _toMapped.add(0);
+            }
+            // Create a linked list with same number as index everywhere
+            _fromCurMap = new LinkedList<> ();
+            // put null in first slot as we're 1 basing all arrays
+            _fromCurMap.add(null);
+            for (int i = 1; i <= fromSize; i++) {
+                _fromCurMap.add(i);
+            }
+        }
+        
+        private boolean isMapped(int pos) {
+            for (int i = 1; i < _fromCurMap.size(); i++) {
+                if (_fromCurMap.get(i) != null &&
+                    _fromCurMap.get(i) == pos) {
+                    return (_toMapped.get(i) == 1);
+                }
+            }
+            // shouldn't get here
+            return false;
+        }
+        
+        private void increment() {
+            while (true) {
+                _idx++;
+                if (_idx > _toMapped.size() || !isMapped(_idx))
+                    break;
+            }
+        }
+        
+        public void match() {
+            // Move index on
+            increment();
+        }
+        
+        public void delete(int at, int number) {
+            // update _fromCurrMap
+            for (int i = at; i < at + number; i++) {
+                _fromCurMap.set(i, null);
+            }
+            for (int i = at + number; i < _fromCurMap.size(); i++) {
+                _fromCurMap.set(i, _fromCurMap.get(i) - number);
+            }
+        }
+        
+        public void insert(int at, int number) {
+            // update _fromCurrMap
+            for (int i = at; i < _fromCurMap.size(); i++) {
+                _fromCurMap.set(i, _fromCurMap.get(i) + number);
+            }
+            // Move index on
+            increment();
+        }
+        
+        public void move(int from, int to, int number) {
+            // update _fromCurrMap
+            for (int i = from; i < from + number; i++) {
+                _fromCurMap.set(i, to + _fromCurMap.get(i) - from);
+                // update _toMapped
+                _toMapped.set(i, 1);
+            }
+            for (int i = from + number; i < to; i++) {
+                _fromCurMap.set(i, _fromCurMap.get(i) - number);
+            }
+        }
+        
+        public boolean atEnd() {
+            return (_idx > _toMapped.size());
+        }
+        
+        public int pos() {
+            return _idx;
+        }
         
     }
     
@@ -289,6 +464,14 @@ public class CellTranslations {
                 _to.set(from, to);
             }
             
+        }
+        
+        public Integer fromIsMappedTo(int posn) {
+            return _from.get(posn);
+        }
+        
+        public Integer toIsMappedTo(int posn) {
+            return _to.get(posn);
         }
 
     }
