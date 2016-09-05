@@ -43,12 +43,15 @@ public class CellTranslations {
         
         RowColMap map = new RowColMap(from.getMaxRows(), to.getMaxRows());
         
-        // Map From -> To
-        createAtoBMap(from, to, map, Direction.FROM_TO, searchBy);
+        int offset = 0;
+        int limit;
         
-        // Map To -> From
-        // Not needed, I think?
-        //createAtoBMap(to, from, map, Direction.TO_FROM, searchBy);
+        limit = (searchBy == RowCol.ROW) ? from.getMaxRows() : from.getMaxCols();
+        
+        // Loop through all FROM rows / cols
+        for (int i = 1; i <= limit; i++) {
+            offset = mapAToB(from, to, i, map, Direction.FROM_TO, searchBy, offset, 0);
+        }
         
         return map;
         
@@ -62,85 +65,68 @@ public class CellTranslations {
         }
     }
     
-    private static void createAtoBMap(
+    private static int mapAToB(
             CondensedFormulae a, 
-            CondensedFormulae b, 
+            CondensedFormulae b,
+            int pos,
             RowColMap map, 
             Direction direction, 
-            RowCol searchBy) {
-        
-        // TODO: remove direction optionality as think we only ever need to
-        // search from -> to
+            RowCol searchBy,
+            int offset,
+            int savedPos) {
         
         CondensedFormulae aRowCol;
         CondensedFormulae bRowCol;
         Match m1;
         Match m2;
-        int offset = 0;
         int matchedBPos;
-        int limit;
-        
-        limit = (searchBy == RowCol.ROW) ? a.getMaxRows() : a.getMaxCols();
-        
-        // Loop through all A rows / cols
-        for (int i = 1; i <= limit; i++) {
-            // Only search rows / cols not already mapped
-            if ((direction == Direction.FROM_TO && !map.isFromMapped(i)) ||
-                (direction == Direction.TO_FROM && !map.isToMapped(i))) {
-                aRowCol = (searchBy == RowCol.ROW) ? a.getRow(i) : a.getColumn(i);
-                // Find 1st match
-                m1 = fanSearch(
-                        aRowCol, 
-                        b, 
+
+        // Only search rows / cols not already mapped
+        if ((direction == Direction.FROM_TO && !map.isFromMapped(pos)) ||
+            (direction == Direction.TO_FROM && !map.isToMapped(pos))) {
+            aRowCol = (searchBy == RowCol.ROW) ? a.getRow(pos) : a.getColumn(pos);
+            // Find 1st match
+            m1 = fanSearch(
+                    aRowCol, 
+                    b, 
+                    map, 
+                    direction, 
+                    searchBy, 
+                    pos + offset, 
+                    savedPos);
+            // Keep looping until we don't have a match
+            // Will break out if match A -> B is not as good
+            matchedBPos = m1.getPos();
+            while (matchedBPos != 0) {
+                // Get matched row in to
+                bRowCol = (searchBy == RowCol.ROW) ? b.getRow(matchedBPos) : b.getColumn(matchedBPos);
+                // ... and check for no better reverse match
+                m2 = fanSearch(
+                        bRowCol, 
+                        a, 
                         map, 
-                        direction, 
+                        reverseDirection(direction), 
                         searchBy, 
-                        i + offset, 
+                        matchedBPos - offset, 
                         0);
-                // Keep looping until we don't have a match
-                // Will break out if match A -> B is not as good
-                matchedBPos = m1.getPos();
-                while (matchedBPos != 0) {
-                    // Get matched row in to
-                    bRowCol = (searchBy == RowCol.ROW) ? b.getRow(matchedBPos) : b.getColumn(matchedBPos);
-                    // ... and check for no better reverse match
-                    m2 = fanSearch(
-                            bRowCol, 
-                            a, 
-                            map, 
-                            reverseDirection(direction), 
-                            searchBy, 
-                            matchedBPos - offset, 
-                            0);
-                    if (m2.getPos() != 0 && m2.getDistance() < m1.getDistance()) {
-                        // Reverse match (B -> A) better
-                        // TODO: Recursively reservse search as can't be sure 
-                        // current found match is best
-                        // Add to map ...
-                        map.add(m2.getPos(), matchedBPos - offset);
-                        // ... and keep looking
-                        // Find next match
-                        m1 = fanSearch(
-                                aRowCol,
-                                b,
-                                map,
-                                direction,
-                                searchBy,
-                                i + offset,
-                                matchedBPos - (i + offset) + 1);
-                        matchedBPos = m1.getPos();
-                    } else {
-                        // Original match (A -> B) better
-                        // Add to map
-                        map.add(i, matchedBPos);
-                        // Set our offset
-                        offset = (matchedBPos - i);
-                        // Set counter to zero to force quit while loop
-                        matchedBPos = 0;
-                    }
+                if (m2.getPos() != 0 && m2.getDistance() < m1.getDistance()) {
+                    // Reverse match (B -> A) better
+                    // Recursively look other way
+                    mapAToB(b, a, matchedBPos, map, reverseDirection(direction), searchBy, -offset, 0);
+                    // and then keep looking on original row / col
+                    mapAToB(a, b, pos, map, direction, searchBy, offset, matchedBPos);
+                } else {
+                    // Original match (A -> B) better
+                    // Add to map
+                    map.add(pos, matchedBPos, direction);
+                    // Set our offset
+                    offset = (matchedBPos - pos);
+                    // Set counter to zero to force quit while loop
+                    matchedBPos = 0;
                 }
             }
-        } 
+        }
+        return offset;
     }
     
     private enum RowCol {
@@ -289,9 +275,15 @@ public class CellTranslations {
             return (_to.get(posn) != null);
         }
         
-        public void add(int from, int to) {
-            _from.set(from, to);
-            _to.set(to, from);
+        public void add(int from, int to, Direction direction) {
+            if (direction == Direction.FROM_TO) {
+                _from.set(from, to);
+                _to.set(to, from);
+            } else {
+                _from.set(to, from);
+                _to.set(from, to);
+            }
+            
         }
 
     }
