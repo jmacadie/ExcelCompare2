@@ -12,16 +12,24 @@ package ExcelCompare2;
 public class CellDiff {
     
     private final CellDiffType _type;
-    private final Formula _from;
-    private final Formula _to;
+    private final UniqueFormula _from;
+    private final UniqueFormula _to;
     
     public enum CellDiffType {
         NEW, CLEARED, CHANGED
     }
     
     CellDiff () {
-        _type = CellDiffType.NEW;
-        _from = new Formula("=B1",new CellRef("A1"));
-        _to = new Formula("=B1",new CellRef("A1"));
+//        _type = CellDiffType.NEW;
+//        _from = null;
+//        _to = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
+//        
+//        _type = CellDiffType.CLEARED;
+//        _from = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
+//        _to = null;
+        
+        _type = CellDiffType.CHANGED;
+        _from = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
+        _to = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
     }
 }
