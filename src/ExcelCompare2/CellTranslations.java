@@ -41,15 +41,14 @@ public class CellTranslations {
     
     private static RowColMap createRowColMap(CondensedFormulae from, CondensedFormulae to, RowCol searchBy) {
         
-        RowColMap map = new RowColMap(from.getMaxRows(), to.getMaxRows());
+        int fromLimit = (searchBy == RowCol.ROW) ? from.getMaxRows() : from.getMaxCols();
+        int toLimit = (searchBy == RowCol.ROW) ? to.getMaxRows() : to.getMaxCols();
+        RowColMap map = new RowColMap(fromLimit, toLimit);
         
         int offset = 0;
-        int limit;
-        
-        limit = (searchBy == RowCol.ROW) ? from.getMaxRows() : from.getMaxCols();
         
         // Loop through all FROM rows / cols
-        for (int i = 1; i <= limit; i++) {
+        for (int i = 1; i <= fromLimit; i++) {
             offset = mapAToB(from, to, i, map, Direction.FROM_TO, searchBy, offset, 0);
         }
         
