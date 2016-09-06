@@ -53,16 +53,12 @@ public class CellTranslations {
         for (int i = 1; i <= limit; i++) {
             // Get mapped TO row
             actualToPos = map.fromIsMappedTo(i);
-            // If is null then ...
+            // If is null then either a delete or a changed match
             if (actualToPos == null) {
-                actualFromPos = map.toIsMappedTo(t.pos());
-                // ... either other side is also null
-                if (actualFromPos == null) {
-                    // in which case assume row not moved just edited
-                    // so do nothing other than increment the target counter
-                    t.match();
-                } else {
-                    // ... or other side is non-null
+                if (t.atEnd() ||
+                    map.toIsMappedTo(t.pos()) != null) {
+                    // either other we've tracked all the to rows
+                    // or the target other side is non-null
                     // Row deleted
                     // TODO: group multiple deletes
                     t.delete(i, 1);
@@ -73,6 +69,12 @@ public class CellTranslations {
                     } else {
                         this._columnDeletes.add(e);
                     }
+                } else {
+                    // If null assume a changed match
+                    // in which case assume row not moved just edited
+                    // so do nothing other than increment the target counter
+                    t.match();
+                    
                 }
             } else {
                 // Not null so mapped somewhere
