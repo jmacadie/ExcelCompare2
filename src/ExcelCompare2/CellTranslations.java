@@ -51,18 +51,24 @@ public class CellTranslations {
         if (r.isEmpty())
             return;
         String rc = (type == RowCol.ROW) ? "row" : "column";
+        String ePos;
         if (r.size() == 1) {
             System.out.println("The following " + rc + " " + id + " was found:");
         } else if (r.size() > 1) {
             System.out.println("The following " + rc + " " + id + "s were found:");
         }
         for (CellTransInsertDelete e : r) {
+            if (type == RowCol.COL) {
+                ePos = SpreadSheetUtils.convertToLetter(e.getPosn());
+            } else {
+                ePos = String.valueOf(e.getPosn());
+            }
             if (e.getNumber() == 1) {
                 System.out.println("1 " + rc + " " + id + "ed at " 
-                        + rc + " " + e.getPosn());
+                        + rc + " " + ePos);
             } else {
                 System.out.println(e.getNumber() + " " + rc + "s " 
-                        + id + "ed at " + rc + " " + e.getPosn());
+                        + id + "ed at " + rc + " " + ePos);
             }
         }
         System.out.println("");
@@ -72,19 +78,28 @@ public class CellTranslations {
         if (r.isEmpty())
             return;
         String rc = (type == RowCol.ROW) ? "row" : "column";
+        String eFrom;
+        String eTo;
         if (r.size() == 1) {
             System.out.println("The following " + rc + " move was found:");
         } else if (r.size() > 1) {
             System.out.println("The following " + rc + " moves were found:");
         }
         for (CellTransMove e : r) {
+            if (type == RowCol.COL) {
+                eFrom = SpreadSheetUtils.convertToLetter(e.getFrom());
+                eTo = SpreadSheetUtils.convertToLetter(e.getTo());
+            } else {
+                eFrom = String.valueOf(e.getFrom());
+                eTo = String.valueOf(e.getTo());
+            }
             if (e.getNumber() == 1) {
                 System.out.println("1 " + rc + " moveded from " 
-                        + rc + " " + e.getFrom() + " to " + rc + " " + e.getTo());
+                        + rc + " " + eFrom + " to " + rc + " " + eTo);
             } else {
                 System.out.println(e.getNumber() + " " + rc
-                        + "s moveded from " + rc + " " + e.getFrom()
-                        + " to " + rc + " "  + e.getTo());
+                        + "s moveded from " + rc + " " + eFrom
+                        + " to " + rc + " "  + eTo);
             }
         }
         System.out.println("");
