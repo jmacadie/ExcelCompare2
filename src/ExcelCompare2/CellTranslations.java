@@ -39,17 +39,18 @@ public class CellTranslations {
     }
     
     public void report() {
-        reportIDInner(_rowInserts, "row", "insert");
-        reportIDInner(_rowDeletes, "row", "delete");
-        reportMInner(_rowMoves, "row");
-        reportIDInner(_columnInserts, "column", "insert");
-        reportIDInner(_columnDeletes, "column", "delete");
-        reportMInner(_columnMoves, "column");
+        reportIDInner(_rowInserts, RowCol.ROW, "insert");
+        reportIDInner(_rowDeletes, RowCol.ROW, "delete");
+        reportMInner(_rowMoves, RowCol.ROW);
+        reportIDInner(_columnInserts, RowCol.COL, "insert");
+        reportIDInner(_columnDeletes, RowCol.COL, "delete");
+        reportMInner(_columnMoves, RowCol.COL);
     }
     
-    private void reportIDInner(List<CellTransInsertDelete> r, String rc, String id) {
+    private void reportIDInner(List<CellTransInsertDelete> r, RowCol type, String id) {
         if (r.isEmpty())
             return;
+        String rc = (type == RowCol.ROW) ? "row" : "column";
         if (r.size() == 1) {
             System.out.println("The following " + rc + " " + id + " was found:");
         } else if (r.size() > 1) {
@@ -67,9 +68,10 @@ public class CellTranslations {
         System.out.println("");
     }
     
-    private void reportMInner(List<CellTransMove> r, String rc) {
+    private void reportMInner(List<CellTransMove> r, RowCol type) {
         if (r.isEmpty())
             return;
+        String rc = (type == RowCol.ROW) ? "row" : "column";
         if (r.size() == 1) {
             System.out.println("The following " + rc + " move was found:");
         } else if (r.size() > 1) {
