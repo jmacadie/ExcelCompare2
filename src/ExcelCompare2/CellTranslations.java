@@ -112,12 +112,15 @@ public class CellTranslations {
         TransTracker t;
         CellTransInsertDelete e;
         int maxMove;
+        int maxTo = 0;
         
         // Loop through all the FROM rows
         t = new TransTracker(limit);
         for (int i = 1; i <= limit; i++) {
             // Get mapped TO row
             actualToPos = map.fromIsMappedTo(i);
+            // Record the max to pointer
+            maxTo = Math.max(actualToPos, maxTo);
             // If is null then either a delete or a changed match
             if (actualToPos == null) {
                 if (t.atEnd() ||
@@ -188,6 +191,14 @@ public class CellTranslations {
                     // TODO: do we ever get here?
                 }
             }
+        }
+        
+        // Loop through all TO rows that are below where all FROM rows got
+        // mapped. This will pick up any inserts at the bottom of the sheet
+        for (int i = maxTo + 1; i < map._to.size(); i++) {
+            e = new CellTransInsertDelete(
+                        CellTransInsertDelete.CellTranslationType.INSERTED, map._from.size(), 1);
+            this._rowInserts.add(e);
         }
     }
     
