@@ -339,7 +339,8 @@ public class CellTranslations {
         
         int limit = Math.max(startPos - 1, (maxLimit - startPos));
         
-        // Loop over a block of 10, up and down
+        // Loop over the whole sheet, fanning out up and down
+        // Will quit out as soon as we find the first match
         int j;
         for (int i = 0; i < limit; i++) {
             // Look down first
