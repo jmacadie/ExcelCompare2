@@ -25,4 +25,15 @@ public class CellTransInsertDelete {
         this._numberAffected = numberAffected;
     }
     
+    public CellTranslationType getType() {
+        return _type;
+    }
+    
+    public int getPosn() {
+        return _at;
+    }
+    
+    public int getNumber() {
+        return _numberAffected;
+    }
 }

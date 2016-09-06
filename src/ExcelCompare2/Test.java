@@ -83,6 +83,7 @@ public class Test {
             System.out.println("*** Loaded ***");
             
             CellTranslations ct = new CellTranslations(cfFrom, cfTo);
+            ct.report();
             System.out.println("*** Done Map ***");
             
         } catch (Exception e) {

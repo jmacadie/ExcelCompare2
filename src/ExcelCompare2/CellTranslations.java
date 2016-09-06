@@ -36,8 +36,56 @@ public class CellTranslations {
         
         findTransFromMap(rowMap, RowCol.ROW, from.getMaxRows());
         findTransFromMap(colMap, RowCol.COL, from.getMaxCols());
-        
-        System.out.println("*** Break here ***");
+    }
+    
+    public void report() {
+        reportIDInner(_rowInserts, "row", "insert");
+        reportIDInner(_rowDeletes, "row", "delete");
+        reportMInner(_rowMoves, "row");
+        reportIDInner(_columnInserts, "column", "insert");
+        reportIDInner(_columnDeletes, "column", "delete");
+        reportMInner(_columnMoves, "column");
+    }
+    
+    private void reportIDInner(List<CellTransInsertDelete> r, String rc, String id) {
+        if (r.isEmpty())
+            return;
+        if (r.size() == 1) {
+            System.out.println("The following " + rc + " " + id + " was found:");
+        } else if (r.size() > 1) {
+            System.out.println("The following " + rc + " " + id + "s were found:");
+        }
+        for (CellTransInsertDelete e : r) {
+            if (e.getNumber() == 1) {
+                System.out.println("1 " + rc + " " + id + "ed at " 
+                        + rc + " " + e.getPosn());
+            } else {
+                System.out.println(e.getNumber() + " " + rc + "s " 
+                        + id + "ed at " + rc + " " + e.getPosn());
+            }
+        }
+        System.out.println("");
+    }
+    
+    private void reportMInner(List<CellTransMove> r, String rc) {
+        if (r.isEmpty())
+            return;
+        if (r.size() == 1) {
+            System.out.println("The following " + rc + " move was found:");
+        } else if (r.size() > 1) {
+            System.out.println("The following " + rc + " moves were found:");
+        }
+        for (CellTransMove e : r) {
+            if (e.getNumber() == 1) {
+                System.out.println("1 " + rc + " moveded from " 
+                        + rc + " " + e.getFrom() + " to " + rc + " " + e.getTo());
+            } else {
+                System.out.println(e.getNumber() + " " + rc
+                        + "s moveded from " + rc + " " + e.getFrom()
+                        + " to " + rc + " "  + e.getTo());
+            }
+        }
+        System.out.println("");
     }
     
     private void findTransFromMap (RowColMap map, RowCol type, int limit) {

@@ -21,4 +21,16 @@ public class CellTransMove {
         this._numberAffected = numberAffected;
     }
     
+    public int getFrom() {
+        return _from;
+    }
+    
+    public int getTo() {
+        return _to;
+    }
+    
+    public int getNumber() {
+        return _numberAffected;
+    }
+    
 }
