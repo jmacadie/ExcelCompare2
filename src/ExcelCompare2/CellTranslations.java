@@ -352,7 +352,7 @@ public class CellTranslations {
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                d = distance(matchTo, option);
+                d = distance(matchTo, option, true);
                 // If we have a shell match return
                 if (d != -1)
                     return new Match(j, d);
@@ -367,7 +367,7 @@ public class CellTranslations {
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                d = distance(matchTo, option);
+                d = distance(matchTo, option, true);
                 // If we have a shell match return
                 if (d != -1)
                     return new Match(j, d);
@@ -385,20 +385,26 @@ public class CellTranslations {
         }
     }
     
-    private static double distance(CondensedFormulae from, CondensedFormulae to) {
+    private static double distance(CondensedFormulae from, CondensedFormulae to, boolean strict) {
         // Assumes we're comparing a row or column to one another
         
         ListIterator<AnalysedFormula> iterTo;
         ListIterator<AnalysedFormula> iterFrom = from.listIterator();
+        AnalysedFormula af;
         Formula fTo;
         Formula fFrom;
+        int cells;
+        int goodCells = 0;
+        int badCells = 0;
         double d;
         double tmp;
         double out = 0;
         
         // Loop through every from formula
         while (iterFrom.hasNext()) {
-            fFrom = iterFrom.next().getFormula();
+            af = iterFrom.next();
+            fFrom = af.getFormula();
+            cells = af.getRange().size();
             // Loop through every to formula
             // Need to double loop as can't be sure of pairwise order
             iterTo = to.listIterator();
@@ -419,13 +425,29 @@ public class CellTranslations {
             // a threshold introduces the risk of funny matches though
             // If no match on any formula then whole row is considered not
             // matched so break
-            if (tmp == -1) {
-                out = -1;
-                break;
+            if (tmp == -1 && strict) {
+                return -1;
+            } else if (tmp == -1) {
+                // Increment counter of bad (i.e. not matched) cells
+                badCells += cells;
             } else {
+                // Increment counter of good (i.e. matched) cells
+                goodCells += cells;
                 out += tmp;
+            }    
+        }
+        
+        // If have some bad cells but within threshold of good cells (i.e.
+        // have mapped almost all of the row / column then scale up the
+        // output and return a match
+        if (badCells > 0) {
+            if ((badCells / (goodCells + badCells)) < 0.3) {
+                out = out * 10;
+            } else {
+                out = -1;
             }
         }
+        
         return out;
     }
     
