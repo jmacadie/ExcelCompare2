@@ -351,6 +351,7 @@ public class CellTranslations {
                 ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
+                // TODO: memoise
                 option = getOption(findIn, searching, j);
                 d = distance(matchTo, option, true);
                 // If we have a shell match return
@@ -366,6 +367,7 @@ public class CellTranslations {
                 ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
+                // TODO: memoise
                 option = getOption(findIn, searching, j);
                 d = distance(matchTo, option, true);
                 // If we have a shell match return
