@@ -30,6 +30,9 @@ public class CondensedFormulae {
     // Track size of sheet
     private int _maxCols;
     private int _maxRows;
+    // Memoised store of subsetted rows and columns
+    private final Map<Integer, CondensedFormulae> _rows;
+    private final Map<Integer, CondensedFormulae> _columns;
     
     // Constructor with no parameters
     public CondensedFormulae() {
@@ -37,6 +40,8 @@ public class CondensedFormulae {
         this._refMap = new HashMap<>();
         this._maxCols = 0;
         this._maxRows = 0;
+        this._rows = new HashMap<>();
+        this._columns = new HashMap<>();
     }
     
     // Constructor with worksheet
@@ -51,6 +56,8 @@ public class CondensedFormulae {
         this._refMap = new HashMap<>();
         this._maxCols = 0;
         this._maxRows = 0;
+        this._rows = new HashMap<>();
+        this._columns = new HashMap<>();
         
         // Loop through all rows
         while (rowIterator.hasNext()) {
@@ -76,6 +83,8 @@ public class CondensedFormulae {
         this._refMap = new HashMap<>();
         this._maxCols = 0;
         this._maxRows = 0;
+        this._rows = new HashMap<>();
+        this._columns = new HashMap<>();
         
         // Loop through all rows
         ListIterator<Formula> iter = formulae.listIterator();
@@ -229,45 +238,57 @@ public class CondensedFormulae {
     }
     
     public CondensedFormulae getRow(int row) {
-        List<Formula> f = new LinkedList<> ();
-        
-        // Loop along the row finding formulae
-        // TODO: more effieicnt to do bulk finds of same formula?
-        CellRef cell;
-        AnalysedFormula af;
-        for (int i = 1; i <= _maxCols; i++) {
-            cell = new CellRef(row, i);
-            af = getForumla(cell);
-            if (af != null)
-                // TODO: might not be adding the right formula as only store the
-                // first formula in a block but this want to extract a cell from
-                // anywhere in the block
-                f.add(af.getFormula().getCopiedTo(cell));
+        if (_rows.containsKey(row)) {
+            // If row already stroed in memoised cache then just return
+            return _rows.get(row);
+        } else {
+            List<Formula> f = new LinkedList<> ();
+
+            // Loop along the row finding formulae
+            // TODO: more effieicnt to do bulk finds of same formula?
+            CellRef cell;
+            AnalysedFormula af;
+            for (int i = 1; i <= _maxCols; i++) {
+                cell = new CellRef(row, i);
+                af = getForumla(cell);
+                if (af != null)
+                    f.add(af.getFormula().getCopiedTo(cell));
+            }
+
+            // Create a new compound range out of the list of found formulae
+            CondensedFormulae cf = new CondensedFormulae(f);
+            // Store the output in the memoised cache
+            _rows.put(row, cf);
+            // and return
+            return cf;
         }
-        
-        // Create a new compound rage out of just
-        return new CondensedFormulae(f);
     }
     
     public CondensedFormulae getColumn(int column) {
-        List<Formula> f = new LinkedList<> ();
-        
-        // Loop along the column finding formulae
-        // TODO: more effieicnt to do bulk finds of same formula?
-        CellRef cell;
-        AnalysedFormula af;
-        for (int i = 1; i <= _maxRows; i++) {
-            cell = new CellRef(i, column);
-            af = getForumla(cell);
-            if (af != null)
-                // TODO: might not be adding the right formula as only store the
-                // first formula in a block but this want to extract a cell from
-                // anywhere in the block
-                f.add(af.getFormula().getCopiedTo(cell));
+        if (_columns.containsKey(column)) {
+            // If row already stroed in memoised cache then just return
+            return _columns.get(column);
+        } else {
+            List<Formula> f = new LinkedList<> ();
+
+            // Loop along the column finding formulae
+            // TODO: more effieicnt to do bulk finds of same formula?
+            CellRef cell;
+            AnalysedFormula af;
+            for (int i = 1; i <= _maxRows; i++) {
+                cell = new CellRef(i, column);
+                af = getForumla(cell);
+                if (af != null)
+                    f.add(af.getFormula().getCopiedTo(cell));
+            }
+
+            // Create a new compound range out of the list of found formulae
+            CondensedFormulae cf = new CondensedFormulae(f);
+            // Store the output in the memoised cache
+            _columns.put(column, cf);
+            // and return
+            return cf;
         }
-        
-        // Create a new compound rage out of just
-        return new CondensedFormulae(f);
     }
     
     public void diff(CondensedFormulae from) {
