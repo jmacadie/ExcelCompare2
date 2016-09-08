@@ -184,6 +184,7 @@ public class CompoundRange implements Iterator<CellRef> {
         this.savePosition();
         
         // Otherwise loop through all cells
+        this.moveFirst();
         while (this.hasNext()) {
             if (!cr.contains(this.next())) {
                 this.moveSaved();

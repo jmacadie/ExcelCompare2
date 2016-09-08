@@ -352,6 +352,10 @@ public class CompoundRangeTest {
         assertFalse("'A1, A2, B1, B2' equals 'B1, B2, B3, C1, C2, C3'", cr.equals(cr2));
         assertFalse("'B1, B2, B3, C1, C2, C3' equals 'A1, A2, B1, B2'", cr2.equals(cr));
         
+        cr2.removeCell(cB3);
+        cr2.removeCell(cC3);
+        assertFalse("'A1, A2, B1, B2' equals 'B1, B2, C1, C2'", cr.equals(cr2));
+        
         CompoundRange test = new CompoundRange();
         test.addCell(cA1);
         test.addCell(cA2);
