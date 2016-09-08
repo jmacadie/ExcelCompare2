@@ -318,4 +318,33 @@ public class CellRefTest {
         assertEquals("DEF$542 does not give 542-2840", "542-2840", cDEF$542.getAsKey());
     }
     
+    /**
+     * Test of move method, of class CellRef.
+     */
+    @Test
+    public void testMove() {
+        System.out.println("*   test move() method");
+        
+        assertTrue("A1 moved (0, 0) does not give A1", cA1.move(0, 0).equals(cA1));
+        assertTrue("A1 moved (1, 0) does not give A2", cA1.move(1, 0).equals(cA2));
+        assertTrue("A1 moved (0, 1) does not give B1", cA1.move(0, 1).equals(cB1));
+        assertTrue("A1 moved (1, 1) does not give B2", cA1.move(1, 1).equals(cB2));
+        
+        assertTrue("$A$1 moved (0, 0) does not give A1", c$A$1.move(0, 0).equals(cA1));
+        assertTrue("$A$1 moved (1, 0) does not give A1", c$A$1.move(1, 0).equals(cA1));
+        assertTrue("$A$1 moved (0, 1) does not give A1", c$A$1.move(0, 1).equals(cA1));
+        assertTrue("$A$1 moved (1, 1) does not give A1", c$A$1.move(1, 1).equals(cA1));
+        
+        assertTrue("$A1 moved (0, 0) does not give A1", c$A1.move(0, 0).equals(cA1));
+        assertTrue("$A1 moved (1, 0) does not give A2", c$A1.move(1, 0).equals(cA2));
+        assertTrue("$A1 moved (0, 1) does not give A1", c$A1.move(0, 1).equals(cA1));
+        assertTrue("$A1 moved (1, 1) does not give A2", c$A1.move(1, 1).equals(cA2));
+        
+        assertTrue("A$1 moved (0, 0) does not give A1", cA$1.move(0, 0).equals(cA1));
+        assertTrue("A$1 moved (1, 0) does not give A1", cA$1.move(1, 0).equals(cA1));
+        assertTrue("A$1 moved (0, 1) does not give B1", cA$1.move(0, 1).equals(cB1));
+        assertTrue("A$1 moved (1, 1) does not give B1", cA$1.move(1, 1).equals(cB1));
+
+    }
+    
 }
