@@ -38,12 +38,6 @@ public class UniqueFormula {
         return _formula;
     }
     
-    public Formula getFormula(CellRef cell) {
-        //if (new CompoundRange(cell).intersect(_range).isEmpty())
-        //    throw new OutOfBoundsError;
-        return _formula.getCopiedTo(cell);
-    }
-    
     public CompoundRange getRange() {
         return _range;
     }
