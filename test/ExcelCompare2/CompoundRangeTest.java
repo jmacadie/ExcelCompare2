@@ -177,10 +177,10 @@ public class CompoundRangeTest {
         System.out.println("*   test savePosition() & moveSaved() methods");
         
         // Use next method to increment on
-        CellRef saved = cr.next();
+        cr.next();
         
         cr.savePosition();
-        saved = cr.next(); // Save the next item for real this time
+        CellRef saved = cr.next(); // Save the next item for real this time
         
         // Go back to the start
         cr.moveFirst();
