@@ -5,16 +5,11 @@
  */
 package ExcelCompare2;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.HashMap;
-
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Cell;
 
 /**
  *
@@ -42,39 +37,6 @@ public class CondensedFormulae {
         this._maxRows = 0;
         this._rows = new HashMap<>();
         this._columns = new HashMap<>();
-    }
-    
-    // Constructor with worksheet
-    // Build condensed formulae map from this worksheet
-    public CondensedFormulae(Sheet sheet) {
-        final Iterator<Row> rowIterator = sheet.rowIterator();
-        Row row;
-        Iterator<Cell> cellIterator;
-        Cell cell;
-        
-        this._uniqueFormulae = new LinkedList<>();
-        this._refMap = new HashMap<>();
-        this._maxCols = 0;
-        this._maxRows = 0;
-        this._rows = new HashMap<>();
-        this._columns = new HashMap<>();
-        
-        // Loop through all rows
-        while (rowIterator.hasNext()) {
-            row = rowIterator.next();
-            cellIterator = row.cellIterator();
-            
-            // Loop through all cells
-            while (cellIterator.hasNext()) {
-                cell = cellIterator.next();
-                
-                // Add cell to condensed formulae map
-                add(new Formula(cell));
-            }
-        }
-        
-        // and then finally build the ref map
-        buildRefMap();
     }
     
     // Build condensed formulae map from an array of Formulae

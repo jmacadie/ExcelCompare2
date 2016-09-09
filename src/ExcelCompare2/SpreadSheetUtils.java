@@ -34,16 +34,4 @@ public class SpreadSheetUtils {
     }
     return idx;
   }
-  
-  public static Workbook loadSpreadSheet(String file) throws Exception {
-    // assume file is excel by default
-    Exception readException;
-    try {
-      Workbook workbook = WorkbookFactory.create(new File(file));
-      return workbook;
-    } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
-      readException = e;
-    }
-    throw new RuntimeException("Failed to read as excel file: " + file, readException);
-  }
 }

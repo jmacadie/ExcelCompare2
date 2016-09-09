@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.poi.ss.usermodel.Cell;
 
 /**
  *
@@ -26,18 +25,6 @@ public class Formula {
     public Formula(String formula, CellRef cellRef) {
         this._formula = formula;
         this._cellRef = cellRef;
-        this._references = new LinkedList<>();
-        this._referencesR1C1 = new LinkedList<>();
-        
-        String[] tmp = convertToR1C1();
-        this._formulaR1C1 = tmp[0];
-        this._shellFormula = tmp[1];
-    }
-    
-    public Formula(Cell cell) {
-        this._formula = getValue(cell);
-        this._cellRef = new CellRef(cell.getRowIndex() + 1,
-                                    cell.getColumnIndex() + 1);
         this._references = new LinkedList<>();
         this._referencesR1C1 = new LinkedList<>();
         
@@ -174,34 +161,6 @@ public class Formula {
     public CellRef getCellRef() {
         return _cellRef;
     }
-
-    private String getValue(Cell cell) {
-        String formula;
-        int cellType = cell.getCellType();
-        // TODO: dates get stored as numbers
-        // not sure if this should be changed as dates are techincally just
-        // formatting but the end user might get confused when all thier dates
-        // get reported back as numbers
-        // e.g. 1st April 2017 currently gets reported as 42826.0
-        switch (cellType) {
-            case Cell.CELL_TYPE_FORMULA:
-                formula = "=" + cell.getCellFormula();
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                formula = String.valueOf(cell.getNumericCellValue());
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                formula = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case Cell.CELL_TYPE_ERROR:
-                formula = String.valueOf(cell.getErrorCellValue());
-                break;
-            default:
-                formula = cell.getStringCellValue();
-                break;
-        }
-        return formula;
-      }
     
     public Formula getCopiedTo(CellRef cell) {
         if (cell.equals(_cellRef))
