@@ -91,7 +91,7 @@ public class CondensedFormulae {
                 // insert
                 // Move cursor back one space, so insert happens in right place
                 if (iter.hasPrevious())
-                        curr = iter.previous();
+                        iter.previous();
                 iter.add(new AnalysedFormula(formula));
                 // Quit iteration loop as found the correct action
                 found = true;
