@@ -22,7 +22,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
  *
  * @author james.macadie
  */
-public class POISpreadSheet {
+public class POISpreadSheet implements ISpreadSheet {
     
     private final Workbook _wb;
     private final Iterator<POISheet> _iter;
@@ -50,19 +50,23 @@ public class POISpreadSheet {
         throw new RuntimeException("Failed to read as excel file: " + file, readException);
     }
     
+    @Override
     public boolean hasNext() {
         return _iter.hasNext();
     }
     
+    @Override
     public void next() {
         if (_iter.hasNext())
             _sheet = _iter.next();
     }
     
+    @Override
     public String getSheetName() {
         return _sheet.getName();
     }
     
+    @Override
     public CondensedFormulae getCondensedFormulae() {
         Iterator<POIRow> iterRow = _sheet.getRowIterator();
         Iterator<POICell> iterCell;
