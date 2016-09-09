@@ -104,7 +104,7 @@ public class SheetDiff {
                 //  Formulae does not exist in To
                 if (toRange == null) {
                     // Add the difference
-                    ufFrom = new UniqueFormula(af.getFormula(), fromRange);;
+                    ufFrom = new UniqueFormula(af.getFormula(), fromRange);
                     ufTo = null;
                     diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo);
                     _differences.add(diff);
