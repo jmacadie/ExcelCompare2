@@ -7,6 +7,7 @@ package ExcelCompare2;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 /**
  *
@@ -20,6 +21,153 @@ public class SheetDiff {
     SheetDiff (CondensedFormulae from, CondensedFormulae to) {
         _translations = new CellTranslations(from, to);
         _differences = new LinkedList<> ();
+        analyseDiff(from, to);
     }
     
+    private void analyseDiff(CondensedFormulae from, CondensedFormulae to) {
+        
+        ListIterator<AnalysedFormula> iter = to.listIterator();
+        
+        AnalysedFormula af;
+        CompoundRange fromRange;
+        CompoundRange toRange;
+        CompoundRange range;
+        CellDiff diff;
+        UniqueFormula ufFrom;
+        UniqueFormula ufTo;
+        
+        // Loop through all the TO unique formuale
+        while (iter.hasNext()) {
+            
+            // Get the TO unique uormula
+            af = iter.next();
+            
+            // Find the ranges in each of FROM and TO that correspond to this
+            // formula
+            fromRange = from.findFormula(af);
+            toRange = af.getRange();
+            
+            // 1) Formula does not exist in FROM at all
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if (fromRange == null) {
+                
+                // Find changed and new formulae over the TO range
+                findChangedAndNew(toRange, af, from);
+                
+                // Move to next unique formula in TO
+                continue;
+            }
+            
+            // 2) Formula exists in FROM & ranges exactly match
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if (fromRange.equals(toRange)) {
+                // Log analysed formula in FROM
+                from.setAnalysed(fromRange);
+                // Move to next unique formula in TO
+                continue;
+            }
+            
+            // 3) Formula exists in FROM but ranges do not match
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            
+            // 3.1) Extract the sub range that does match
+            range = fromRange.intersect(toRange);
+            if (!range.isEmpty())
+                // Log analysed formula in FROM
+                from.setAnalysed(range);
+            
+            // 3.2) Sub-range, present in TO but missing in FROM
+            // Find changed and new formulae over the TO sub-range
+            range = fromRange.removeFrom(toRange);
+            findChangedAndNew(range, af, from);
+            
+            // 3.3) Sub-range, present in FROM but missing in TO
+            // Do nothing as will pick it up when looping through FROM next
+            
+        }
+        
+        // Loop through all the FROM unique formuale
+        iter = from.listIterator();
+        while (iter.hasNext()) {
+            
+            // Get the next FROM unique formula
+            af = iter.next();
+            
+            // Get the compound range of cells not yet analysed
+            fromRange = af.getUnanalysed();
+            
+            // Make sure we still have cells to look at
+            if (!fromRange.isEmpty()) {
+                
+                toRange = from.findFormula(af);
+
+                //  Formulae does not exist in To
+                if (toRange == null) {
+                    // Add the difference
+                    ufFrom = new UniqueFormula(af.getFormula(), fromRange);;
+                    ufTo = null;
+                    diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo);
+                    _differences.add(diff);
+                    
+                    // Move to next unique formula in FROM
+                    continue;
+                }
+                System.out.println("SHOULDN'T GET HERE! " + fromRange.toString());
+            }
+        }
+    }
+    
+    private void findChangedAndNew (CompoundRange toRange, AnalysedFormula toFormula, CondensedFormulae from) {
+        
+        CellRef cell;
+        UniqueFormula ufFrom;
+        UniqueFormula ufTo;
+        CompoundRange changedRange;
+        CompoundRange newRange = new CompoundRange();
+        CellDiff diff;
+        
+        toRange.moveFirst();
+        while (toRange.hasNext()) {
+
+            cell = toRange.next();
+
+            if (!from.isAnalysed(cell) && from.findCell(cell)) {
+                // Cell present in FROM but has a different formula
+                // Cell also not yet analysed which is important as the 
+                // code below will block add all cells that are moving
+                // from one formula to another
+
+                // Get the FROM formula for this cell
+                ufFrom = from.getForumla(cell);
+
+                // Figure out the compound range that this change occurs
+                // over
+                changedRange = ufFrom.getRange();
+                changedRange = changedRange.intersect(toRange);
+
+                // Add the found difference
+                ufFrom = new UniqueFormula(ufFrom.getFormula(), changedRange);
+                ufTo = new UniqueFormula(toFormula.getFormula(), changedRange);
+                diff = new CellDiff(CellDiff.CellDiffType.CHANGED, ufFrom, ufTo);
+                _differences.add(diff);
+
+                // Log analysed formula in FROM
+                from.setAnalysed(changedRange);
+            } else {
+                // Cell not present in FROM in any other formulae
+                // Add it to our new range accumulator
+                newRange.addCell(cell);
+            }
+        }
+
+        // Add the new range difference
+        if (!newRange.isEmpty()) {
+            ufFrom = null;
+            ufTo = new UniqueFormula(toFormula.getFormula(), newRange);
+            diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo);
+            _differences.add(diff);
+        }
+        
+    }
+
 }

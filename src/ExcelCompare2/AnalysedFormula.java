@@ -44,8 +44,17 @@ public class AnalysedFormula extends UniqueFormula {
         return _analysed;
     }
     
+    public boolean isAnalysed(CellRef cell) {
+        return !_unanalysedRange.contains(cell);
+    }
+    
     public CompoundRange getUnanalysed() {
         return _unanalysedRange;
+    }
+    
+    public UniqueFormula getUniqueFormula() {
+        // TODO: clones but might be a more effienct way to do this
+        return new UniqueFormula(super.getFormula());
     }
     
 }

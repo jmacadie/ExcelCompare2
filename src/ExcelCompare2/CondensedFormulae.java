@@ -160,13 +160,13 @@ public class CondensedFormulae {
         return null;
     }
     
-    private boolean findCell(CellRef find) {
+    public boolean findCell(CellRef find) {
         
         return _refMap.containsKey(find.getAsKey());
         
     }
     
-    private void setAnalysed(CellRef analysed) {
+    public void setAnalysed(CellRef analysed) {
         // Find if cell ref exists in current map
         if (_refMap.containsKey(analysed.getAsKey())) {
             int i = _refMap.get(analysed.getAsKey());
@@ -175,7 +175,7 @@ public class CondensedFormulae {
         }
     }
     
-    private void setAnalysed(CompoundRange analysed) {
+    public void setAnalysed(CompoundRange analysed) {
         // Save index position
         analysed.savePosition();
         // Then loop the range setting the analysed state for each cell
@@ -186,15 +186,25 @@ public class CondensedFormulae {
         analysed.moveSaved();
     }
     
+    public boolean isAnalysed(CellRef cell) {
+        // Find if cell ref exists in current map
+        if (_refMap.containsKey(cell.getAsKey())) {
+            int i = _refMap.get(cell.getAsKey());
+            AnalysedFormula af = _uniqueFormulae.get(i);
+            return af.isAnalysed(cell);
+        }
+        return false;
+    }
+    
     public ListIterator<AnalysedFormula> listIterator() {
         return _uniqueFormulae.listIterator();
     }
     
-    public AnalysedFormula getForumla(CellRef cell) {
+    public UniqueFormula getForumla(CellRef cell) {
         // Find if cell ref exists in current map
         if (_refMap.containsKey(cell.getAsKey())) {
             int i = _refMap.get(cell.getAsKey());
-            return _uniqueFormulae.get(i);
+            return _uniqueFormulae.get(i).getUniqueFormula();
         }
         return null;
     }
@@ -209,12 +219,12 @@ public class CondensedFormulae {
             // Loop along the row finding formulae
             // TODO: more effieicnt to do bulk finds of same formula?
             CellRef cell;
-            AnalysedFormula af;
+            UniqueFormula uf;
             for (int i = 1; i <= _maxCols; i++) {
                 cell = new CellRef(row, i);
-                af = getForumla(cell);
-                if (af != null)
-                    f.add(af.getFormula().getCopiedTo(cell));
+                uf = getForumla(cell);
+                if (uf != null)
+                    f.add(uf.getFormula().getCopiedTo(cell));
             }
 
             // Create a new compound range out of the list of found formulae
@@ -236,12 +246,12 @@ public class CondensedFormulae {
             // Loop along the column finding formulae
             // TODO: more effieicnt to do bulk finds of same formula?
             CellRef cell;
-            AnalysedFormula af;
+            UniqueFormula uf;
             for (int i = 1; i <= _maxRows; i++) {
                 cell = new CellRef(i, column);
-                af = getForumla(cell);
-                if (af != null)
-                    f.add(af.getFormula().getCopiedTo(cell));
+                uf = getForumla(cell);
+                if (uf != null)
+                    f.add(uf.getFormula().getCopiedTo(cell));
             }
 
             // Create a new compound range out of the list of found formulae
@@ -253,159 +263,4 @@ public class CondensedFormulae {
         }
     }
     
-    public void diff(CondensedFormulae from) {
-        // TODO: return a diff class as reporting on differences should be
-        // de-coupled from the act of identifying them
-        
-        // Look for transformations
-        // TODO: implement!
-        //SHEET TRANSFORMATIONS
-        //Sheets re-ordered
-        //Sheet renamed
-        //Sheet copied
-        //Sheet deleted
-        //
-        //CELL TRANSFORMATIONS
-        //Rows added
-        //Rows deleted
-        //Rows cut & pasted (i.e. moved)
-        //Rows copied & inserted (i.e. duplicated)
-        //Columns added
-        //Columns deleted
-        //Columns cut & pasted (i.e. moved)
-        //Columns copied & inserted (i.e. duplicated)
-        //Cells deleted (shift left)
-        //Cells deleted (shift up)
-        //Cells inserted (shift left)
-        //Cells inserted (shift down)
-        //Possibly need to run this loop 2 (or more) times per sheet to catch instances where, for example, columns have been inserted and then rows
-        
-        ListIterator<AnalysedFormula> iter = _uniqueFormulae.listIterator();
-        
-        AnalysedFormula uf;
-        CompoundRange fromRange;
-        CompoundRange toRange;
-        CompoundRange range;
-        CompoundRange changedRange;
-        CompoundRange newRange;
-        CellRef cell;
-        
-        //-- LOOP THROUGH TO UNIQUE FORMULAE --
-        while (iter.hasNext()) {
-            
-            uf = iter.next();
-            fromRange = from.findFormula(uf);
-            toRange = uf.getRange();
-            
-            //1. Formulae does not exist in From
-            if (fromRange == null) {
-                
-                toRange.moveFirst();
-                newRange = new CompoundRange();
-                
-                // Loop through range
-                while (toRange.hasNext()) {
-                    
-                    cell = toRange.next();
-                    
-                    if (from.findCell(cell)) {
-                        //  1.1 Range present in From in some other formulae         => REPORT FORMULAE CHANGED
-                        changedRange = from.getForumla(cell).getRange();
-                        changedRange = changedRange.intersect(toRange);
-                        
-                        System.out.println("FORMULA CHANGED: " + changedRange.toString() + " - " + from.getForumla(cell).getFormula().getA1() + " -> " + uf.getFormula().getA1());
-                        // Log analysed formula in From
-                        from.setAnalysed(changedRange);
-                    } else {
-                        //  1.2 Range not present in From in any other formulae      => REPORT NEW FORMULAE
-                        newRange.addCell(cell);
-                        
-                    }
-                }
-                
-                if (!newRange.isEmpty())
-                    System.out.println("NEW FORMULA: " + newRange.toString() + " - " + uf.getFormula().getA1());
-                
-                // Move to next unique formula in To set
-                continue;
-            }
-            
-            //2. Formulae match, ranges match                            => DO NOTHING
-            if (fromRange.equals(toRange)) {
-                System.out.println("DO NOTHING, FORMULAE & RANGES MATCH: " + toRange.toString() + " - "  + uf.getFormula().getA1());
-                // Log analysed formula in From
-                from.setAnalysed(fromRange);
-                
-                // Move to next unique formula in To set
-                continue;
-            }
-            
-            //3. Formulae match, ranges do not match. Loop through sub ranges:
-            
-            //3.1 Sub ranges match                                     => DO NOTHING
-            range = fromRange.intersect(toRange);
-            if (!range.isEmpty())
-                System.out.println("DO NOTHING, FORMULAE & RANGES MATCH: " + range.toString() + " - "  + uf.getFormula().getA1());
-            // Log analysed formula in From
-            from.setAnalysed(range);
-            
-            //  3.2 Range missing in from (for this formulae)
-            range = fromRange.removeFrom(toRange);
-            newRange = new CompoundRange();
-            
-            // Loop through range
-            while (range.hasNext()) {
-
-                cell = range.next();
-
-                if (from.findCell(cell)) {
-                    //  1.1 Range present in From in some other formulae         => REPORT FORMULAE CHANGED
-                    changedRange = from.getForumla(cell).getRange();
-                    changedRange = changedRange.intersect(range);
-
-                    System.out.println("FORMULA CHANGED: " + changedRange.toString() + " - " + from.getForumla(cell).getFormula().getA1() + " -> " + uf.getFormula().getA1());
-                    // Log analysed formula in From
-                    from.setAnalysed(changedRange);
-                } else {
-                    //  1.2 Range not present in From in any other formulae      => REPORT NEW FORMULAE
-                    newRange.addCell(cell);
-
-                }
-            }
-
-            if (!newRange.isEmpty())
-                System.out.println("NEW FORMULA: " + newRange.toString() + " - " + uf.getFormula());
-            
-            
-            //  3.3 Range missing in to (for this formulae)              => DO NOTHING: WILL REPORT WHEN WE GET TO IT
-            
-        }
-        
-        iter = from.listIterator();
-        
-        //-- LOOP THROUGH FROM UNIQUE FORMULAE --
-        while (iter.hasNext()) {
-            
-            // Get the next unique formula
-            uf = iter.next();
-            
-            // Get the compound range of cells not yet analysed
-            fromRange = uf.getUnanalysed();
-            
-            // Make sure we still have cells to look at
-            if (!fromRange.isEmpty()) {
-                
-                toRange = this.findFormula(uf);
-
-                //  Formulae does not exist in To
-                if (toRange == null) {
-                    
-                    System.out.println("REMOVED FORMULAE: " + fromRange.toString() + " - " + uf.getFormula());
-                    
-                    continue;
-                }
-                System.out.println("SHOULDN'T GET HERE! " + fromRange.toString());
-            }
-        }
-    }
 }

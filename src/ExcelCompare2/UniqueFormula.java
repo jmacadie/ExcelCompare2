@@ -18,6 +18,13 @@ public class UniqueFormula {
         this._range = new CompoundRange(f.getCellRef());
     }
     
+    public UniqueFormula(Formula f, CompoundRange cr) {
+        this._formula = f;
+        this._range = cr;
+        // Make sure we add the cell in f in case it is disjoint from cr
+        this._range.addCell(f.getCellRef());
+    }
+    
     public int compareTo(String formulaR1C1) {
         return _formula.getR1C1().compareTo(formulaR1C1);
     }

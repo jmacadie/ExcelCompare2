@@ -19,17 +19,9 @@ public class CellDiff {
         NEW, CLEARED, CHANGED
     }
     
-    CellDiff () {
-//        _type = CellDiffType.NEW;
-//        _from = null;
-//        _to = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
-//        
-//        _type = CellDiffType.CLEARED;
-//        _from = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
-//        _to = null;
-        
-        _type = CellDiffType.CHANGED;
-        _from = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
-        _to = new UniqueFormula(new Formula("=B1",new CellRef("A1")));
+    CellDiff (CellDiffType type, UniqueFormula from, UniqueFormula to) {
+        _type = type;
+        _from = from;
+        _to = to;
     }
 }
