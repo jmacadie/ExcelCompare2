@@ -39,14 +39,13 @@ public class CompoundRange implements Iterator<CellRef> {
         this._idxSave = 0;
     }
     
-    @Override
-    public CompoundRange clone() {
+    public CompoundRange getCopy() {
         CompoundRange out = new CompoundRange();
 
         savePosition();
         moveFirst();
         while (hasNext()) {
-            out.addCell(next().clone());
+            out.addCell(next().getCopy());
         }
         moveSaved();
         
@@ -112,7 +111,7 @@ public class CompoundRange implements Iterator<CellRef> {
     
     public CompoundRange union(CompoundRange cr) {
         // Clone this coumpound range
-        CompoundRange out = this.clone();
+        CompoundRange out = this.getCopy();
         CellRef cell;
         // Save index position
         cr.savePosition();
@@ -236,7 +235,7 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     private List<CellsBlock> toBlocks() {
-        CompoundRange remaining = this.clone();
+        CompoundRange remaining = this.getCopy();
         CellsBlock block;
         List<CellsBlock> blocks = new LinkedList<>();
         
@@ -260,7 +259,7 @@ public class CompoundRange implements Iterator<CellRef> {
         maxBlock = null;
         
         // New compound range so we can loop again
-        CompoundRange cr2 = cr.clone();
+        CompoundRange cr2 = cr.getCopy();
         
         // Loop through every cell as a potential start of the biggest block
         cr.moveFirst();

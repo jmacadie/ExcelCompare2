@@ -18,7 +18,7 @@ public class AnalysedFormula extends UniqueFormula {
         // Construct the superclass
         super(f);
         _analysed = false;
-        _unanalysedRange = super.getRange().clone();
+        _unanalysedRange = super.getRange().getCopy();
     }
     
     @Override

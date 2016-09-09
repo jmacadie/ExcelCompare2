@@ -260,9 +260,9 @@ public class CellRefTest {
      */
     @Test
     public void testSetAbsolute() {
-        System.out.println("*   test setAbsolute() & clone() methods");
+        System.out.println("*   test setAbsolute() & getCopy() methods");
         
-        CellRef test = cA1.clone();
+        CellRef test = cA1.getCopy();
         assertTrue("A1 is not equal to cloned A1", cA1.equalsStrict(test));
         
         test.setAbsolute(true, true);

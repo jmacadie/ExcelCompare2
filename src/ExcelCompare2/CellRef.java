@@ -67,8 +67,7 @@ public class CellRef {
         this._rowAbs = tmpRowAbs;
     }
     
-    @Override
-    public CellRef clone() {
+    public CellRef getCopy() {
         return new CellRef(this._row, this._col, this._rowAbs, this._colAbs);
     }
     
@@ -106,14 +105,14 @@ public class CellRef {
     
     public CellRef makeRelative() {
         // Clone to make sure we don't disturb the original object
-        CellRef out = clone();
+        CellRef out = getCopy();
         out.setAbsolute(false, false);
         return out;
     }
     
     public CellRef makeAbsolute() {
         // Clone to make sure we don't disturb the original object
-        CellRef out = clone();
+        CellRef out = getCopy();
         out.setAbsolute(true, true);
         return out;
     }
