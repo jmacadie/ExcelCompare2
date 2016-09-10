@@ -31,9 +31,10 @@ public class Test {
             CondensedFormulae cfTo = ssTo.getCondensedFormulae();
             System.out.println("*** Loaded ***");
             
-            CellTranslations ct = new CellTranslations(cfFrom, cfTo);
-            ct.report();
+            SheetDiff sd = new SheetDiff(cfFrom, cfTo, ssFrom.getSheetName());
             System.out.println("*** Done Map ***");
+            
+            sd.report();
             
         } catch (Exception e) {
             System.err.println("Failed: " + e.getMessage());

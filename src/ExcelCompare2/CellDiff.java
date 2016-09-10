@@ -24,4 +24,16 @@ public class CellDiff {
         _from = from;
         _to = to;
     }
+    
+    public CellDiffType getType() {
+        return _type;
+    }
+    
+    public UniqueFormula getFrom() {
+        return _from;
+    }
+    
+    public UniqueFormula getTo() {
+        return _to;
+    }
 }
