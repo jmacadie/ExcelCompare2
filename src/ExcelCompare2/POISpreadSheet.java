@@ -209,7 +209,7 @@ public class POISpreadSheet implements ISpreadSheet {
             int cellType = _cell.getCellType();
             if (cellType == Cell.CELL_TYPE_FORMULA) {
                 hasFormula = true;
-                formula = _cell.getCellFormula();
+                formula = "=" + _cell.getCellFormula();
                 cellType = _cell.getCachedFormulaResultType();
             }
             switch (cellType) {
@@ -228,7 +228,8 @@ public class POISpreadSheet implements ISpreadSheet {
             }
             formula = !hasFormula ? value : formula;
             // TODO: extend Formula to hold value as well
-            return new Formula(formula, new CellRef(_cell.getRowIndex(), _cell.getColumnIndex()));
+            return new Formula(formula,
+                    new CellRef(_cell.getRowIndex() + 1, _cell.getColumnIndex() + 1));
         }
     }
 }
