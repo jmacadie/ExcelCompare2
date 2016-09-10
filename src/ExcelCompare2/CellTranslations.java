@@ -39,12 +39,20 @@ public class CellTranslations {
     }
     
     public void report() {
-        reportIDInner(_rowInserts, RowCol.ROW, "insert");
-        reportIDInner(_rowDeletes, RowCol.ROW, "delete");
-        reportMInner(_rowMoves, RowCol.ROW);
-        reportIDInner(_columnInserts, RowCol.COL, "insert");
-        reportIDInner(_columnDeletes, RowCol.COL, "delete");
-        reportMInner(_columnMoves, RowCol.COL);
+        
+        if (!_rowInserts.isEmpty() || !_rowDeletes.isEmpty() ||
+            !_columnInserts.isEmpty() || !_columnDeletes.isEmpty() ||
+            !_rowMoves.isEmpty() || !_columnMoves.isEmpty()) {
+            System.out.println("Sheet translations");
+            System.out.println("");
+            reportIDInner(_rowInserts, RowCol.ROW, "insert");
+            reportIDInner(_rowDeletes, RowCol.ROW, "delete");
+            reportMInner(_rowMoves, RowCol.ROW);
+            reportIDInner(_columnInserts, RowCol.COL, "insert");
+            reportIDInner(_columnDeletes, RowCol.COL, "delete");
+            reportMInner(_columnMoves, RowCol.COL);
+        }
+        
     }
     
     private void reportIDInner(List<CellTransInsertDelete> r, RowCol type, String id) {
