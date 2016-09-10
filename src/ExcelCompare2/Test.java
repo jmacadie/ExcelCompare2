@@ -24,10 +24,10 @@ public class Test {
         String fileTo = "resources/b1.xlsx";
         
         try {
-            POISpreadSheet ssFrom = new POISpreadSheet(fileFrom);
+            ISpreadSheet ssFrom = new POISpreadSheet(fileFrom);
             CondensedFormulae cfFrom = ssFrom.getCondensedFormulae();
             
-            POISpreadSheet ssTo = new POISpreadSheet(fileTo);
+            ISpreadSheet ssTo = new POISpreadSheet(fileTo);
             CondensedFormulae cfTo = ssTo.getCondensedFormulae();
             System.out.println("*** Loaded ***");
             
