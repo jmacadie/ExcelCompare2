@@ -122,6 +122,8 @@ public class SheetDiff {
         CellRef cell;
         UniqueFormula ufFrom;
         UniqueFormula ufTo;
+        CellRef c;
+        Formula f;
         CompoundRange changedRange;
         CompoundRange newRange = new CompoundRange();
         CellDiff diff;
@@ -146,8 +148,12 @@ public class SheetDiff {
                 changedRange = changedRange.intersect(toRange);
 
                 // Add the found difference
-                ufFrom = new UniqueFormula(ufFrom.getFormula(), changedRange);
-                ufTo = new UniqueFormula(toFormula.getFormula(), changedRange);
+                changedRange.moveFirst();
+                c = changedRange.next();
+                f = ufFrom.getFormula().getCopiedTo(c);
+                ufFrom = new UniqueFormula(f, changedRange);
+                f = toFormula.getFormula().getCopiedTo(c);
+                ufTo = new UniqueFormula(f, changedRange);
                 diff = new CellDiff(CellDiff.CellDiffType.CHANGED, ufFrom, ufTo);
                 _differences.add(diff);
 
@@ -163,7 +169,10 @@ public class SheetDiff {
         // Add the new range difference
         if (!newRange.isEmpty()) {
             ufFrom = null;
-            ufTo = new UniqueFormula(toFormula.getFormula(), newRange);
+            newRange.moveFirst();
+            c = newRange.next();
+            f = toFormula.getFormula().getCopiedTo(c);
+            ufTo = new UniqueFormula(f, newRange);
             diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo);
             _differences.add(diff);
         }
