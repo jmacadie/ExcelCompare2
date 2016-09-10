@@ -54,7 +54,7 @@ public class AnalysedFormula extends UniqueFormula {
     
     public UniqueFormula getUniqueFormula() {
         // TODO: clones but might be a more effienct way to do this
-        return new UniqueFormula(super.getFormula());
+        return new UniqueFormula(super.getFormula(), super.getRange());
     }
     
 }
