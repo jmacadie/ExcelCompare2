@@ -191,6 +191,7 @@ public class SheetDiff {
     }
     
     public void report() {
+        System.out.println("");
         System.out.println("Differences for " + _sheetName);
         System.out.println("-----------------------------");
         System.out.println("");
