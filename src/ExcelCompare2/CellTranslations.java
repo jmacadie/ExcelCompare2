@@ -16,6 +16,9 @@ import java.util.ListIterator;
  */
 public class CellTranslations {
     
+    private final RowColMap _rowMap;
+    private final RowColMap _colMap;
+    
     private final List<CellTransInsertDelete> _rowInserts;
     private final List<CellTransInsertDelete> _rowDeletes;
     private final List<CellTransMove> _rowMoves;
@@ -31,11 +34,50 @@ public class CellTranslations {
         _columnDeletes = new LinkedList<> ();
         _columnMoves = new LinkedList<> ();
         
-        RowColMap rowMap = createRowColMap(from, to, RowCol.ROW);
-        RowColMap colMap = createRowColMap(from, to, RowCol.COL);
+        _rowMap = createRowColMap(from, to, RowCol.ROW);
+        _colMap = createRowColMap(from, to, RowCol.COL);
         
-        findTransFromMap(rowMap, RowCol.ROW, from.getMaxRows());
-        findTransFromMap(colMap, RowCol.COL, from.getMaxCols());
+        findTransFromMap(RowCol.ROW, from.getMaxRows());
+        findTransFromMap(RowCol.COL, from.getMaxCols());
+    }
+    
+    public int size() {
+        return _rowInserts.size() + _rowDeletes.size() +
+               _columnInserts.size() + _columnDeletes.size() +
+               _rowMoves.size() + _columnMoves.size();
+    }
+    
+    public Integer translateRow(Direction direction, int source) {
+        
+        return translateInner(RowCol.ROW, direction, source);
+        
+    }
+    
+    public Integer translateColumn(Direction direction, int source) {
+        
+        return translateInner(RowCol.COL, direction, source);
+        
+    }
+    
+    private Integer translateInner(RowCol type, Direction direction, int source) {
+        
+        RowColMap map = (type == RowCol.ROW) ? _rowMap : _colMap;
+        
+        if (direction == Direction.FROM_TO && !map.isFromMapped(source)) 
+            return null;
+        
+        if (direction == Direction.TO_FROM && !map.isToMapped(source)) 
+            return null;
+        
+        if (direction == Direction.FROM_TO) 
+            return map.fromIsMappedTo(source);
+        
+        if (direction == Direction.TO_FROM) 
+            return map.toIsMappedTo(source);
+        
+        // Won't get here but stops and IDE error
+        return null;
+        
     }
     
     public void report() {
@@ -113,7 +155,7 @@ public class CellTranslations {
         System.out.println("");
     }
     
-    private void findTransFromMap (RowColMap map, RowCol type, int limit) {
+    private void findTransFromMap (RowCol type, int limit) {
         
         Integer actualToPos;
         Integer actualFromPos;
@@ -121,6 +163,9 @@ public class CellTranslations {
         CellTransInsertDelete e;
         int maxMove;
         int maxTo = 0;
+        RowColMap map;
+        
+        map = (type == RowCol.ROW) ? _rowMap : _colMap;
         
         // Loop through all the FROM rows
         t = new TransTracker(limit);
@@ -393,7 +438,7 @@ public class CellTranslations {
         ROW, COL
     }
     
-    private enum Direction {
+    public enum Direction {
         FROM_TO, TO_FROM
     }
     

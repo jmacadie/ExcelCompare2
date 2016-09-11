@@ -184,6 +184,26 @@ public class Formula {
         return new Formula(newFormula, cell);
     }
     
+    public Formula getTranslatedTo(CellRef cell, CellTranslations trans) {
+        if (cell.equals(_cellRef) && trans.size() == 0)
+            return this;
+        
+        String newFormula = _formula;
+        CellRef translated;
+        String find;
+        String replace;
+        
+        // Loop through the references moving them and replacing them in formula
+        for (CellRef orig : _references) {
+            translated = TranslatedCondensedFormulae.applyTranslations(orig, trans);
+            // Escape the dollars in the cell ref
+            find = orig.toString().replaceAll("\\$", "\\\\\\$");
+            replace = translated.toString().replaceAll("\\$", "\\\\\\$");
+            newFormula = newFormula.replaceAll(find, replace);
+        }
+        return new Formula(newFormula, cell);
+    }
+    
     public double translatedDistance(Formula comp) {
         
         // If the rest of the formula doesn't match return -1

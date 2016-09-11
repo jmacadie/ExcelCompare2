@@ -22,17 +22,24 @@ public class SheetDiff {
     SheetDiff (CondensedFormulae from, CondensedFormulae to, String name) {
         _translations = new CellTranslations(from, to);
         _differences = new LinkedList<> ();
-        analyseDiff(from, to);
+        
+        // Translate from so rows & cols line up
+        TranslatedCondensedFormulae tFrom =
+                new TranslatedCondensedFormulae(from,
+                                                _translations,
+                                                CellTranslations.Direction.FROM_TO);
+        analyseDiff(tFrom, to);
         
         _sheetName = name;
     }
     
-    private void analyseDiff(CondensedFormulae from, CondensedFormulae to) {
+    private void analyseDiff(TranslatedCondensedFormulae from, CondensedFormulae to) {
         
         // TODO: need to account for translations
         
         ListIterator<AnalysedFormula> iter = to.listIterator();
         
+        CondensedFormulae cfFrom = from.getTranslated();
         AnalysedFormula af;
         CompoundRange fromRange;
         CompoundRange toRange;
@@ -49,7 +56,7 @@ public class SheetDiff {
             
             // Find the ranges in each of FROM and TO that correspond to this
             // formula
-            fromRange = from.findFormula(af);
+            fromRange = cfFrom.findFormula(af);
             toRange = af.getRange();
             
             // 1) Formula does not exist in FROM at all
@@ -67,7 +74,7 @@ public class SheetDiff {
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (fromRange.equals(toRange)) {
                 // Log analysed formula in FROM
-                from.setAnalysed(fromRange);
+                cfFrom.setAnalysed(fromRange);
                 // Move to next unique formula in TO
                 continue;
             }
@@ -79,7 +86,7 @@ public class SheetDiff {
             range = fromRange.intersect(toRange);
             if (!range.isEmpty())
                 // Log analysed formula in FROM
-                from.setAnalysed(range);
+                cfFrom.setAnalysed(range);
             
             // 3.2) Sub-range, present in TO but missing in FROM
             // Find changed and new formulae over the TO sub-range
@@ -91,42 +98,40 @@ public class SheetDiff {
             
         }
         
+        // Loop through all the FROM unique formuale that were removed
+        // TODO: make sure there aren't any unanalysed formualae in the main
+        // TranslatedFormulae bit of FROM
+        findDeleted(from.getRemoved());
+    }
+    
+    private void findDeleted (CondensedFormulae from) {
+        
+        ListIterator<AnalysedFormula> iter = from.listIterator();
+        AnalysedFormula af;
+        CellDiff diff;
+        
         // Loop through all the FROM unique formuale
-        iter = from.listIterator();
         while (iter.hasNext()) {
             
             // Get the next FROM unique formula
             af = iter.next();
             
-            // Get the compound range of cells not yet analysed
-            fromRange = af.getUnanalysed();
-            
-            // Make sure we still have cells to look at
-            if (!fromRange.isEmpty()) {
-                
-                toRange = from.findFormula(af);
-
-                //  Formulae does not exist in To
-                if (toRange == null) {
-                    // Add the difference
-                    ufFrom = new UniqueFormula(af.getFormula(), fromRange);
-                    ufTo = null;
-                    diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo);
-                    _differences.add(diff);
-                    
-                    // Move to next unique formula in FROM
-                    continue;
-                }
-                System.out.println("SHOULDN'T GET HERE! " + fromRange.toString());
-            }
+            // Add the difference
+            diff = new CellDiff(CellDiff.CellDiffType.CLEARED,
+                                af.getUniqueFormula(), null,
+                                af.getRange());
+            _differences.add(diff);
         }
+        
     }
     
-    private void findChangedAndNew (CompoundRange toRange, AnalysedFormula toFormula, CondensedFormulae from) {
+    private void findChangedAndNew (CompoundRange toRange, AnalysedFormula toFormula, TranslatedCondensedFormulae from) {
         
+        CondensedFormulae cfFrom = from.getTranslated();
         CellRef cell;
         UniqueFormula ufFrom;
         UniqueFormula ufTo;
+        CompoundRange fromPreTrans;
         CellRef c;
         Formula f;
         CompoundRange changedRange;
@@ -138,14 +143,14 @@ public class SheetDiff {
 
             cell = toRange.next();
 
-            if (!from.isAnalysed(cell) && from.findCell(cell)) {
+            if (!cfFrom.isAnalysed(cell) && cfFrom.findCell(cell)) {
                 // Cell present in FROM but has a different formula
                 // Cell also not yet analysed which is important as the 
                 // code below will block add all cells that are moving
                 // from one formula to another
 
                 // Get the FROM formula for this cell
-                ufFrom = from.getForumla(cell);
+                ufFrom = cfFrom.getForumla(cell);
 
                 // Figure out the compound range that this change occurs
                 // over
@@ -159,11 +164,12 @@ public class SheetDiff {
                 ufFrom = new UniqueFormula(f, changedRange);
                 f = toFormula.getFormula().getCopiedTo(c);
                 ufTo = new UniqueFormula(f, changedRange);
-                diff = new CellDiff(CellDiff.CellDiffType.CHANGED, ufFrom, ufTo);
+                fromPreTrans = from.getPreTransRange(changedRange);
+                diff = new CellDiff(CellDiff.CellDiffType.CHANGED, ufFrom, ufTo, fromPreTrans);
                 _differences.add(diff);
 
                 // Log analysed formula in FROM
-                from.setAnalysed(changedRange);
+                cfFrom.setAnalysed(changedRange);
             } else {
                 // Cell not present in FROM in any other formulae
                 // Add it to our new range accumulator
@@ -178,7 +184,7 @@ public class SheetDiff {
             c = newRange.next();
             f = toFormula.getFormula().getCopiedTo(c);
             ufTo = new UniqueFormula(f, newRange);
-            diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo);
+            diff = new CellDiff(CellDiff.CellDiffType.NEW, ufFrom, ufTo, null);
             _differences.add(diff);
         }
         
@@ -199,6 +205,7 @@ public class SheetDiff {
             CellDiff.CellDiffType type;
             UniqueFormula from;
             UniqueFormula to;
+            CompoundRange preTrans;
             for (CellDiff d : _differences) {
                 type = d.getType();
                 switch (type) {
@@ -210,14 +217,20 @@ public class SheetDiff {
                         break;
                     case CLEARED:
                         from = d.getFrom();
+                        preTrans = d.getFromPreTrans();
                         System.out.println("Formula removed from " + from.getRange().toString());
+                        if (!preTrans.equals(from.getRange()))
+                            System.out.println("(translated from " + preTrans.toString() + " originally)");
                         System.out.println("  NEW: ");
                         System.out.println("  OLD: " + from.getFormula().getA1());
                         break;
                     case CHANGED:
                         from = d.getFrom();
                         to = d.getTo();
+                        preTrans = d.getFromPreTrans();
                         System.out.println("Changed formula found at " + to.getRange().toString());
+                        if (!preTrans.equals(from.getRange()))
+                            System.out.println("(translated from " + preTrans.toString() + " originally)");
                         System.out.println("  NEW: " + to.getFormula().getA1());
                         System.out.println("  OLD: " + from.getFormula().getA1());
                         break;

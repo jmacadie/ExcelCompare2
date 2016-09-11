@@ -98,6 +98,14 @@ public class CellRef {
         return _row;
     }
     
+    public boolean getColAbs() {
+        return _colAbs;
+    }
+    
+    public boolean getRowAbs() {
+        return _rowAbs;
+    }
+    
     public void setAbsolute(boolean rowAbs, boolean colAbs) {
         _rowAbs = rowAbs;
         _colAbs = colAbs;

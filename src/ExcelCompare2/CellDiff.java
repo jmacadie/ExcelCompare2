@@ -14,15 +14,17 @@ public class CellDiff {
     private final CellDiffType _type;
     private final UniqueFormula _from;
     private final UniqueFormula _to;
+    private final CompoundRange _fromPreTrans;
     
     public enum CellDiffType {
         NEW, CLEARED, CHANGED
     }
     
-    CellDiff (CellDiffType type, UniqueFormula from, UniqueFormula to) {
+    CellDiff (CellDiffType type, UniqueFormula from, UniqueFormula to, CompoundRange fromPreTrans) {
         _type = type;
         _from = from;
         _to = to;
+        _fromPreTrans = fromPreTrans;
     }
     
     public CellDiffType getType() {
@@ -35,5 +37,9 @@ public class CellDiff {
     
     public UniqueFormula getTo() {
         return _to;
+    }
+    
+    public CompoundRange getFromPreTrans() {
+        return _fromPreTrans;
     }
 }
