@@ -42,7 +42,21 @@ public class TranslatedCondensedFormulae {
         
         // If no translations then simpler job to do
         if (trans.size() == 0) {
-            
+            // Translated is just before
+            this._translated = before;
+            // Loop through each analysed formula in the before object
+            // and build the map pointing each cell at itself
+            iter = before.listIterator();
+            while (iter.hasNext()) {
+                af = iter.next();
+                r = af.getRange();
+                // Loop through every cell in the analysed formula
+                r.moveFirst();
+                while (r.hasNext()) {
+                    origCell = r.next();
+                    _beforeMap.put(origCell.getAsKey(), origCell);
+                }
+            }
         } else {
             // Only map FROM_TO currently
             // TODO: maybe do in reverse as well? Not sure needed
@@ -78,11 +92,11 @@ public class TranslatedCondensedFormulae {
                     }
                 }
             }
+            // Construct CondensedFormulae of the translated cells
+            this._translated = new CondensedFormulae(ft);
         }
         
-        // Construct CondensedFormulae of the translated cells ans a seperate
-        // store of the removced cells
-        this._translated = new CondensedFormulae(ft);
+        // Construct CondensedFormulae of the removed cells
         this._removed = new CondensedFormulae(fr);
     }
     
