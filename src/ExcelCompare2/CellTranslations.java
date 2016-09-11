@@ -173,7 +173,7 @@ public class CellTranslations {
             // Get mapped TO row
             actualToPos = map.fromIsMappedTo(i);
             // Record the max to pointer
-            maxTo = Math.max(actualToPos, maxTo);
+            maxTo = (actualToPos == null) ? maxTo : Math.max(actualToPos, maxTo);
             // If is null then either a delete or a changed match
             if (actualToPos == null) {
                 if (t.atEnd() ||
