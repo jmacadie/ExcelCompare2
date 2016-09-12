@@ -31,7 +31,9 @@ public class AnalysedFormula extends UniqueFormula {
     }
     
     public void setAnalysed(CellRef analysed) {
-        setAnalysed(new CompoundRange(analysed));
+        _unanalysedRange.removeCell(analysed);
+        if (_unanalysedRange.isEmpty())
+            _analysed = true;
     }
     
     public void setAnalysed(CompoundRange analysed) {
