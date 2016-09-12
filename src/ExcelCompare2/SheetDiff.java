@@ -219,7 +219,7 @@ public class SheetDiff {
                     preTrans = d.getFromPreTrans();
                     System.out.println("Formula removed from " + from.getRange().toString());
                     if (!preTrans.equals(from.getRange()))
-                        System.out.println("(translated from " + preTrans.toString() + " originally)");
+                        System.out.println("- translated from " + preTrans.toString() + " originally");
                     System.out.println("  NEW: ");
                     System.out.println("  OLD: " + from.getFormula().getA1() + " (" + from.getFormula().getText() + ")");
                     break;
@@ -229,7 +229,7 @@ public class SheetDiff {
                     preTrans = d.getFromPreTrans();
                     System.out.println("Changed formula found at " + to.getRange().toString());
                     if (!preTrans.equals(from.getRange()))
-                        System.out.println("(translated from " + preTrans.toString() + " originally)");
+                        System.out.println("- translated from " + preTrans.toString() + " originally");
                     System.out.println("  NEW: " + to.getFormula().getA1() + " (" + to.getFormula().getText() + ")");
                     System.out.println("  OLD: " + from.getFormula().getA1() + " (" + from.getFormula().getText() + ")");
                     break;
