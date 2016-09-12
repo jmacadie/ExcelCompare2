@@ -44,9 +44,6 @@ public class SheetDiff {
         CompoundRange fromRange;
         CompoundRange toRange;
         CompoundRange range;
-        CellDiff diff;
-        UniqueFormula ufFrom;
-        UniqueFormula ufTo;
         
         // Loop through all the TO unique formuale
         while (iter.hasNext()) {
