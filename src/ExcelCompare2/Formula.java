@@ -21,8 +21,9 @@ public class Formula {
     private final String _shellFormula;
     private final List<CellRef> _references;
     private final List<CellRefR1C1> _referencesR1C1;
+    private final String _text;
     
-    public Formula(String formula, CellRef cellRef) {
+    public Formula(String formula, CellRef cellRef, String text) {
         this._formula = formula;
         this._cellRef = cellRef;
         this._references = new LinkedList<>();
@@ -31,6 +32,7 @@ public class Formula {
         String[] tmp = convertToR1C1();
         this._formulaR1C1 = tmp[0];
         this._shellFormula = tmp[1];
+        this._text = text;
     }
     
     private static String getCellRefRegex() {
@@ -158,6 +160,10 @@ public class Formula {
         return _formula;
     }
     
+    public String getText() {
+        return _text;
+    }
+    
     public CellRef getCellRef() {
         return _cellRef;
     }
@@ -181,7 +187,7 @@ public class Formula {
             replace = trans.toString().replaceAll("\\$", "\\\\\\$");
             newFormula = newFormula.replaceAll(find, replace);
         }
-        return new Formula(newFormula, cell);
+        return new Formula(newFormula, cell, this._text);
     }
     
     public Formula getTranslatedTo(CellRef cell, CellTranslations trans) {
@@ -201,7 +207,7 @@ public class Formula {
             replace = translated.toString().replaceAll("\\$", "\\\\\\$");
             newFormula = newFormula.replaceAll(find, replace);
         }
-        return new Formula(newFormula, cell);
+        return new Formula(newFormula, cell, this._text);
     }
     
     public double translatedDistance(Formula comp) {

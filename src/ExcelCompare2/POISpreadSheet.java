@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.DataFormatter;
 
 /**
  *
@@ -227,9 +228,12 @@ public class POISpreadSheet implements ISpreadSheet {
                     break;
             }
             formula = !hasFormula ? value : formula;
+            DataFormatter formatter = new DataFormatter(); //creating formatter using the default locale
+            
             // TODO: extend Formula to hold value as well
             return new Formula(formula,
-                    new CellRef(_cell.getRowIndex() + 1, _cell.getColumnIndex() + 1));
+                    new CellRef(_cell.getRowIndex() + 1, _cell.getColumnIndex() + 1),
+                    formatter.formatCellValue(_cell));
         }
     }
 }
