@@ -26,18 +26,18 @@ public class SpreadSheetDiff {
             
             CondensedFormulae cfFrom;
             CondensedFormulae cfTo;
-            boolean first = true;
+            boolean loop = true;
             
             // Assumes From and To have same sheets in same order
             // TODO: needs fixing
-            while (first || ssFrom.hasNext() || ssTo.hasNext()) {
+            while (loop) {
                 cfFrom = ssFrom.getCondensedFormulae();
                 cfTo = ssTo.getCondensedFormulae();
                 
                 SheetDiff sd = new SheetDiff(cfFrom, cfTo, ssFrom.getSheetName());
                 sd.report();
                 
-                first = false;
+                loop = ssFrom.hasNext() || ssTo.hasNext();
                 ssFrom.next();
                 ssTo.next();
             }
