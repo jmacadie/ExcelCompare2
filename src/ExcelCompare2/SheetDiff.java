@@ -188,6 +188,10 @@ public class SheetDiff {
     }
     
     public void report() {
+        // Don't report if sheet has no changes
+        if (_differences.isEmpty() && _translations.size() == 0)
+            return;
+        
         System.out.println("");
         System.out.println("Differences for " + _sheetName);
         System.out.println("-----------------------------");
@@ -196,46 +200,42 @@ public class SheetDiff {
         // Report on tranlations that might have been found
         _translations.report();
         
-        if (_differences.isEmpty()) {
-            // TODO: or print nothing ????
-            System.out.println("No formulae differences on the sheet");
-        } else {
-            CellDiff.CellDiffType type;
-            UniqueFormula from;
-            UniqueFormula to;
-            CompoundRange preTrans;
-            for (CellDiff d : _differences) {
-                type = d.getType();
-                switch (type) {
-                    case NEW:
-                        to = d.getTo();
-                        System.out.println("New formula found at " + to.getRange().toString());
-                        System.out.println("  NEW: " + to.getFormula().getA1());
-                        System.out.println("  OLD: ");
-                        break;
-                    case CLEARED:
-                        from = d.getFrom();
-                        preTrans = d.getFromPreTrans();
-                        System.out.println("Formula removed from " + from.getRange().toString());
-                        if (!preTrans.equals(from.getRange()))
-                            System.out.println("(translated from " + preTrans.toString() + " originally)");
-                        System.out.println("  NEW: ");
-                        System.out.println("  OLD: " + from.getFormula().getA1());
-                        break;
-                    case CHANGED:
-                        from = d.getFrom();
-                        to = d.getTo();
-                        preTrans = d.getFromPreTrans();
-                        System.out.println("Changed formula found at " + to.getRange().toString());
-                        if (!preTrans.equals(from.getRange()))
-                            System.out.println("(translated from " + preTrans.toString() + " originally)");
-                        System.out.println("  NEW: " + to.getFormula().getA1());
-                        System.out.println("  OLD: " + from.getFormula().getA1());
-                        break;
-                    default:
-                        System.out.println("Unknown difference type?");
-                        break;
-                }
+        CellDiff.CellDiffType type;
+        UniqueFormula from;
+        UniqueFormula to;
+        CompoundRange preTrans;
+        
+        for (CellDiff d : _differences) {
+            type = d.getType();
+            switch (type) {
+                case NEW:
+                    to = d.getTo();
+                    System.out.println("New formula found at " + to.getRange().toString());
+                    System.out.println("  NEW: " + to.getFormula().getA1());
+                    System.out.println("  OLD: ");
+                    break;
+                case CLEARED:
+                    from = d.getFrom();
+                    preTrans = d.getFromPreTrans();
+                    System.out.println("Formula removed from " + from.getRange().toString());
+                    if (!preTrans.equals(from.getRange()))
+                        System.out.println("(translated from " + preTrans.toString() + " originally)");
+                    System.out.println("  NEW: ");
+                    System.out.println("  OLD: " + from.getFormula().getA1());
+                    break;
+                case CHANGED:
+                    from = d.getFrom();
+                    to = d.getTo();
+                    preTrans = d.getFromPreTrans();
+                    System.out.println("Changed formula found at " + to.getRange().toString());
+                    if (!preTrans.equals(from.getRange()))
+                        System.out.println("(translated from " + preTrans.toString() + " originally)");
+                    System.out.println("  NEW: " + to.getFormula().getA1());
+                    System.out.println("  OLD: " + from.getFormula().getA1());
+                    break;
+                default:
+                    System.out.println("Unknown difference type?");
+                    break;
             }
         }
     }
