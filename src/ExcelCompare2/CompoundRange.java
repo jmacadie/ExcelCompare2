@@ -5,9 +5,11 @@
  */
 package ExcelCompare2;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  *
@@ -18,6 +20,7 @@ public class CompoundRange implements Iterator<CellRef> {
     // Best way to store?
     // Might be better to store as blocks (e.g. A1:H17 rather than A1, A2, A3, ..., A17, B1, etc.)
     private final List<CellRef> _compoundRange;
+    private final Map<String, Integer> _refMap;
     private int _idx;
     private int _idxMax;
     private int _idxSave;
@@ -25,6 +28,7 @@ public class CompoundRange implements Iterator<CellRef> {
     // Constructor with no parameters
     public CompoundRange() {
         this._compoundRange = new LinkedList<>();
+        this._refMap = new HashMap<>();
         this._idx = 0;
         this._idxMax = -1;
         this._idxSave = 0;
@@ -33,7 +37,9 @@ public class CompoundRange implements Iterator<CellRef> {
     // Constructor with single cell
     public CompoundRange(CellRef cr) {
         this._compoundRange = new LinkedList<>();
+        this._refMap = new HashMap<>();
         _compoundRange.add(cr);
+        _refMap.put(cr.getAsKey(), 0);
         this._idx = 0;
         this._idxMax = 0;
         this._idxSave = 0;
@@ -58,6 +64,7 @@ public class CompoundRange implements Iterator<CellRef> {
         if (!contains(cr)) {
             _compoundRange.add(cr);
             _idxMax++;
+            _refMap.put(cr.getAsKey(), _idxMax);
         }
     }
     
@@ -76,6 +83,7 @@ public class CompoundRange implements Iterator<CellRef> {
             
             // Finally remove the item and decrement the overall counter
             _compoundRange.remove(cr);
+            _refMap.remove(cr.getAsKey());
             _idxMax--;
         }
     }
@@ -161,17 +169,7 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     public boolean contains(CellRef cell) {
-        // Save index position
-        this.savePosition();
-        this.moveFirst();
-        while (this.hasNext()) {
-            if (cell.equals(this.next())) {
-                this.moveSaved();
-                return true;
-            }
-        }
-        this.moveSaved();
-        return false;
+        return _refMap.containsKey(cell.getAsKey());
     }
     
     public boolean equals(CompoundRange cr) {
