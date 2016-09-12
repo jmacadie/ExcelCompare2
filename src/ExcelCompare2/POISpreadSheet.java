@@ -7,7 +7,7 @@ package ExcelCompare2;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.poi.EncryptedDocumentException;
@@ -70,7 +70,7 @@ public class POISpreadSheet implements ISpreadSheet {
     public CondensedFormulae getCondensedFormulae() {
         Iterator<POIRow> iterRow = _sheet.getRowIterator();
         Iterator<POICell> iterCell;
-        List<Formula> f = new ArrayList<> ();
+        List<Formula> f = new LinkedList<> ();
         // Loop through all rows
         while (iterRow.hasNext()) {
             // Loop through all cells in the row
