@@ -65,14 +65,18 @@ public class CellRefR1C1 {
         int rowDist;
         if ((_rowAbs && !comp._rowAbs) || (!_rowAbs && comp._rowAbs)) {
             rowDist = absMismatch;
-        } else {
+        } else if (_rowAbs) {
             rowDist = (_row - comp._row);
+        } else {
+            rowDist = (_rowOffset - comp._rowOffset);
         }
         int colDist;
         if ((_colAbs && !comp._colAbs) || (!_colAbs && comp._colAbs)) {
             colDist = absMismatch;
-        } else {
+        } else if (_colAbs) {
             colDist = (_col - comp._col);
+        } else {
+            colDist = (_colOffset - comp._colOffset);
         }
         return Math.sqrt(rowDist * rowDist + colDist * colDist);
     }
