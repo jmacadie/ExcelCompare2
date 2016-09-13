@@ -52,10 +52,10 @@ public class CondensedFormulaeTest {
         cAA32 = new CellRef("AA32");
         
         List<Formula> f = new ArrayList<> ();
-        f.add(new Formula("=B1", cA1));
-        f.add(new Formula("=C1", cB1));
-        f.add(new Formula("=A3", cA2));
-        f.add(new Formula("=B3", cB2));
+        f.add(new Formula("=B1", cA1, "1"));
+        f.add(new Formula("=C1", cB1, "2"));
+        f.add(new Formula("=A3", cA2, "3"));
+        f.add(new Formula("=B3", cB2, "4"));
         cf = new CondensedFormulae(f);
     }
     
@@ -90,23 +90,23 @@ public class CondensedFormulaeTest {
         CompoundRange expected;
         
         // Find matching instance (in range)
-        af = new AnalysedFormula(new Formula("=B1", cA1));
+        af = new AnalysedFormula(new Formula("=B1", cA1, "1"));
         expected = new CompoundRange(cA1);
         expected.addCell(cB1);
         assertTrue("Matching refence (in range)", cf.findFormula(af).equals(expected));
         
         // Find matching instance (out of range)
-        af = new AnalysedFormula(new Formula("=AB32", cAA32));
+        af = new AnalysedFormula(new Formula("=AB32", cAA32, "32"));
         assertTrue("Matching refence (out of range)", cf.findFormula(af).equals(expected));
         
         // Find the other matching instance
-        af = new AnalysedFormula(new Formula("=AA33", cAA32));
+        af = new AnalysedFormula(new Formula("=AA33", cAA32, "33"));
         expected = new CompoundRange(cA2);
         expected.addCell(cB2);
         assertTrue("The other matching instance", cf.findFormula(af).equals(expected));
         
         // Find non-matching instance => returns null
-        af = new AnalysedFormula(new Formula("=AB37", cAA32));
+        af = new AnalysedFormula(new Formula("=AB37", cAA32, "37"));
         assertEquals("Non-matching instance", null, cf.findFormula(af));
     }
 
@@ -122,18 +122,18 @@ public class CondensedFormulaeTest {
         
         // Find matching instance
         cell = new CellRef("A1");
-        expected = new AnalysedFormula(new Formula("=B1", cA1));
+        expected = new AnalysedFormula(new Formula("=B1", cA1, "45"));
         assertEquals("Matching refence", expected.getFormula().getA1(), cf.getForumla(cell).getFormula().getA1());
         assertEquals("Matching refence R1C1", expected.getFormula().getR1C1(), cf.getForumla(cell).getFormula().getR1C1());
         
         // Find 2nd matching instance
         cell = new CellRef("B1");
-        expected = new AnalysedFormula(new Formula("=C1", cB1));
+        expected = new AnalysedFormula(new Formula("=C1", cB1, "27 Dec 2016"));
         assertEquals("2nd matching refence", expected.getFormula().getR1C1(), cf.getForumla(cell).getFormula().getR1C1());
         
         // Find the other matching instance
         cell = new CellRef("B2");
-        expected = new AnalysedFormula(new Formula("=A3", cA2));
+        expected = new AnalysedFormula(new Formula("=A3", cA2, "5%"));
         assertEquals("The other matching refence", expected.getFormula().getA1(), cf.getForumla(cell).getFormula().getA1());
         assertEquals("The other matching refence R1C1", expected.getFormula().getR1C1(), cf.getForumla(cell).getFormula().getR1C1());
         

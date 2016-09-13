@@ -45,7 +45,7 @@ public class AnalysedFormulaTest {
         cA1 = new CellRef("A1");
         cA2 = new CellRef("A2");
         cA3 = new CellRef("A3");
-        f = new Formula("=B1", cA1);
+        f = new Formula("=B1", cA1, "1");
     }
     
     @BeforeClass

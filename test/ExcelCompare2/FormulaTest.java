@@ -40,7 +40,7 @@ public class FormulaTest {
     
     public FormulaTest() {
         cA1 = new CellRef("A1");
-        f = new Formula("=B1", cA1);
+        f = new Formula("=B1", cA1, "1");
     }
     
     @BeforeClass
@@ -119,7 +119,7 @@ public class FormulaTest {
         String errorMessage = "R1C1 formula of '" + formula + 
                                 "' in cell '" + cell + 
                                 "' is not '" + expected + "'";
-        Formula fx = new Formula(formula, new CellRef(cell));
+        Formula fx = new Formula(formula, new CellRef(cell), "123");
         assertEquals(errorMessage, expected, fx.getR1C1());
     }
 

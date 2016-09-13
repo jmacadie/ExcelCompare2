@@ -43,7 +43,7 @@ public class UniqueFormulaTest {
     public UniqueFormulaTest() {
         cA1 = new CellRef("A1");
         cA2 = new CellRef("A2");
-        f = new Formula("=B1", cA1);
+        f = new Formula("=B1", cA1, "1");
         uf = new UniqueFormula(f);
     }
     
@@ -86,13 +86,13 @@ public class UniqueFormulaTest {
     public void testCompareTo_Formula() {
         System.out.println("*   test CompareTo(Formula) method");
         
-        Formula g = new Formula("=F3", new CellRef("E3")); // =RC[1]
+        Formula g = new Formula("=F3", new CellRef("E3"), "24SD"); // =RC[1]
         assertEquals("'=F3' in cell 'E3' is not the same formula as '=B1' in cell 'A1'", 0, uf.compareTo(g));
         
-        g = new Formula("=BB36", new CellRef("AZ36")); // =RC[2]
+        g = new Formula("=BB36", new CellRef("AZ36"), "1/2/14"); // =RC[2]
         assertTrue("'=BB36' in cell 'AZ36' is not a smaller formula than '=B1' in cell 'A1'", (uf.compareTo(g) < 0));
         
-        g = new Formula("=DEF3504", new CellRef("DEF3504")); // =RC
+        g = new Formula("=DEF3504", new CellRef("DEF3504"), "1,234.00"); // =RC
         assertTrue("'=DEF3504' in cell 'DEF3504' is not a larger formula than '=B1' in cell 'A1'", (uf.compareTo(g) > 0));
     }
 
@@ -103,15 +103,15 @@ public class UniqueFormulaTest {
     public void testCompareTo_UniqueFormula() {
         System.out.println("*   test CompareTo(UniqueFormula) method");
         
-        UniqueFormula g = new UniqueFormula(new Formula("=F3", new CellRef("E3"))); // =RC[1]
+        UniqueFormula g = new UniqueFormula(new Formula("=F3", new CellRef("E3"), "1")); // =RC[1]
         assertEquals("'=F3' in cell 'E3' is not the same formula as '=B1' in cell 'A1'", 0, uf.compareTo(g));
         g.addCell(cA1);
         assertEquals("'=F3' in cell 'E3' is not the same formula as '=B1' in cell 'A1'", 0, uf.compareTo(g));
         
-        g = new UniqueFormula(new Formula("=BB36", new CellRef("AZ36"))); // =RC[2]
+        g = new UniqueFormula(new Formula("=BB36", new CellRef("AZ36"), "765")); // =RC[2]
         assertTrue("'=BB36' in cell 'AZ36' is not a smaller formula than '=B1' in cell 'A1'", (uf.compareTo(g) < 0));
         
-        g = new UniqueFormula(new Formula("=DEF3504", new CellRef("DEF3504"))); // =RC
+        g = new UniqueFormula(new Formula("=DEF3504", new CellRef("DEF3504"), "Sparrow")); // =RC
         assertTrue("'=DEF3504' in cell 'DEF3504' is not a larger formula than '=B1' in cell 'A1'", (uf.compareTo(g) > 0));
     }
 
