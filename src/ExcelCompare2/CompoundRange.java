@@ -86,7 +86,7 @@ public class CompoundRange implements Iterator<CellRef> {
     }
     
     public void removeCell(CellRef cr) {
-        if (_compoundRange.contains(cr)) {
+        if (contains(cr)) {
             // Adjust current index
             if (_compoundRange.indexOf(cr) <= _idx)
                 _idx--;
@@ -99,10 +99,19 @@ public class CompoundRange implements Iterator<CellRef> {
             }
             
             // Finally remove the item and decrement the overall counter
-            _compoundRange.remove(cr);
+            removeInner(cr);
             _refMap.remove(cr.getAsKey());
             _idxMax--;
         }
+    }
+    
+    private void removeInner(CellRef cr) {
+        for(Iterator<CellRef> it=_compoundRange.iterator(); it.hasNext(); ) {
+            if(it.next().equals(cr)) { 
+                it.remove(); 
+                break;
+            }
+        } 
     }
     
     public int size() {
