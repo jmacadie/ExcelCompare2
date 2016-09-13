@@ -38,6 +38,7 @@ public class AnalysedFormulaTest {
     private final CellRef cA1;
     private final CellRef cA2;
     private final CellRef cA3;
+    private final CellRef cA4;
     private final Formula f;
     private AnalysedFormula af;
     
@@ -45,6 +46,7 @@ public class AnalysedFormulaTest {
         cA1 = new CellRef("A1");
         cA2 = new CellRef("A2");
         cA3 = new CellRef("A3");
+        cA4 = new CellRef("A4");
         f = new Formula("=B1", cA1, "1");
     }
     
@@ -166,6 +168,42 @@ public class AnalysedFormulaTest {
         expected = new CompoundRange(cA1);
         assertTrue("Was expecing A1 as the only unanalysed cell", af.getUnanalysed().equals(expected));
         assertFalse("Was expecing object to be not analysed", af.isAnalysed());
+        
+        // Expand again (A4) and then analyse everything should get 
+        af.addCell(cA4);
+        test.addCell(cA1);
+        test.addCell(cA4);
+        af.setAnalysed(test);
+        assertTrue("Was expecing A1 as the only unanalysed cell", af.getUnanalysed().isEmpty());
+        assertTrue("Was expecing object to be analysed", af.isAnalysed());
+    }
+    
+    /**
+     * Test of isAnalysed method, of class AnalysedFormula.
+     */
+    @Test
+    public void testIsAnalysed_CellRef() {
+        System.out.println("*   test isAnalysed(CellRef) method");
+        
+        CompoundRange test = new CompoundRange(cA2);
+        test.addCell(cA3);
+        
+        af.addCell(cA2);
+        af.addCell(cA3);
+        af.addCell(cA4);
+        
+        // Test setting analysed a range that is not part of af
+        assertFalse("Was expecing A1 to be not analysed", af.isAnalysed(cA1));
+        assertFalse("Was expecing A2 to be not analysed", af.isAnalysed(cA2));
+        assertFalse("Was expecing A3 to be not analysed", af.isAnalysed(new CellRef("A3")));
+        assertFalse("Was expecing A4 to be not analysed", af.isAnalysed(new CellRef("A4")));
+        
+        // Test setting analysed a range that is only partially in af
+        af.setAnalysed(test);
+        assertFalse("Was expecing A1 to be not analysed", af.isAnalysed(cA1));
+        assertTrue("Was expecing A2 to be analysed", af.isAnalysed(cA2));
+        assertTrue("Was expecing A3 to be analysed", af.isAnalysed(new CellRef("A3")));
+        assertFalse("Was expecing A4 to be not analysed", af.isAnalysed(new CellRef("A4")));
     }
     
 }

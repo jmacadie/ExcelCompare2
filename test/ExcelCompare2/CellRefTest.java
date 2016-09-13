@@ -364,4 +364,25 @@ public class CellRefTest {
 
     }
     
+    /**
+     * Test of getRowAbs method, of class CellRef.
+     */
+    @Test
+    public void testGetRowColAbs() {
+        System.out.println("*   test getRowAbs() & getColAbs() methods");
+        
+        assertFalse("A1 should not have an absolute row", cA1.getRowAbs());
+        assertFalse("A1 should not have an absolute column", cA1.getColAbs());
+        
+        assertFalse("$A1 should not have an absolute row", c$A1.getRowAbs());
+        assertTrue("$A1 should have an absolute column", c$A1.getColAbs());
+        
+        assertTrue("A$1 should have an absolute row", cA$1.getRowAbs());
+        assertFalse("A$1 should not have an absolute column", cA$1.getColAbs());
+        
+        assertTrue("$A$1 should have an absolute row", c$A$1.getRowAbs());
+        assertTrue("$A$1 should have an absolute column", c$A$1.getColAbs());
+
+    }
+    
 }
