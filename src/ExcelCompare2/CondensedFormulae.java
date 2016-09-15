@@ -46,16 +46,6 @@ public class CondensedFormulae {
     private final Map<Integer, CondensedFormulae> _rows;
     private final Map<Integer, CondensedFormulae> _columns;
     
-    // Constructor with no parameters
-    public CondensedFormulae() {
-        this._uniqueFormulae = new LinkedList<>();
-        this._refMap = new HashMap<>();
-        this._maxCols = 0;
-        this._maxRows = 0;
-        this._rows = new HashMap<>();
-        this._columns = new HashMap<>();
-    }
-    
     // Build condensed formulae map from an array of Formulae
     public CondensedFormulae(List<Formula> formulae) {
         this._uniqueFormulae = new LinkedList<>();
