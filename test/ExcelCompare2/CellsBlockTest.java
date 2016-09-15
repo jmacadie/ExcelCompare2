@@ -40,6 +40,7 @@ public class CellsBlockTest {
     private final CellRef cB1;
     private final CellRef cB2;
     private final CellRef cDE1;
+    private final CellRef cDK79;
     private final CellRef cA105;
     private final CellRef cE10;
     
@@ -48,6 +49,7 @@ public class CellsBlockTest {
     private final CellsBlock cbA1DE1;
     private final CellsBlock cbA1A105;
     private final CellsBlock cbA1E10;
+    private final CellsBlock cbB2DK79;
     
     public CellsBlockTest() {
         cA1 = new CellRef("A1");
@@ -55,6 +57,7 @@ public class CellsBlockTest {
         cB1 = new CellRef("B1");
         cB2 = new CellRef("B2");
         cDE1 = new CellRef("DE1");
+        cDK79 = new CellRef("DK79");
         cA105 = new CellRef("A105");
         cE10 = new CellRef("E10");
         
@@ -63,6 +66,7 @@ public class CellsBlockTest {
         cbA1DE1 = new CellsBlock(cA1, cDE1);
         cbA1A105 = new CellsBlock(cA1, cA105);
         cbA1E10 = new CellsBlock(cA1, cE10);
+        cbB2DK79 = new CellsBlock(cB2, cDK79);
     }
     
     @BeforeClass
@@ -106,16 +110,19 @@ public class CellsBlockTest {
         System.out.println("*   test contains() method");
         
         assertTrue("A1 does not contain A1", cbA1.contains(cA1));
-        assertFalse("A1 does contains B2", cbA1.contains(cB2));
+        assertFalse("A1 contains B2", cbA1.contains(cB2));
         
         assertTrue("A1:DE1 does not contain A1", cbA1DE1.contains(cA1));
-        assertFalse("A1:DE1 does contains B2", cbA1DE1.contains(cB2));
+        assertFalse("A1:DE1 contains B2", cbA1DE1.contains(cB2));
         
         assertTrue("A1:A105 does not contain A1", cbA1A105.contains(cA1));
-        assertFalse("A1:A105 does contains B2", cbA1A105.contains(cB2));
+        assertFalse("A1:A105 contains B2", cbA1A105.contains(cB2));
         
         assertTrue("A1:A105 does not contain A1", cbA1E10.contains(cA1));
         assertTrue("A1:A105 does not contain B2", cbA1E10.contains(cB2));
+        
+        assertFalse("B2:DK79 contains A1", cbB2DK79.contains(cA1));
+        assertFalse("B2:DK79 contains DE1", cbB2DK79.contains(cDE1));
     }
 
     /**

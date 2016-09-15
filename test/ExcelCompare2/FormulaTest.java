@@ -36,11 +36,15 @@ import static org.junit.Assert.*;
 public class FormulaTest {
     
     private final CellRef cA1;
+    private final CellRef cJ10;
     private final Formula f;
+    private final Formula fComplex;
     
     public FormulaTest() {
         cA1 = new CellRef("A1");
+        cJ10 = new CellRef("J10");
         f = new Formula("=B1", cA1, "1");
+        fComplex = new Formula("=(F2+D$5)/$E$8*INDEX($A$4:$A$17,MATCH($B3,J$4:J$17,0))", cA1, "1");
     }
     
     @BeforeClass
@@ -64,10 +68,10 @@ public class FormulaTest {
     }
 
     /**
-     * Test of getFormulaR1C1 method, of class Formula.
+     * Test of getR1C1 method, of class Formula.
      */
     @Test
-    public void testGetFormulaR1C1() {
+    public void testGetR1C1() {
         System.out.println("*   test getFormulaR1C1() method");
         
         assertEquals("R1C1 formula of '=B1' in cell 'A1' is not '=RC[1]'", "=RC[1]", f.getR1C1());
@@ -138,9 +142,119 @@ public class FormulaTest {
      */
     @Test
     public void testGetCellRef() {
-        System.out.println("*   test toR1C1() method");
+        System.out.println("*   test getCellRef() method");
         
         assertTrue("Cannot retieve the input cell ref", cA1.equalsStrict(f.getCellRef()));
+    }
+
+    /**
+     * Test of getA1 method, of class Formula.
+     */
+    @Test
+    public void testGetA1() {
+        System.out.println("*   test getA1() method");
+        
+        assertEquals("A1 formula of '=B1' in cell 'A1' is not '=B1'", "=B1", f.getA1());
+    }
+
+    /**
+     * Test of getText method, of class Formula.
+     */
+    @Test
+    public void testGetText() {
+        System.out.println("*   test getText() method");
+        
+        assertEquals("Text of '=B1' (1) in cell 'A1' is not '1'", "1", f.getText());
+    }
+
+    /**
+     * Test of getCopiedTo method, of class Formula.
+     */
+    @Test
+    public void testGetCopiedTo() {
+        System.out.println("*   test getCopiedTo() method");
+        
+        Formula fCopied;
+        Formula fExpected;
+        
+        // Simple Formula
+        
+        // Copy to same cell
+        fCopied = f.getCopiedTo(cA1);
+        assertEquals("A1 formula of cell copied to itself is not the same", fCopied.getA1(), f.getA1());
+        assertEquals("R1C1 formula of cell copied to itself is not the same", fCopied.getR1C1(), f.getR1C1());
+        assertEquals("Text of cell copied to itself is not the same", fCopied.getText(), f.getText());
+        assertTrue("CellRef of cell copied to itself is not the same", fCopied.getCellRef().equalsStrict(f.getCellRef()));
+        
+        // Copy to different cell
+        fCopied = f.getCopiedTo(cJ10);
+        fExpected = new Formula("=K10", cJ10, "1");
+        assertEquals("A1 formula of cell copied elsewhere is not the same", fCopied.getA1(), fExpected.getA1());
+        assertEquals("R1C1 formula of cell copied elsewhere is not the same", fCopied.getR1C1(), fExpected.getR1C1());
+        assertEquals("Text of cell copied elsewhere is not the same", fCopied.getText(), fExpected.getText());
+        assertTrue("CellRef of cell copied elsewhere is not the same", fCopied.getCellRef().equalsStrict(fExpected.getCellRef()));
+        
+        // Formula with all mixes of refernce
+        
+        // Copy to same cell
+        fCopied = fComplex.getCopiedTo(cA1);
+        assertEquals("A1 formula of complex cell copied to itself is not the same", fCopied.getA1(), fComplex.getA1());
+        assertEquals("R1C1 formula of complex cell copied to itself is not the same", fCopied.getR1C1(), fComplex.getR1C1());
+        assertEquals("Text of complex cell copied to itself is not the same", fCopied.getText(), fComplex.getText());
+        assertTrue("CellRef of complex cell copied to itself is not the same", fCopied.getCellRef().equalsStrict(fComplex.getCellRef()));
+        
+        // Copy to different cell
+        fCopied = fComplex.getCopiedTo(cJ10);
+        fExpected = new Formula("=(O11+M$5)/$E$8*INDEX($A$4:$A$17,MATCH($B12,S$4:S$17,0))", cJ10, "1");
+        assertEquals("A1 formula of complex cell copied elsewhere is not the same", fCopied.getA1(), fExpected.getA1());
+        assertEquals("R1C1 formula of complex cell copied elsewhere is not the same", fCopied.getR1C1(), fExpected.getR1C1());
+        assertEquals("Text of complex cell copied elsewhere is not the same", fCopied.getText(), fExpected.getText());
+        assertTrue("CellRef of complex cell copied elsewhere is not the same", fCopied.getCellRef().equalsStrict(fExpected.getCellRef()));
+        
+    }
+
+    /**
+     * Test of getTranslatedTo method, of class Formula.
+     */
+    @Test
+    public void testGetTranslatedTo() {
+        System.out.println("*   test getTranslatedTo() method");
+        System.out.println("OMG this is impossible to test!");
+    }
+
+    /**
+     * Test of translatedDistance method, of class Formula.
+     */
+    @Test
+    public void testTranslatedDistance() {
+        System.out.println("*   test translatedDistance() method");
+        
+        // Test formula to itself
+        assertEquals("Formula of cell is 0 not from itself", 0.0, f.translatedDistance(f), 0.01);
+        assertEquals("Formula of complex cell is not 0 from itself", 0.0, fComplex.translatedDistance(fComplex), 0.01);
+        
+        // Test formula to fomula copied elsewhere
+        assertEquals("Formula of cell copied elsewhere is not 0 from itself", 0.0, f.getCopiedTo(cJ10).translatedDistance(f), 0.01);
+        assertEquals("Formula of complex cell copied elsewhere is not 0 from itself", 0.0, fComplex.getCopiedTo(cJ10).translatedDistance(fComplex), 0.01);
+        
+        // Test two different formulae
+        assertEquals("Formula of cell is not -1 from a totally differnt formula", -1.0, f.translatedDistance(fComplex), 0.01);
+        
+        // Test translated formulae
+        Formula f2;
+        f2 = new Formula("=C1", cA1, "1");
+        assertEquals("Formula of '=C1' in A1 is not 1 from '=B1' in A1 ", 1.0, f.translatedDistance(f2), 0.01);
+        f2 = new Formula("=B2", cA1, "1");
+        assertEquals("Formula of '=B2' in A1 is not 1 from '=B1' in A1 ", 1.0, f.translatedDistance(f2), 0.01);
+        f2 = new Formula("=A10", cJ10, "1");
+        assertEquals("Formula of '=A10' in J10 is not 10 from '=B1' in A1 ", 10.0, f.translatedDistance(f2), 0.01);
+        f2 = new Formula("=A1", cJ10, "1");
+        assertEquals("Formula of '=A1' in J10 is not root 181 from '=B1' in A1 ", Math.sqrt(181), f.translatedDistance(f2), 0.01);
+        
+        f2 = new Formula("=(F2+D$5)/E$8*INDEX($A$4:$A$17,MATCH($B3,J$4:J$17,0))", cA1, "1");
+        assertEquals("Formula is not 100 from reference discrepancy", 100.0, fComplex.translatedDistance(f2), 0.01);
+        f2 = new Formula("=(F3+C$5)/$D$8*INDEX($A$5:$B$17,MATCH($C3,J$5:K$17,0))", cA1, "1");
+        assertEquals("Formula is not 8 from formula with 8 single cell move changes", 8.0, fComplex.translatedDistance(f2), 0.01);
     }
     
 }
