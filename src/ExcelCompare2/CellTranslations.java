@@ -176,6 +176,7 @@ public class CellTranslations {
         
         Integer actualToPos;
         Integer actualFromPos;
+        Integer lastFromPos;
         TransTracker t;
         CellTransInsertDelete e;
         int maxMove;
@@ -212,7 +213,6 @@ public class CellTranslations {
                     // in which case assume row not moved just edited
                     // so do nothing other than increment the target counter
                     t.match();
-                    
                 }
             } else {
                 // Not null so mapped somewhere
@@ -224,14 +224,18 @@ public class CellTranslations {
                 } else if (actualToPos > t.pos()) {
                     // Loop over skipped to rows and see where they went to
                     maxMove = 0;
+                    actualFromPos = t.pos();
+                    lastFromPos = actualFromPos + 1;
                     for (int j = t.pos(); j < actualToPos; j++) {
+                        lastFromPos = (actualFromPos == null) ? lastFromPos : actualFromPos + 1;
                         actualFromPos = map.toIsMappedTo(j);
                         if (actualFromPos == null) {
                             // Unmapped so must mean an insert
                             // TODO: group multiple inserts
-                            t.insert(i, 1);
+                            t.insert(lastFromPos, 1);
                             e = new CellTransInsertDelete(
-                                    CellTransInsertDelete.CellTranslationType.INSERTED, i, 1);
+                                    CellTransInsertDelete.CellTranslationType.INSERTED, 
+                                    lastFromPos, 1);
                             if(type == RowCol.ROW) {
                                 this._rowInserts.add(e);
                             } else {
@@ -252,6 +256,9 @@ public class CellTranslations {
                         }
                         // and record the move
                         t.move(i, i + maxMove, 1);
+                        // TODO: Increment the FROM rows counter as just have 
+                        // found a bunch of translations
+                        // i = i + maxMove - 1;
                     } else {
                         // Was just an insert / inserts
                         // Log same row found after insert / inserts
@@ -362,96 +369,39 @@ public class CellTranslations {
         
     }
     
-    private static RowColMap createRowColMap(CondensedFormulae from, CondensedFormulae to, RowCol searchBy) {
+    private RowColMap createRowColMap(CondensedFormulae from, CondensedFormulae to, RowCol searchBy) {
         
         int fromLimit = (searchBy == RowCol.ROW) ? from.getMaxRows() : from.getMaxCols();
         int toLimit = (searchBy == RowCol.ROW) ? to.getMaxRows() : to.getMaxCols();
         RowColMap map = new RowColMap(fromLimit, toLimit);
         
         int offset = 0;
+        int pos;
+        int match;
+        CondensedFormulae fromRowCol;
         
         // Loop through all FROM rows / cols
         for (int i = 1; i <= fromLimit; i++) {
-            offset = mapAToB(from, to, i, map, Direction.FROM_TO, searchBy, offset, 0);
-        }
-        
-        return map;
-        
-    }
-    
-    private static Direction reverseDirection(Direction direction) {
-        if (direction == Direction.FROM_TO) {
-            return Direction.TO_FROM;
-        } else {
-            return Direction.FROM_TO;
-        }
-    }
-    
-    private static int mapAToB(
-            CondensedFormulae a, 
-            CondensedFormulae b,
-            int pos,
-            RowColMap map, 
-            Direction direction, 
-            RowCol searchBy,
-            int offset,
-            int savedPos) {
-        
-        CondensedFormulae aRowCol;
-        CondensedFormulae bRowCol;
-        Match m1;
-        Match m2;
-        int matchedBPos;
-
-        // Only search rows / cols not already mapped
-        if ((direction == Direction.FROM_TO && !map.isFromMapped(pos)) ||
-            (direction == Direction.TO_FROM && !map.isToMapped(pos))) {
-            aRowCol = (searchBy == RowCol.ROW) ? a.getRow(pos) : a.getColumn(pos);
-            // Find 1st match
-            m1 = fanSearch(
-                    aRowCol, 
-                    b, 
+            pos = i + offset;
+            fromRowCol = (searchBy == RowCol.ROW) ? from.getRow(i) : from.getColumn(i);
+            // Find a match in To
+            match = fanSearch(
+                    fromRowCol, 
+                    to, 
                     map, 
-                    direction, 
+                    Direction.FROM_TO, 
                     searchBy, 
-                    pos + offset, 
-                    savedPos);
-            // Keep looping until we don't have a match
-            // Will break out if match A -> B is not as good
-            matchedBPos = m1.getPos();
-            while (matchedBPos != 0) {
-                // Get matched row in to
-                bRowCol = (searchBy == RowCol.ROW) ? b.getRow(matchedBPos) : b.getColumn(matchedBPos);
-                // ... and check for no better reverse match
-                m2 = fanSearch(
-                        bRowCol, 
-                        a, 
-                        map, 
-                        reverseDirection(direction), 
-                        searchBy, 
-                        matchedBPos - offset, 
-                        0);
-                if (m2.getPos() != 0 && m2.getDistance() < m1.getDistance()) {
-                    // Reverse match (B -> A) better
-                    // Recursively look other way
-                    mapAToB(b, a, matchedBPos, map, reverseDirection(direction), searchBy, -offset, 0);
-                    // and then keep looking on original row / col
-                    mapAToB(a, b, pos, map, direction, searchBy, offset, matchedBPos);
-                } else {
-                    // Original match (A -> B) better
-                    // Add to map
-                    map.add(pos, matchedBPos, direction);
-                    // Set our offset
-                    offset = (matchedBPos - pos);
-                    // Set counter to zero to force quit while loop
-                    matchedBPos = 0;
-                }
+                    pos);
+            // If matched then record and update the offset tracker
+            if (match != 0) {
+                map.add(i, match, Direction.FROM_TO);
+                offset = match - i;
             }
         }
-        return offset;
+        return map;
     }
     
-    private enum RowCol {
+    public enum RowCol {
         ROW, COL
     }
     
@@ -459,26 +409,19 @@ public class CellTranslations {
         FROM_TO, TO_FROM
     }
     
-    private static Match fanSearch(
+    private int fanSearch(
             CondensedFormulae matchTo, // Assumed to be a single row / column
             CondensedFormulae findIn, // Assumed to be a whole sheet
             RowColMap currentMap,
             Direction direction,
             RowCol searching,
-            int startPos,
-            int offset) {
+            int startPos) {
         
         // Get the limits of the searched sheet
         int maxLimit = (searching == RowCol.ROW) ? findIn.getMaxRows() : findIn.getMaxCols();
         
         // Don't search out of the bounds of the searched sheet
-        startPos = Math.min(startPos, maxLimit);
-        
-        // Set start search position
-        int searchPosPos = startPos + offset;
-        int searchNegPos = startPos - offset;
-        searchPosPos = Math.max(Math.min(searchPosPos, maxLimit),1);
-        searchNegPos = Math.max(Math.min(searchNegPos, maxLimit),1);
+        startPos = Math.max(Math.min(startPos, maxLimit),1);
         
         CondensedFormulae option;
         double d;
@@ -492,35 +435,33 @@ public class CellTranslations {
             // Look down first
             // Don't look beyond the end of the range though
             // Also don't check an already mapped row
-            j = searchPosPos + i;
+            j = startPos + i;
             if (j <= maxLimit &&
                 ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                d = distance(matchTo, option, true);
-                // If we have a shell match return
-                if (d != -1)
-                    return new Match(j, d);
+                if (rowColMatch(matchTo, option, currentMap, direction, searching)) {
+                    return j;
+                }
             }
             
             // Then up
             // Don't look beyond the end of the range though
             // Also don't check an already mapped row
-            j = searchNegPos - i;
+            j = startPos - i;
             if (j > 0 &&
                 ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
                 (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                d = distance(matchTo, option, true);
-                // If we have a shell match return
-                if (d != -1)
-                    return new Match(j, d);
+                if (rowColMatch(matchTo, option, currentMap, direction, searching)) {
+                    return j;
+                }
             }
         }
         // If we get here we've not found a match so retrun a negative signal
-        return new Match(0, -1);
+        return 0;
     }
     
     private static CondensedFormulae getOption(CondensedFormulae findIn, RowCol searching, int pos) {
@@ -531,70 +472,45 @@ public class CellTranslations {
         }
     }
     
-    private static double distance(CondensedFormulae from, CondensedFormulae to, boolean strict) {
+    private boolean rowColMatch(
+            CondensedFormulae from,
+            CondensedFormulae to,
+            RowColMap map,
+            Direction direction,
+            RowCol searching) {
         // Assumes we're comparing a row or column to one another
         
         ListIterator<AnalysedFormula> iterTo;
         ListIterator<AnalysedFormula> iterFrom = from.listIterator();
-        AnalysedFormula af;
         Formula fTo;
         Formula fFrom;
-        int cells;
-        int goodCells = 0;
-        int badCells = 0;
-        double d;
-        double tmp;
-        double out = 0;
+        List<Integer> dMap;
+        boolean match;
         
-        // Loop through every from formula
+        dMap = (direction == Direction.FROM_TO) ? map._from : map._to;
+        
+        // Loop through every FROM formula
         while (iterFrom.hasNext()) {
-            af = iterFrom.next();
-            fFrom = af.getFormula();
-            cells = af.getRange().size();
-            // Loop through every to formula
+            fFrom = iterFrom.next().getFormula();
+            // Loop through every TO formula
             // Need to double loop as can't be sure of pairwise order
+            match = false;
             iterTo = to.listIterator();
-            tmp = -1;
             while (iterTo.hasNext()) {
                 fTo = iterTo.next().getFormula();
-                // Get the formula distance
-                d = fFrom.translatedDistance(fTo);
-                // If there's a shell match record the distance
-                if (d != -1)
-                    tmp = (tmp == -1) ? d : Math.min(tmp, d);
+                // If there's a match then move to next FROM formula
+                if (fFrom.translatedMatch(fTo, dMap, searching)) {
+                    match = true;
+                    break;
+                }
             }
-            // TODO: cannot cope with a single delete in both dimensions
-            // This is beacuse on either rows or columns the whole of the source
-            // row / col cannot be found in the target
-            // A fix would be to allow a match if more than [70%] of cells have
-            // a direct match, rather than the 100% threshold currently. Having
-            // a threshold introduces the risk of funny matches though
-            // If no match on any formula then whole row is considered not
-            // matched so break
-            if (tmp == -1 && strict) {
-                return -1;
-            } else if (tmp == -1) {
-                // Increment counter of bad (i.e. not matched) cells
-                badCells += cells;
-            } else {
-                // Increment counter of good (i.e. matched) cells
-                goodCells += cells;
-                out += tmp;
-            }    
+            // If no TO formulae matched then quit out
+            if (!match)
+                return false;
         }
-        
-        // If have some bad cells but within threshold of good cells (i.e.
-        // have mapped almost all of the row / column then scale up the
-        // output and return a match
-        if (badCells > 0) {
-            if ((badCells / (goodCells + badCells)) < 0.3) {
-                out = out * 10;
-            } else {
-                out = -1;
-            }
-        }
-        
-        return out;
+        // Looped through all FROM formuale and found a match to a TO formula
+        // so return true
+        return true;
     }
     
     private static class RowColMap {

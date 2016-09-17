@@ -24,6 +24,7 @@ package ExcelCompare2;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -243,4 +244,58 @@ public class Formula {
         return dist;
     }
     
+    public boolean translatedMatch(Formula comp, List<Integer> map, CellTranslations.RowCol rc) {
+        
+        // Assumes map is applied to the current Formula and then compared to
+        // the comp Formula
+        
+        // If the rest of the formula doesn't match return -1
+        // TODO: could consider some residual Levenstien distance measure to
+        // capture formuale that have been moved and (moderately!) edited
+        if (!comp._shellFormula.equals(_shellFormula))
+            return false;
+        
+        ListIterator<CellRef> iter = _references.listIterator();
+        ListIterator<CellRef> iterComp = comp._references.listIterator();
+        CellRef cell;
+        CellRef cellComp;
+        
+        // Loop through all the refernces
+        while (iter.hasNext()) {
+            
+            // Shouldn't happen (as we already have a shell match) but if the
+            // lists of references don't match then return non-match
+            if (!iterComp.hasNext())
+                return false;
+            
+            // Get the cell refs
+            cell = iter.next();
+            cellComp = iterComp.next();
+            
+            // If absolute state isn't the same then no match
+            if (cell.getRowAbs() != cellComp.getRowAbs() ||
+                cell.getColAbs() != cellComp.getColAbs())
+                return false;
+            
+            // If mapped and the translation doesn't match then no match
+            // Rows
+            if(rc == CellTranslations.RowCol.ROW &&
+               map.get(cell.getRow()) != null &&
+               map.get(cell.getRow()) != cellComp.getRow())
+               return false;
+
+            // If mapped and the translation doesn't match then no match
+            // Columns
+            if(rc == CellTranslations.RowCol.COL &&
+               map.get(cell.getCol()) != null &&
+               map.get(cell.getCol()) != cellComp.getCol())
+               return false;
+            
+            // TODO: worth checking the unmapped row / col references???
+            // Would convert this back into more of a distance measure
+        }
+        
+        // If we get here then all cells match
+        return true;
+    }
 }
