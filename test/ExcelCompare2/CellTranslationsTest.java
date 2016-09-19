@@ -24,6 +24,8 @@ package ExcelCompare2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -452,6 +454,34 @@ public class CellTranslationsTest {
     @Test
     public void testReport() {
         System.out.println("*   test report() method");
+        
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        
+        // Capture the print output
+        PrintStream pso = System.out;
+        PrintStream pse = System.err;
+        System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
+        
+        String output;
+        
+        transRow.report();
+        output = outContent.toString();
+        assertTrue("Doesn't report on Translations", output.contains("Sheet translations"));
+        assertTrue("Doesn't report on row translations", output.contains("row"));
+        assertFalse("Reports on column translations", output.contains("column"));
+        
+        outContent.reset();
+        transCol.report();
+        output = outContent.toString();
+        assertTrue("Doesn't report on Translations", output.contains("Sheet translations"));
+        assertFalse("Reports on row translations", output.contains("row"));
+        assertTrue("Doesn't report on column translations", output.contains("column"));
+        
+        // Reset the print output
+        System.setOut(pso);
+        System.setErr(pse);
     }
     
 }
