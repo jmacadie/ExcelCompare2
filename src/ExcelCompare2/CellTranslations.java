@@ -275,6 +275,13 @@ public class CellTranslations {
     
     private class TransTracker {
         
+        // Note to future self: if the map is correct but the translations are
+        // not correctly found from the map I have found it useful to watch the
+        // state of _fromCurMap, _idx (expected TO row / column) and fromPos 
+        // (the source FROM row / column being sought) as each sucessive FROM 
+        // row or column is mapped in findTransFromMap(). The fromPos variable 
+        // is in the parent routine, not in this class
+        
         // List of which of the TO rows have currently been mapped
         // Starts as a list of zeros and is successively updated to 1's each
         // new row match is found
