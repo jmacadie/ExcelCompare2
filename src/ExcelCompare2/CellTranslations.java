@@ -175,7 +175,7 @@ public class CellTranslations {
     private void findTransFromMap (RowCol type, int limit) {
         
         Integer actualToPos;
-        Integer actualFromPos;
+        Integer tmpFromPos;
         TransTracker t;
         CellTransInsertDelete e;
         int maxMove;
@@ -187,9 +187,9 @@ public class CellTranslations {
         
         // Loop through all the FROM rows
         t = new TransTracker(limit);
-        for (int i = 1; i <= limit; i++) {
+        for (int fromPos = 1; fromPos <= limit; fromPos++) {
             // Get mapped TO row
-            actualToPos = map.fromIsMappedTo(i);
+            actualToPos = map.fromIsMappedTo(fromPos);
             // Record the max to pointer
             maxTo = (actualToPos == null) ? maxTo : Math.max(actualToPos, maxTo);
             // If is null then either a delete or a changed match
@@ -200,9 +200,9 @@ public class CellTranslations {
                     // or the target other side is non-null
                     // Row deleted
                     // TODO: group multiple deletes
-                    t.delete(i, 1);
+                    t.delete(fromPos, 1);
                     e = new CellTransInsertDelete(
-                            CellTransInsertDelete.CellTranslationType.DELETED, i, 1);
+                            CellTransInsertDelete.CellTranslationType.DELETED, fromPos, 1);
                     if(type == RowCol.ROW) {
                         this._rowDeletes.add(e);
                     } else {
@@ -225,32 +225,31 @@ public class CellTranslations {
                     // Loop over skipped to rows and see where they went to
                     maxMove = 0;
                     inserts = 0;
-                    for (int j = t.pos(); j < actualToPos; j++) {
-                        actualFromPos = map.toIsMappedTo(j);
-                        if (actualFromPos == null) {
+                    for (int tmpToPos = t.pos(); tmpToPos < actualToPos; tmpToPos++) {
+                        tmpFromPos = map.toIsMappedTo(tmpToPos);
+                        if (tmpFromPos == null) {
                             // Unmapped so must mean an insert
                             inserts++;
                         } else {
                             // Row Moved
-                            // TODO: group multiple inserts
-                            maxMove = Math.max(maxMove, actualFromPos - i);
+                            maxMove = Math.max(maxMove, tmpFromPos - fromPos);
                         }
                     }
                     if (maxMove > 0) {
                         // Have moved so add the transform
                         if(type == RowCol.ROW) {
-                            this._rowMoves.add(new CellTransMove(i, i + maxMove, 1));
+                            this._rowMoves.add(new CellTransMove(fromPos, fromPos + maxMove, 1));
                         } else {
-                            this._columnMoves.add(new CellTransMove(i, i + maxMove, 1));
+                            this._columnMoves.add(new CellTransMove(fromPos, fromPos + maxMove, 1));
                         }
                         // and record the move
-                        t.move(i, i + maxMove, 1);
+                        t.move(fromPos, fromPos + maxMove, 1);
                     } else {
                         // Was just an insert / inserts
-                        t.insert(i, inserts);
+                        t.insert(fromPos, inserts);
                         e = new CellTransInsertDelete(
                                 CellTransInsertDelete.CellTranslationType.INSERTED, 
-                                i, inserts);
+                                fromPos, inserts);
                         if(type == RowCol.ROW) {
                             this._rowInserts.add(e);
                         } else {
