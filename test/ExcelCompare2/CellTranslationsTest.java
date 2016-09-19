@@ -404,7 +404,7 @@ public class CellTranslationsTest {
     public void testSize() {
         System.out.println("*   test size() method");
         
-        assertEquals("Should be 6 translations (three inserts, two deletes and a move)", 6, transRow.size());
+        assertEquals("Should be 5 translations (two inserts, two deletes and a move)", 5, transRow.size());
         assertEquals("Should be 2 translations (one insert and a move)", 2, transCol.size());
     }
 

@@ -176,10 +176,10 @@ public class CellTranslations {
         
         Integer actualToPos;
         Integer actualFromPos;
-        Integer lastFromPos;
         TransTracker t;
         CellTransInsertDelete e;
         int maxMove;
+        int inserts;
         int maxTo = 0;
         RowColMap map;
         
@@ -224,23 +224,12 @@ public class CellTranslations {
                 } else if (actualToPos > t.pos()) {
                     // Loop over skipped to rows and see where they went to
                     maxMove = 0;
-                    actualFromPos = t.pos();
-                    lastFromPos = actualFromPos + 1;
+                    inserts = 0;
                     for (int j = t.pos(); j < actualToPos; j++) {
-                        lastFromPos = (actualFromPos == null) ? lastFromPos : actualFromPos + 1;
                         actualFromPos = map.toIsMappedTo(j);
                         if (actualFromPos == null) {
                             // Unmapped so must mean an insert
-                            // TODO: group multiple inserts
-                            t.insert(lastFromPos, 1);
-                            e = new CellTransInsertDelete(
-                                    CellTransInsertDelete.CellTranslationType.INSERTED, 
-                                    lastFromPos, 1);
-                            if(type == RowCol.ROW) {
-                                this._rowInserts.add(e);
-                            } else {
-                                this._columnInserts.add(e);
-                            }
+                            inserts++;
                         } else {
                             // Row Moved
                             // TODO: group multiple inserts
@@ -256,11 +245,17 @@ public class CellTranslations {
                         }
                         // and record the move
                         t.move(i, i + maxMove, 1);
-                        // TODO: Increment the FROM rows counter as just have 
-                        // found a bunch of translations
-                        // i = i + maxMove - 1;
                     } else {
                         // Was just an insert / inserts
+                        t.insert(i, inserts);
+                        e = new CellTransInsertDelete(
+                                CellTransInsertDelete.CellTranslationType.INSERTED, 
+                                i, inserts);
+                        if(type == RowCol.ROW) {
+                            this._rowInserts.add(e);
+                        } else {
+                            this._columnInserts.add(e);
+                        }
                         // Log same row found after insert / inserts
                         t.match();
                     }
@@ -281,8 +276,18 @@ public class CellTranslations {
     
     private class TransTracker {
         
+        // List of which of the TO rows have currently been mapped
+        // Starts as a list of zeros and is successively updated to 1's each
+        // new row match is found
+        // Index is denominated in terms of the FROM rows
         List<Integer> _toMapped;
+        // Current map of where all FROM rows are mapped to
+        // Starts expecting all rows to go to their matching counetrpart
+        // e.g. 1 to 1, 2 to 2, ... 13 to 13, etc.
+        // This map will be adjusted as each sucessive insert, delete and move
+        // is detected
         List<Integer> _fromCurMap;
+        // The internal index where we're currently up to on the TO sheet
         int _idx;
         
         TransTracker(int fromSize) {
@@ -304,11 +309,11 @@ public class CellTranslations {
             }
         }
         
-        private boolean isMapped(int pos) {
-            for (int i = 1; i < _fromCurMap.size(); i++) {
-                if (_fromCurMap.get(i) != null &&
-                    _fromCurMap.get(i) == pos) {
-                    return (_toMapped.get(i) == 1);
+        private boolean isToMapped(int toPos) {
+            for (int fromPos = 1; fromPos < _fromCurMap.size(); fromPos++) {
+                if (_fromCurMap.get(fromPos) != null &&
+                    _fromCurMap.get(fromPos) == toPos) {
+                    return (_toMapped.get(fromPos) == 1);
                 }
             }
             // shouldn't get here
@@ -318,7 +323,7 @@ public class CellTranslations {
         private void increment() {
             while (true) {
                 _idx++;
-                if (_idx > _toMapped.size() || !isMapped(_idx))
+                if (_idx > _toMapped.size() || !isToMapped(_idx))
                     break;
             }
         }
@@ -330,11 +335,20 @@ public class CellTranslations {
         
         public void delete(int at, int number) {
             // update _fromCurrMap
+            
+            // Set the first 'number' slots to map to null i.e. deleted ...
             for (int i = at; i < at + number; i++) {
                 _fromCurMap.set(i, null);
             }
+            // .. and shift the remaining slots back by 'number'
             for (int i = at + number; i < _fromCurMap.size(); i++) {
                 _fromCurMap.set(i, _fromCurMap.get(i) - number);
+            }
+            // finally shift the forward-mapped early slots back by 'number'
+            for (int i = 1; i < at; i++) {
+                if(_fromCurMap.get(i) != null &&
+                   _fromCurMap.get(i) > _idx)
+                    _fromCurMap.set(i, _fromCurMap.get(i) - number);
             }
         }
         
@@ -343,18 +357,30 @@ public class CellTranslations {
             for (int i = at; i < _fromCurMap.size(); i++) {
                 _fromCurMap.set(i, _fromCurMap.get(i) + number);
             }
+            // finally shift the forward-mapped early slots forward by 'number'
+            for (int i = 1; i < at; i++) {
+                if(_fromCurMap.get(i) != null &&
+                   _fromCurMap.get(i) > _idx)
+                    _fromCurMap.set(i, _fromCurMap.get(i) + number);
+            }
             // Move index on
-            increment();
+            for (int i = 0; i < number; i++) {
+                increment();
+            }
         }
         
         public void move(int from, int to, int number) {
             // update _fromCurrMap
-            for (int i = from; i < from + number; i++) {
-                _fromCurMap.set(i, to + _fromCurMap.get(i) - from);
+            // Move the moved rows ...
+            for (int fromPos = from; fromPos < from + number; fromPos++) {
+                _fromCurMap.set(fromPos, to + _fromCurMap.get(fromPos) - from);
                 // update _toMapped
-                _toMapped.set(i, 1);
+                // This way we know we'll have already spotted this row when we
+                // increment our expected row counter later on, and can skip it
+                _toMapped.set(fromPos, 1);
             }
-            for (int i = from + number; i < to; i++) {
+            // ... and shift back the intermediate rows
+            for (int i = from + number; i <= to; i++) {
                 _fromCurMap.set(i, _fromCurMap.get(i) - number);
             }
         }
