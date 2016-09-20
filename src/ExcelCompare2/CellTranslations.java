@@ -445,7 +445,6 @@ public class CellTranslations {
         startPos = Math.max(Math.min(startPos, maxLimit),1);
         
         CondensedFormulae option;
-        double d;
         
         int limit = Math.max(startPos - 1, (maxLimit - startPos));
         
