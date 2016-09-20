@@ -204,10 +204,10 @@ public class CellTranslations {
                 } else {
                     // If null assume a changed match
                     // in which case assume row not moved just edited
-                    // so do nothing other than increment the target counter
-                    t.match();
                     // Add changed match to map
                     map.add(fromPos, t.pos());
+                    // & than increment the target counter
+                    t.match();
                 }
             } else {
                 // Not null so mapped somewhere

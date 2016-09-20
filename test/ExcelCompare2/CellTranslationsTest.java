@@ -430,6 +430,19 @@ public class CellTranslationsTest {
         assertEquals("Row 11 isn't translated to row 11", 11, transRow.translateRow(11).intValue());
         assertEquals("Row 12 isn't translated to row 13", 13, transRow.translateRow(12).intValue());
         
+        assertEquals("Row 1 isn't translated to row 1", 1, transCol.translateRow(1).intValue());
+        assertEquals("Row 2 isn't translated to row 2", 2, transCol.translateRow(2).intValue());
+        assertEquals("Row 3 isn't translated to row 3", 3, transCol.translateRow(3).intValue());
+        assertEquals("Row 4 isn't translated to row 4", 4, transCol.translateRow(4).intValue());
+        assertEquals("Row 5 isn't translated to row 5", 5, transCol.translateRow(5).intValue());
+        assertEquals("Row 6 isn't translated to row 6", 6, transCol.translateRow(6).intValue());
+        assertEquals("Row 7 isn't translated to row 7", 7, transCol.translateRow(7).intValue());
+        assertEquals("Row 8 isn't translated to row 8", 8, transCol.translateRow(8).intValue());
+        assertEquals("Row 9 isn't translated to row 9", 9, transCol.translateRow(9).intValue());
+        assertEquals("Row 10 isn't translated to row 10", 10, transCol.translateRow(10).intValue());
+        assertEquals("Row 11 isn't translated to row 11", 11, transCol.translateRow(11).intValue());
+        assertEquals("Row 12 isn't translated to row 12", 12, transCol.translateRow(12).intValue());
+        
     }
 
     /**
@@ -446,6 +459,14 @@ public class CellTranslationsTest {
         assertEquals("Column 5 isn't translated to column 5", 5, transCol.translateColumn(5).intValue());
         assertEquals("Column 6 isn't translated to column 6", 6, transCol.translateColumn(6).intValue());
         assertEquals("Column 7 isn't translated to column 8", 8, transCol.translateColumn(7).intValue());
+        
+        assertEquals("Column 1 isn't translated to column 1", 1, transRow.translateColumn(1).intValue());
+        assertEquals("Column 2 isn't translated to column 2", 2, transRow.translateColumn(2).intValue());
+        assertEquals("Column 3 isn't translated to column 3", 3, transRow.translateColumn(3).intValue());
+        assertEquals("Column 4 isn't translated to column 4", 4, transRow.translateColumn(4).intValue());
+        assertEquals("Column 5 isn't translated to column 5", 5, transRow.translateColumn(5).intValue());
+        assertEquals("Column 6 isn't translated to column 6", 6, transRow.translateColumn(6).intValue());
+        assertEquals("Column 7 isn't translated to column 7", 7, transRow.translateColumn(7).intValue());
     }
 
     /**
