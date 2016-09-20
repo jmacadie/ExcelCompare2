@@ -42,7 +42,7 @@ public class TranslatedCondensedFormulae {
     // translations being applied
     private final CondensedFormulae _removed;
     
-    TranslatedCondensedFormulae (CondensedFormulae before, CellTranslations trans, CellTranslations.Direction dir) {
+    TranslatedCondensedFormulae (CondensedFormulae before, CellTranslations trans) {
         
         this._beforeMap = new HashMap<>();
         
@@ -75,37 +75,33 @@ public class TranslatedCondensedFormulae {
                 }
             }
         } else {
-            // Only map FROM_TO currently
-            // TODO: maybe do in reverse as well? Not sure needed
-            if (dir == CellTranslations.Direction.FROM_TO) {
-                // Loop through each analysed formula in the before object
-                iter = before.listIterator();
-                while (iter.hasNext()) {
-                    af = iter.next();
-                    r = af.getRange();
-                    origFormula = af.getFormula();
-                    // Loop through every cell in the analysed formula
-                    r.moveFirst();
-                    while (r.hasNext()) {
-                        origCell = r.next();
-                        // Copy the Formula to the current cell
-                        transFormula = origFormula.getCopiedTo(origCell);
-                        // Figure out where the cell gets translated to
-                        transCell = applyTranslations(origCell, trans);
-                        if (transCell == null) {
-                            // Cell gets removed by translations
-                            // add to our list of removed formulae
-                            fr.add(transFormula);
-                        } else {
-                            // Add translation to our map
-                            _beforeMap.put(transCell.getAsKey(), origCell);
-                            // Move the formula
-                            // TODO: Not good enough - the A1 representation of
-                            // the formula can change too
-                            transFormula = transFormula.getTranslatedTo(transCell, trans);
-                            // and add to our list of translated formulae
-                            ft.add(transFormula);
-                        }
+            // Loop through each analysed formula in the before object
+            iter = before.listIterator();
+            while (iter.hasNext()) {
+                af = iter.next();
+                r = af.getRange();
+                origFormula = af.getFormula();
+                // Loop through every cell in the analysed formula
+                r.moveFirst();
+                while (r.hasNext()) {
+                    origCell = r.next();
+                    // Copy the Formula to the current cell
+                    transFormula = origFormula.getCopiedTo(origCell);
+                    // Figure out where the cell gets translated to
+                    transCell = applyTranslations(origCell, trans);
+                    if (transCell == null) {
+                        // Cell gets removed by translations
+                        // add to our list of removed formulae
+                        fr.add(transFormula);
+                    } else {
+                        // Add translation to our map
+                        _beforeMap.put(transCell.getAsKey(), origCell);
+                        // Move the formula
+                        // TODO: Not good enough - the A1 representation of
+                        // the formula can change too
+                        transFormula = transFormula.getTranslatedTo(transCell, trans);
+                        // and add to our list of translated formulae
+                        ft.add(transFormula);
                     }
                 }
             }
@@ -140,8 +136,8 @@ public class TranslatedCondensedFormulae {
         
         // Only goes FROM -> TO
         
-        Integer i = trans.translateRow(CellTranslations.Direction.FROM_TO, source.getRow());
-        Integer j = trans.translateColumn(CellTranslations.Direction.FROM_TO, source.getCol());
+        Integer i = trans.translateRow(source.getRow());
+        Integer j = trans.translateColumn(source.getCol());
         
         // If deleted return null
         if (i == null || j == null)

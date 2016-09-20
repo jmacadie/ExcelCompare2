@@ -64,36 +64,29 @@ public class CellTranslations {
                _rowMoves.size() + _columnMoves.size();
     }
     
-    public Integer translateRow(Direction direction, int source) {
+    public Integer translateRow(int source) {
+        // Only goes FROM -> TO
         
-        return translateInner(RowCol.ROW, direction, source);
-        
-    }
-    
-    public Integer translateColumn(Direction direction, int source) {
-        
-        return translateInner(RowCol.COL, direction, source);
+        return translateInner(RowCol.ROW, source);
         
     }
     
-    private Integer translateInner(RowCol type, Direction direction, int source) {
+    public Integer translateColumn(int source) {
+        // Only goes FROM -> TO
+        
+        return translateInner(RowCol.COL, source);
+        
+    }
+    
+    private Integer translateInner(RowCol type, int source) {
+        // Only goes FROM -> TO
         
         RowColMap map = (type == RowCol.ROW) ? _rowMap : _colMap;
         
-        if (direction == Direction.FROM_TO && !map.isFromMapped(source)) 
+        if (!map.isFromMapped(source)) 
             return null;
         
-        if (direction == Direction.TO_FROM && !map.isToMapped(source)) 
-            return null;
-        
-        if (direction == Direction.FROM_TO) 
-            return map.fromIsMappedTo(source);
-        
-        if (direction == Direction.TO_FROM) 
-            return map.toIsMappedTo(source);
-        
-        // Won't get here but stops and IDE error
-        return null;
+        return map.fromIsMappedTo(source);
         
     }
     
@@ -420,13 +413,12 @@ public class CellTranslations {
             match = fanSearch(
                     fromRowCol, 
                     to, 
-                    map, 
-                    Direction.FROM_TO, 
+                    map,
                     searchBy, 
                     pos);
             // If matched then record and update the offset tracker
             if (match != 0) {
-                map.add(i, match, Direction.FROM_TO);
+                map.add(i, match);
                 offset = match - i;
             }
         }
@@ -437,15 +429,10 @@ public class CellTranslations {
         ROW, COL
     }
     
-    public enum Direction {
-        FROM_TO, TO_FROM
-    }
-    
     private int fanSearch(
             CondensedFormulae matchTo, // Assumed to be a single row / column
             CondensedFormulae findIn, // Assumed to be a whole sheet
             RowColMap currentMap,
-            Direction direction,
             RowCol searching,
             int startPos) {
         
@@ -468,12 +455,10 @@ public class CellTranslations {
             // Don't look beyond the end of the range though
             // Also don't check an already mapped row
             j = startPos + i;
-            if (j <= maxLimit &&
-                ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
-                (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
+            if (j <= maxLimit && !currentMap.isToMapped(j)) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                if (rowColMatch(matchTo, option, currentMap, direction, searching)) {
+                if (rowColMatch(matchTo, option, currentMap, searching)) {
                     return j;
                 }
             }
@@ -482,12 +467,10 @@ public class CellTranslations {
             // Don't look beyond the end of the range though
             // Also don't check an already mapped row
             j = startPos - i;
-            if (j > 0 &&
-                ((direction == Direction.FROM_TO && !currentMap.isToMapped(j)) ||
-                (direction == Direction.TO_FROM && !currentMap.isFromMapped(j)))) {
+            if (j > 0 && !currentMap.isToMapped(j)) {
                 // Find the searched row or column
                 option = getOption(findIn, searching, j);
-                if (rowColMatch(matchTo, option, currentMap, direction, searching)) {
+                if (rowColMatch(matchTo, option, currentMap, searching)) {
                     return j;
                 }
             }
@@ -508,7 +491,6 @@ public class CellTranslations {
             CondensedFormulae from,
             CondensedFormulae to,
             RowColMap map,
-            Direction direction,
             RowCol searching) {
         // Assumes we're comparing a row or column to one another
         
@@ -519,7 +501,7 @@ public class CellTranslations {
         List<Integer> dMap;
         boolean match;
         
-        dMap = (direction == Direction.FROM_TO) ? map._from : map._to;
+        dMap = map._from;
         
         // Loop through every FROM formula
         while (iterFrom.hasNext()) {
@@ -574,15 +556,9 @@ public class CellTranslations {
             return (_to.get(posn) != null);
         }
         
-        public void add(int from, int to, Direction direction) {
-            if (direction == Direction.FROM_TO) {
+        public void add(int from, int to) {
                 _from.set(from, to);
                 _to.set(to, from);
-            } else {
-                _from.set(to, from);
-                _to.set(from, to);
-            }
-            
         }
         
         public Integer fromIsMappedTo(int posn) {

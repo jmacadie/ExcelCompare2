@@ -417,18 +417,18 @@ public class CellTranslationsTest {
     public void testTranslateRow() {
         System.out.println("*   test translateRow() method");
         
-        assertEquals("Row 1 isn't translated to row 1", 1, transRow.translateRow(CellTranslations.Direction.FROM_TO, 1).intValue());
-        assertEquals("Row 2 isn't translated to row 4", 4, transRow.translateRow(CellTranslations.Direction.FROM_TO, 2).intValue());
-        assertEquals("Row 3 isn't translated to row 6", 6, transRow.translateRow(CellTranslations.Direction.FROM_TO, 3).intValue());
-        assertEquals("Row 4 isn't translated to row 12", 12, transRow.translateRow(CellTranslations.Direction.FROM_TO, 4).intValue());
-        assertEquals("Row 5 isn't translated to row 7", 7, transRow.translateRow(CellTranslations.Direction.FROM_TO, 5).intValue());
-        assertEquals("Row 6 isn't translated to row 8", 8, transRow.translateRow(CellTranslations.Direction.FROM_TO, 6).intValue());
-        assertEquals("Row 7 isn't translated to null", null, transRow.translateRow(CellTranslations.Direction.FROM_TO, 7));
-        assertEquals("Row 8 isn't translated to null", null, transRow.translateRow(CellTranslations.Direction.FROM_TO, 8));
-        assertEquals("Row 9 isn't translated to row 9", 9, transRow.translateRow(CellTranslations.Direction.FROM_TO, 9).intValue());
-        assertEquals("Row 10 isn't translated to row 10", 10, transRow.translateRow(CellTranslations.Direction.FROM_TO, 10).intValue());
-        assertEquals("Row 11 isn't translated to row 11", 11, transRow.translateRow(CellTranslations.Direction.FROM_TO, 11).intValue());
-        assertEquals("Row 12 isn't translated to row 13", 13, transRow.translateRow(CellTranslations.Direction.FROM_TO, 12).intValue());
+        assertEquals("Row 1 isn't translated to row 1", 1, transRow.translateRow(1).intValue());
+        assertEquals("Row 2 isn't translated to row 4", 4, transRow.translateRow(2).intValue());
+        assertEquals("Row 3 isn't translated to row 6", 6, transRow.translateRow(3).intValue());
+        assertEquals("Row 4 isn't translated to row 12", 12, transRow.translateRow(4).intValue());
+        assertEquals("Row 5 isn't translated to row 7", 7, transRow.translateRow(5).intValue());
+        assertEquals("Row 6 isn't translated to row 8", 8, transRow.translateRow(6).intValue());
+        assertEquals("Row 7 isn't translated to null", null, transRow.translateRow(7));
+        assertEquals("Row 8 isn't translated to null", null, transRow.translateRow(8));
+        assertEquals("Row 9 isn't translated to row 9", 9, transRow.translateRow(9).intValue());
+        assertEquals("Row 10 isn't translated to row 10", 10, transRow.translateRow(10).intValue());
+        assertEquals("Row 11 isn't translated to row 11", 11, transRow.translateRow(11).intValue());
+        assertEquals("Row 12 isn't translated to row 13", 13, transRow.translateRow(12).intValue());
         
     }
 
@@ -439,13 +439,13 @@ public class CellTranslationsTest {
     public void testTranslateColumn() {
         System.out.println("*   test translateColumn() method");
         
-        assertEquals("Column 1 isn't translated to column 1", 1, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 1).intValue());
-        assertEquals("Column 2 isn't translated to column 7", 7, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 2).intValue());
-        assertEquals("Column 3 isn't translated to column 2", 2, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 3).intValue());
-        assertEquals("Column 4 isn't translated to column 3", 3, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 4).intValue());
-        assertEquals("Column 5 isn't translated to column 5", 5, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 5).intValue());
-        assertEquals("Column 6 isn't translated to column 6", 6, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 6).intValue());
-        assertEquals("Column 7 isn't translated to column 8", 8, transCol.translateColumn(CellTranslations.Direction.FROM_TO, 7).intValue());
+        assertEquals("Column 1 isn't translated to column 1", 1, transCol.translateColumn(1).intValue());
+        assertEquals("Column 2 isn't translated to column 7", 7, transCol.translateColumn(2).intValue());
+        assertEquals("Column 3 isn't translated to column 2", 2, transCol.translateColumn(3).intValue());
+        assertEquals("Column 4 isn't translated to column 3", 3, transCol.translateColumn(4).intValue());
+        assertEquals("Column 5 isn't translated to column 5", 5, transCol.translateColumn(5).intValue());
+        assertEquals("Column 6 isn't translated to column 6", 6, transCol.translateColumn(6).intValue());
+        assertEquals("Column 7 isn't translated to column 8", 8, transCol.translateColumn(7).intValue());
     }
 
     /**

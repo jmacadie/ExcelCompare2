@@ -42,9 +42,7 @@ public class SheetDiff {
         
         // Translate from so rows & cols line up
         TranslatedCondensedFormulae tFrom =
-                new TranslatedCondensedFormulae(from,
-                                                _translations,
-                                                CellTranslations.Direction.FROM_TO);
+                new TranslatedCondensedFormulae(from, _translations);
         analyseDiff(tFrom, to);
         
         _sheetName = name;
