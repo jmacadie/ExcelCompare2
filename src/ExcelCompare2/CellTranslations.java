@@ -572,23 +572,4 @@ public class CellTranslations {
 
     }
     
-    private static class Match {
-        
-        private final int _matchPosn;
-        private final double _distance;
-        
-        Match (int pos, double distance) {
-            _matchPosn = pos;
-            _distance = distance;
-        }
-        
-        public int getPos() {
-            return _matchPosn;
-        }
-        
-        public double getDistance() {
-            return _distance;
-        }
-    }
-       
 }
