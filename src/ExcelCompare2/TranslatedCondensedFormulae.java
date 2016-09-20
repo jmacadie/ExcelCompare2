@@ -118,6 +118,10 @@ public class TranslatedCondensedFormulae {
         curr.savePosition();
         curr.moveFirst();
         while (curr.hasNext()) {
+            // TODO: crashes if curr.next() cell isn't in _beforeMap
+            // Need to decide what we do though. We could:
+            //  * Throw an error, or
+            //  * Ingore the missing cell
             out.addCell(_beforeMap.get(curr.next().getAsKey()));
         }
         curr.moveSaved();
