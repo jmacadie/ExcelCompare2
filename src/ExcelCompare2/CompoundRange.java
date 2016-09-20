@@ -62,6 +62,47 @@ public class CompoundRange implements Iterator<CellRef> {
         this._idxSave = 0;
     }
     
+    // Constructor with text range e.g. A1:B5
+    public CompoundRange(String range) {
+        this._compoundRange = new LinkedList<>();
+        this._refMap = new HashMap<>();
+        // TODO: safety checks on the input string, which is currently just
+        // assumed to be well formatted
+        // 1st split the range ref by comma delimited parts
+        String[] parts = range.split(",");
+        String[] ends;
+        CellRef cell;
+        CellRef cellStart;
+        CellRef cellEnd;
+        int cellsAdded = 0;
+        for (String part : parts) {
+            // split each part into it's block top-left to bottom-right range
+            ends = part.split(":");
+            if (ends.length == 1) {
+                // No block range so just add
+                cell = new CellRef(part);
+                _compoundRange.add(cell);
+                _refMap.put(cell.getAsKey(), 0);
+                cellsAdded++;
+            } else {
+                // Block so loop over whole block adding
+                cellStart = new CellRef(ends[0]);
+                cellEnd = new CellRef(ends[1]);
+                for (int j = cellStart.getCol(); j <= cellEnd.getCol(); j++) {
+                    for (int k = cellStart.getRow(); k <= cellEnd.getRow(); k++) {
+                        cell = new CellRef(k, j);
+                        _compoundRange.add(cell);
+                        _refMap.put(cell.getAsKey(), 0);
+                        cellsAdded++;
+                    }
+                }
+            }
+        }
+        this._idx = 0;
+        this._idxMax = cellsAdded - 1;
+        this._idxSave = 0;
+    }
+    
     public CompoundRange getCopy() {
         CompoundRange out = new CompoundRange();
 
@@ -77,7 +118,7 @@ public class CompoundRange implements Iterator<CellRef> {
     
     public void addCell(CellRef cr) {
         // TODO: store sorted?
-        // Will affect the compartive methods below
+        // Will affect the comparative methods below
         if (!contains(cr)) {
             _compoundRange.add(cr);
             _idxMax++;

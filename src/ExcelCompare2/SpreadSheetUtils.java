@@ -29,7 +29,7 @@ package ExcelCompare2;
 public class SpreadSheetUtils {
 
   public static String convertToLetter(int col) {
-    if (col >= 26) {
+    if (col > 26) {
       int mod26 = (col % 26);
       return convertToLetter((col - mod26) / 26) + convertToLetter(mod26);
     } else {

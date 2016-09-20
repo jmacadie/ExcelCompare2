@@ -526,6 +526,22 @@ public class CompoundRangeTest {
         cr2.addCell(new CellRef("D3"));
         assertEquals("'B1, B2, B3, C1, C2, C3, B4, C4, D1, D2, D3'  is not written as 'B1:D3,B4:C4'", "B1:D3,B4:C4", cr2.toString());
         
+        // Build CompoundRange from string directly and test
+        test = new CompoundRange("A1");
+        assertEquals("'A1' (created from string)  is not written as 'A1'", "A1", test.toString());
+        
+        test = new CompoundRange("$A$1");
+        assertEquals("'$A$1' (created from string)  is not written as 'A1'", "A1", test.toString());
+        
+        test = new CompoundRange("A1:B5");
+        assertEquals("'A1:B5' (created from string)  is not written as 'A1:B5'", "A1:B5", test.toString());
+        
+        test = new CompoundRange("$J4:Z$25");
+        assertEquals("'$J4:Z$25' (created from string)  is not written as 'J4:Z25'", "J4:Z25", test.toString());
+        
+        test = new CompoundRange("B4:C4,B1:D3");
+        assertEquals("'B4:C4,B1:D3' (created from string)  is not written as 'B1:D3,B4:C4'", "B1:D3,B4:C4", test.toString());
+        
     }
     
 }
