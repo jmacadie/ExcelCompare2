@@ -381,7 +381,7 @@ public class CellTranslationsTest {
     
     @BeforeClass
     public static void setUpClass() {
-        System.out.println("   test CondensedFormulae class");
+        System.out.println("   test CellTranslations class");
         System.out.println("=========================");
     }
     
