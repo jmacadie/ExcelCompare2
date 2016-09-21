@@ -509,6 +509,8 @@ public class CellTranslations {
             fFrom = iterFrom.next().getFormula();
             // Loop through every TO formula
             // Need to double loop as can't be sure of pairwise order
+            // TODO: pairwise order is most likely though so should fan search
+            // out from matching position and ignore already found matches
             match = false;
             iterTo = to.listIterator();
             while (iterTo.hasNext()) {
