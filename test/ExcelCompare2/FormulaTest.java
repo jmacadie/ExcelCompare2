@@ -110,6 +110,12 @@ public class FormulaTest {
                 "=IF(G2762=\"RBS\",0,IF(G2756=\"NULL\",IF(G2761=\"Other\",G2779,IF(G2761=\"PIA\",G2777,G2778))*G2769,G2756*$AA$20/G2774)*G2770)",
                 "=IF(R[-20]C=\"RBS\",0,IF(R[-26]C=\"NULL\",IF(R[-21]C=\"Other\",R[-3]C,IF(R[-21]C=\"PIA\",R[-5]C,R[-4]C))*R[-13]C,R[-26]C*R20C27/R[-8]C)*R[-12]C)");
         
+        // Test formulae across sheets
+        testGetFormulaR1C1Inner(
+                "$A$1",
+                "=Sheet2!A1",
+                "=Sheet2!RC");
+        
         // TODO: Come up with some other edge cases:
         // - sums across sheets,
         // - diff types of brackets,

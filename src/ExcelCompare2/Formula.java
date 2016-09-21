@@ -37,7 +37,7 @@ public class Formula {
     private final String _formulaR1C1;
     private final CellRef _cellRef;
     private final String _shellFormula;
-    private final List<CellRef> _references;
+    private final List<CellRefExt> _references;
     private final List<CellRefR1C1> _referencesR1C1;
     private final String _text;
     
@@ -56,6 +56,10 @@ public class Formula {
     private static String getCellRefRegex() {
         // Individual cell ref patern
         String cellPatUnit = "(\\$)?([A-Z]{1,3})(\\$)?(\\d+)";
+        // Sheet patern
+        String sheetUnit = "('[^/\\\\?*\\[\\]]{1,31}'|[A-Za-z0-9_]{1,31})(?:\\!)";
+        String extWBUnit = "(\\[.+\\])";
+        // TODO: multi-sheet references e.g. =SUM(Sheet2:Sheet3!A1)
         // TODO: Full columns and rows
         String collPatUnit = "(\\$)?([A-Z]{1,3}):(\\$)?([A-Z]{1,3})";
         String rowPatUnit = "(\\$)?(\\d+):(\\$)?(\\d+)";
@@ -65,20 +69,23 @@ public class Formula {
         String brackets = "\\(|\\)|\\[|\\]|\\{|\\}";
         String operators = "\\*|/|\\+|\\-|\\^|\\<|\\>|\\=|&";
         String rangeConcat = ":";
-        String extRef = "\\!";
         String argSep = ",";
         String delimiters = "(?:" + // Start group & make sure non-capturing
                             whitespace + "|" +
                             brackets + "|" +
                             operators + "|" +
                             rangeConcat + "|" +
-                            extRef + "|" +
                             argSep + ")";
         // Create the full regex for finding cell ref parts in any formulae
-        String cellPatFull = "^" + cellPatUnit + "$|" + // Only find cell ref
-                             delimiters + cellPatUnit + "$|" + // find cell ref at end
-                             "^" + cellPatUnit + delimiters + "|" + // find cell ref at start
-                             delimiters + cellPatUnit + delimiters; // find cell ref in middle
+        String cellPatFull = delimiters + cellPatUnit + delimiters + "|" + // find cell ref in middle - 4 groups
+                             delimiters + cellPatUnit + "$|" + // find cell ref at end - 4 groups
+                             // Ref on another sheet
+                             delimiters + sheetUnit + cellPatUnit + delimiters + "|" + // find cell ref in middle - 5 groups 
+                             delimiters + sheetUnit + cellPatUnit + "$|" + // find cell ref at end - 5 groups
+                             // Ref on another workbook
+                             delimiters + extWBUnit + sheetUnit + cellPatUnit + delimiters + "|" +  // find cell ref in middle - 6 groups
+                             delimiters + extWBUnit + sheetUnit + cellPatUnit + "$"; // find cell ref at end - 6 groups
+                             
         return cellPatFull;
     }
     
@@ -98,56 +105,60 @@ public class Formula {
         Matcher matcher = cellPat.matcher(_formula);
         
         int posn = 0;
+        int offset;
+        String sheet = "";
+        String extWB = "";
         String col;
         int row;
         boolean colAbs;
         boolean rowAbs;
-        CellRef formulaCellRef;
+        CellRefExt formulaCellRef;
         String cleanCellRef;
         
         while (matcher.find(posn)) {
-            // Look for column absolute
-            colAbs = false;
-            for (int i = 1; i < 17; i = i + 4) {
-                if (matcher.group(i) != null) {
-                    colAbs = true;
-                    break;
-                }
-            }
-            // Look for row absolute
-            rowAbs = false;
-            for (int i = 3; i < 17; i = i + 4) {
-                if (matcher.group(i) != null) {
-                    rowAbs = true;
-                    break;
-                }
-            }
-            // Look for column letter
-            col = "A"; // Default to column A, not sure if this is needed
-            for (int i = 2; i < 17; i = i + 4) {
-                if (matcher.group(i) != null) {
-                    col = matcher.group(i);
-                    break;
-                }
-            }
-            // Look for row
-            row = 1 ; // Default to row 1, not sure if this is needed
-            for (int i = 4; i < 17; i = i + 4) {
-                if (matcher.group(i) != null) {
-                    row = Integer.parseInt(matcher.group(i));
-                    break;
-                }
+            
+            if (matcher.group(2) != null) {
+                // Cell ref in middle on same sheet
+                offset = 1;
+            } else if (matcher.group(6) != null) {
+                // Cell ref at end on same sheet
+                offset = 5;
+            } else if (matcher.group(11) != null) {
+                // Cell ref in middle on different sheet
+                offset = 10;
+                sheet = matcher.group(9);
+            } else if (matcher.group(16) != null) {
+                // Cell ref at end on different sheet
+                offset = 15;
+                sheet = matcher.group(14);
+            } else if (matcher.group(22) != null) {
+                // Cell ref in middle on different workbook
+                offset = 21;
+                extWB = matcher.group(19);
+                sheet = matcher.group(20);
+            } else {
+                // Cell ref at end on different workbook
+                offset = 27;
+                extWB = matcher.group(25);
+                sheet = matcher.group(26);
             }
             
+            // Look for column absolute
+            colAbs = (matcher.group(offset) != null);
+            // Look for row absolute
+            rowAbs = (matcher.group(offset + 2) != null);
+            // Look for column letter
+            col = matcher.group(offset + 1);
+            // Look for row
+            row = Integer.parseInt(matcher.group(offset + 3));
+            
             // Build cell reference object and get it's R1C1 representation
-            formulaCellRef = new CellRef(col, row, colAbs, rowAbs);
+            formulaCellRef = new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB);
             _references.add(formulaCellRef);
             _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
             
-            // Clean cell reference by removing starting and trailing cell
-            // refernces, if they exist.
-            // Also escape any $
-            cleanCellRef = matcher.group().replaceAll("^[^A-Z]|[^0-9]$", "");
+            // Get clean cell reference & escape any $
+            cleanCellRef = formulaCellRef.toString();
             cleanCellRef = cleanCellRef.replaceAll("\\$", "\\\\\\$");
             
             // Finally replace the A1 style reference with its R1C1 counterpart
@@ -249,14 +260,22 @@ public class Formula {
         // Assumes map is applied to the current Formula and then compared to
         // the comp Formula
         
-        // If the rest of the formula doesn't match return -1
+        // TODO: don't try to translate cell references that are either off 
+        // sheet or off workbook. They havn't been translated by the map passed 
+        // in and could be out of range of the current sheet, which would cause 
+        // the program to crash
+        
+        // TODO: can we consider translations found on other sheets? 
+        // Seems way too hard
+        
+        // If the rest of the formula doesn't match return false
         // TODO: could consider some residual Levenstien distance measure to
         // capture formuale that have been moved and (moderately!) edited
         if (!comp._shellFormula.equals(_shellFormula))
             return false;
         
-        ListIterator<CellRef> iter = _references.listIterator();
-        ListIterator<CellRef> iterComp = comp._references.listIterator();
+        ListIterator<CellRefExt> iter = _references.listIterator();
+        ListIterator<CellRefExt> iterComp = comp._references.listIterator();
         CellRef cell;
         CellRef cellComp;
         
