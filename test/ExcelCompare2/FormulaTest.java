@@ -116,6 +116,11 @@ public class FormulaTest {
                 "=Sheet2!A1",
                 "=Sheet2!RC");
         
+        testGetFormulaR1C1Inner(
+                "$S$6",
+                "=VLOOKUP(B6,'Overhanging Leases'!$B$5:$W$166,7,FALSE)",
+                "=VLOOKUP(RC[-17],'Overhanging Leases'!R5C2:R166C23,7,FALSE)");
+        
         // TODO: Come up with some other edge cases:
         // - sums across sheets,
         // - diff types of brackets,

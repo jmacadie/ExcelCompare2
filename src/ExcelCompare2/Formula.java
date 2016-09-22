@@ -53,40 +53,69 @@ public class Formula {
         this._text = text;
     }
     
+    private static String getCellRefDelimiters(boolean incExtSheet) {
+        // Build delimiters
+        // Important as e.g. "A1A1" is not a cell reference
+        String whitespace = "\\s";
+        String brackets = "\\(\\)\\[\\]\\{\\}";
+        String operators = "\\*/\\+\\-\\^\\<\\>\\=&";
+        String rangeConcat = ":";
+        String extSheet = "!";
+        String argSep = ",";
+        String out =  "[" +
+                        whitespace +
+                        brackets +
+                        operators +
+                        rangeConcat +
+                        argSep;
+        if (incExtSheet) {
+            out += extSheet + "]";
+        } else {
+            out += "]";
+        }
+        return out;
+    }
+    
     private static String getCellRefRegex() {
         // Individual cell ref patern
         String cellPatUnit = "(\\$)?([A-Z]{1,3})(\\$)?(\\d+)";
         // Sheet patern
-        String sheetUnit = "('[^/\\\\?*\\[\\]]{1,31}'|[A-Za-z0-9_]{1,31})(?:\\!)";
+        String sheetUnit = "('[^/\\\\?*\\[\\]]{1,31}'\\!|[A-Za-z0-9_]{1,31}\\!)";
         String extWBUnit = "(\\[.+\\])";
         // TODO: multi-sheet references e.g. =SUM(Sheet2:Sheet3!A1)
         // TODO: Full columns and rows
         String collPatUnit = "(\\$)?([A-Z]{1,3}):(\\$)?([A-Z]{1,3})";
         String rowPatUnit = "(\\$)?(\\d+):(\\$)?(\\d+)";
-        // Build delimiters
-        // Important as e.g. "A1A1" is not a cell reference
-        String whitespace = "\\s";
-        String brackets = "\\(|\\)|\\[|\\]|\\{|\\}";
-        String operators = "\\*|/|\\+|\\-|\\^|\\<|\\>|\\=|&";
-        String rangeConcat = ":";
-        String argSep = ",";
-        String delimiters = "(?:" + // Start group & make sure non-capturing
-                            whitespace + "|" +
-                            brackets + "|" +
-                            operators + "|" +
-                            rangeConcat + "|" +
-                            argSep + ")";
+        // Delimiters
+        String delimiters = getCellRefDelimiters(false);
         // Create the full regex for finding cell ref parts in any formulae
-        String cellPatFull = delimiters + cellPatUnit + delimiters + "|" + // find cell ref in middle - 4 groups
-                             delimiters + cellPatUnit + "$|" + // find cell ref at end - 4 groups
-                             // Ref on another sheet
-                             delimiters + sheetUnit + cellPatUnit + delimiters + "|" + // find cell ref in middle - 5 groups 
-                             delimiters + sheetUnit + cellPatUnit + "$|" + // find cell ref at end - 5 groups
-                             // Ref on another workbook
-                             delimiters + extWBUnit + sheetUnit + cellPatUnit + delimiters + "|" +  // find cell ref in middle - 6 groups
-                             delimiters + extWBUnit + sheetUnit + cellPatUnit + "$"; // find cell ref at end - 6 groups
+        return "(" + delimiters + ")" +
+                extWBUnit + "?" +
+                sheetUnit + "?" + 
+                cellPatUnit + "(:)?" +
+                "(" + cellPatUnit + ")?" +
+                "(" + delimiters + "|$)";
                              
-        return cellPatFull;
+    }
+    
+    private static String replaceCellRef(String formula, String oldCell, String replaceCell) {
+        String delimiters = getCellRefDelimiters(true);
+        String cellPat = "(" + delimiters + ")" +
+                         "(" + oldCell.replaceAll("\\$", "\\\\\\$") + ")" +
+                         "(" + delimiters + "|$)";
+        
+        Pattern p = Pattern.compile(cellPat);
+        Matcher m = p.matcher(formula);
+        
+        String replacement = replaceCell.replaceAll("\\$", "\\\\\\$");
+        replacement = "$1" + replacement + "$3";
+        
+        String output = formula;
+        if (m.find()) {
+            output = m.replaceAll(replacement);
+        }
+        
+        return output;
     }
     
     // Convert formula to R1C1
@@ -105,69 +134,69 @@ public class Formula {
         Matcher matcher = cellPat.matcher(_formula);
         
         int posn = 0;
-        int offset;
-        String sheet = "";
-        String extWB = "";
+        String sheet;
+        String extWB;
         String col;
         int row;
         boolean colAbs;
         boolean rowAbs;
+        String col2;
+        int row2;
+        boolean colAbs2;
+        boolean rowAbs2;
         CellRefExt formulaCellRef;
-        String cleanCellRef;
         
         while (matcher.find(posn)) {
             
-            if (matcher.group(2) != null) {
-                // Cell ref in middle on same sheet
-                offset = 1;
-            } else if (matcher.group(6) != null) {
-                // Cell ref at end on same sheet
-                offset = 5;
-            } else if (matcher.group(11) != null) {
-                // Cell ref in middle on different sheet
-                offset = 10;
-                sheet = matcher.group(9);
-            } else if (matcher.group(16) != null) {
-                // Cell ref at end on different sheet
-                offset = 15;
-                sheet = matcher.group(14);
-            } else if (matcher.group(22) != null) {
-                // Cell ref in middle on different workbook
-                offset = 21;
-                extWB = matcher.group(19);
-                sheet = matcher.group(20);
-            } else {
-                // Cell ref at end on different workbook
-                offset = 27;
-                extWB = matcher.group(25);
-                sheet = matcher.group(26);
-            }
+            // Extract the formula parts
+            extWB = (matcher.group(2) == null) ? "" : matcher.group(2);
+            sheet = (matcher.group(3) == null) ? "" : matcher.group(3);
+            colAbs = (matcher.group(4) != null);
+            col = matcher.group(5);
+            rowAbs = (matcher.group(6) != null);
+            row = Integer.parseInt(matcher.group(7));
             
-            // Look for column absolute
-            colAbs = (matcher.group(offset) != null);
-            // Look for row absolute
-            rowAbs = (matcher.group(offset + 2) != null);
-            // Look for column letter
-            col = matcher.group(offset + 1);
-            // Look for row
-            row = Integer.parseInt(matcher.group(offset + 3));
+            // Get second part in a multi-cell range
+            colAbs2 = (matcher.group(10) != null);
+            col2 = matcher.group(11);
+            rowAbs2 = (matcher.group(12) != null);
+            row2 = (matcher.group(13) == null) ? 0 : Integer.parseInt(matcher.group(13));
             
             // Build cell reference object and get it's R1C1 representation
             formulaCellRef = new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB);
             _references.add(formulaCellRef);
             _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
             
-            // Get clean cell reference & escape any $
-            cleanCellRef = formulaCellRef.toString();
-            cleanCellRef = cleanCellRef.replaceAll("\\$", "\\\\\\$");
-            
             // Finally replace the A1 style reference with its R1C1 counterpart
-            editFormula = editFormula.replaceAll(
-                    cleanCellRef, formulaCellRef.toR1C1(_cellRef).toString());
+            editFormula = replaceCellRef(editFormula,
+                                         formulaCellRef.toString(),
+                                         formulaCellRef.toR1C1(_cellRef).toString());
             
             // ... and just strip the cell ref for the shell
-            shellFormula = shellFormula.replaceAll(
-                    cleanCellRef, "");
+            shellFormula = replaceCellRef(shellFormula,
+                                          formulaCellRef.toString(),
+                                          "");
+            // If we have a multi-cell range, add the other part
+            // Important to do it like this as the same sheet and wb part that
+            // was only attached initial refence needs to be applied to the
+            // second refernce too
+            if (col2 != null) {
+                
+                formulaCellRef = new CellRefExt(col2, row2, colAbs2, rowAbs2, sheet, extWB);
+                _references.add(formulaCellRef);
+                _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
+
+                // Finally replace the A1 style reference with its R1C1 counterpart
+                editFormula = replaceCellRef(editFormula,
+                                             formulaCellRef.toString(),
+                                             formulaCellRef.toR1C1(_cellRef).toString());
+
+                // ... and just strip the cell ref for the shell
+                shellFormula = replaceCellRef(shellFormula,
+                                              formulaCellRef.toString(),
+                                              "");
+                
+            }
             
             // TODO: can we short-curcuit the fact we might have replaced the
             // same cell reference multiple times?
@@ -276,8 +305,8 @@ public class Formula {
         
         ListIterator<CellRefExt> iter = _references.listIterator();
         ListIterator<CellRefExt> iterComp = comp._references.listIterator();
-        CellRef cell;
-        CellRef cellComp;
+        CellRefExt cell;
+        CellRefExt cellComp;
         
         // Loop through all the refernces
         while (iter.hasNext()) {
@@ -296,18 +325,38 @@ public class Formula {
                 cell.getColAbs() != cellComp.getColAbs())
                 return false;
             
+            // If on different sheets then the cells don't match
+            // Note this shouldn't happen as the sheet ref parts are left in the
+            // shell formula
+            if (!cell.getSheet().equals(cellComp.getSheet()))
+                return false;
+            
+            // TODO: you can get a cell on the same sheet with an explicit sheet
+            // refernce in the formula. Need to guard against this but requires
+            // knowing which sheet you're on in the Formula object
+            
             // If mapped and the translation doesn't match then no match
+            // Only translate cells with no sheet (i.e. on current sheet)
             // Rows
-            if(rc == CellTranslations.RowCol.ROW &&
+            if(cell.getSheet().equals("") &&
+               rc == CellTranslations.RowCol.ROW &&
                map.get(cell.getRow()) != null &&
                map.get(cell.getRow()) != cellComp.getRow())
                return false;
 
             // If mapped and the translation doesn't match then no match
+            // Only translate cells with no sheet (i.e. on current sheet)
             // Columns
-            if(rc == CellTranslations.RowCol.COL &&
+            if(cell.getSheet().equals("") &&
+               rc == CellTranslations.RowCol.COL &&
                map.get(cell.getCol()) != null &&
                map.get(cell.getCol()) != cellComp.getCol())
+               return false;
+            
+            // If cell ref is off sheet (or workbook) then always check the
+            // whole thing
+            if(!cell.getSheet().equals("") &&
+               !cell.toString().equals(cellComp.toString()))
                return false;
             
             // TODO: worth checking the unmapped row / col references???
