@@ -121,6 +121,12 @@ public class FormulaTest {
                 "=VLOOKUP(B6,'Overhanging Leases'!$B$5:$W$166,7,FALSE)",
                 "=VLOOKUP(RC[-17],'Overhanging Leases'!R5C2:R166C23,7,FALSE)");
         
+        // Test cell refernces in sheet names
+        testGetFormulaR1C1Inner(
+                "$S$6",
+                "='My Q1 Actuals'!S6",
+                "='My Q1 Actuals'!RC");
+        
         // Test non-formula
         testGetFormulaR1C1Inner(
                 "$S$6",
