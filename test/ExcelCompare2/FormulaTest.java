@@ -121,6 +121,12 @@ public class FormulaTest {
                 "=VLOOKUP(B6,'Overhanging Leases'!$B$5:$W$166,7,FALSE)",
                 "=VLOOKUP(RC[-17],'Overhanging Leases'!R5C2:R166C23,7,FALSE)");
         
+        // Test non-formula
+        testGetFormulaR1C1Inner(
+                "$S$6",
+                "Q1 2015 to Q1 2016",
+                "Q1 2015 to Q1 2016");
+        
         // TODO: Come up with some other edge cases:
         // - sums across sheets,
         // - diff types of brackets,

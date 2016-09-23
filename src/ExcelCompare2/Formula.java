@@ -121,8 +121,10 @@ public class Formula {
     // Convert formula to R1C1
     private String[] convertToR1C1() {
         
-        // TODO: break up into smaller parts?
-        // TODO: don't find cell refs in sheet names or workbook names
+        // Only interpret formulae
+        if (this._formula.length() > 0 &&
+            !this._formula.substring(0, 1).equals("="))
+            return new String[] {this._formula, this._formula};
         
         String editFormula;
         editFormula = this._formula;
