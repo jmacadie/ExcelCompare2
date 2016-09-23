@@ -89,7 +89,8 @@ public class Formula {
         // Delimiters
         String delimiters = getCellRefDelimiters(false);
         // Create the full regex for finding cell ref parts in any formulae
-        return "(?<=" + delimiters + ")" +
+        return "(\"[^\"]*\")|" +
+                "(?<=" + delimiters + ")" +
                 extWBUnit + "?" +
                 sheetUnit + "?" + 
                 cellPatUnit + "(:)?" +
@@ -150,19 +151,25 @@ public class Formula {
         
         while (matcher.find(posn)) {
             
+            // If no cell ref found move straight onto next match
+            if (matcher.group(5) == null) {
+                posn = matcher.end();
+                continue;
+            }
+            
             // Extract the formula parts
-            extWB = (matcher.group(1) == null) ? "" : matcher.group(1);
-            sheet = (matcher.group(2) == null) ? "" : matcher.group(2);
-            colAbs = (matcher.group(3) != null);
-            col = matcher.group(4);
-            rowAbs = (matcher.group(5) != null);
-            row = Integer.parseInt(matcher.group(6));
+            extWB = (matcher.group(2) == null) ? "" : matcher.group(2);
+            sheet = (matcher.group(3) == null) ? "" : matcher.group(3);
+            colAbs = (matcher.group(4) != null);
+            col = matcher.group(5);
+            rowAbs = (matcher.group(6) != null);
+            row = Integer.parseInt(matcher.group(7));
             
             // Get second part in a multi-cell range
-            colAbs2 = (matcher.group(9) != null);
-            col2 = matcher.group(10);
-            rowAbs2 = (matcher.group(11) != null);
-            row2 = (matcher.group(12) == null) ? 0 : Integer.parseInt(matcher.group(12));
+            colAbs2 = (matcher.group(10) != null);
+            col2 = matcher.group(11);
+            rowAbs2 = (matcher.group(12) != null);
+            row2 = (matcher.group(13) == null) ? 0 : Integer.parseInt(matcher.group(13));
             
             // Build cell reference list and get the shell & R1C1 representation
             tmp = processCell(new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB),
@@ -187,7 +194,7 @@ public class Formula {
             // Move position index back 1 from the current end match
             // Need this as the trailing delimiter can be the starting
             // delimiter for the next cell ref
-            posn = matcher.end() - 1; 
+            posn = matcher.end() - 1;
         }
         
         return new String[] {editFormula, shellFormula};
