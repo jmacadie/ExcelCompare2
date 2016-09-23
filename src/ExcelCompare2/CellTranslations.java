@@ -451,7 +451,7 @@ public class CellTranslations {
         // Loop over the whole sheet, fanning out up and down
         // Will quit out as soon as we find the first match
         int j;
-        for (int i = 0; i < limit; i++) {
+        for (int i = 0; i <= limit; i++) {
             // Look down first
             // Don't look beyond the end of the range though
             // Also don't check an already mapped row
