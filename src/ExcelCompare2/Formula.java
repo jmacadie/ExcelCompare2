@@ -89,12 +89,12 @@ public class Formula {
         // Delimiters
         String delimiters = getCellRefDelimiters(false);
         // Create the full regex for finding cell ref parts in any formulae
-        return "(" + delimiters + ")" +
+        return "(?<=" + delimiters + ")" +
                 extWBUnit + "?" +
                 sheetUnit + "?" + 
                 cellPatUnit + "(:)?" +
                 "(" + cellPatUnit + ")?" +
-                "(" + delimiters + "|$)";
+                "(?=" + delimiters + "|$)";
                              
     }
     
@@ -149,18 +149,18 @@ public class Formula {
         while (matcher.find(posn)) {
             
             // Extract the formula parts
-            extWB = (matcher.group(2) == null) ? "" : matcher.group(2);
-            sheet = (matcher.group(3) == null) ? "" : matcher.group(3);
-            colAbs = (matcher.group(4) != null);
-            col = matcher.group(5);
-            rowAbs = (matcher.group(6) != null);
-            row = Integer.parseInt(matcher.group(7));
+            extWB = (matcher.group(1) == null) ? "" : matcher.group(1);
+            sheet = (matcher.group(2) == null) ? "" : matcher.group(2);
+            colAbs = (matcher.group(3) != null);
+            col = matcher.group(4);
+            rowAbs = (matcher.group(5) != null);
+            row = Integer.parseInt(matcher.group(6));
             
             // Get second part in a multi-cell range
-            colAbs2 = (matcher.group(10) != null);
-            col2 = matcher.group(11);
-            rowAbs2 = (matcher.group(12) != null);
-            row2 = (matcher.group(13) == null) ? 0 : Integer.parseInt(matcher.group(13));
+            colAbs2 = (matcher.group(9) != null);
+            col2 = matcher.group(10);
+            rowAbs2 = (matcher.group(11) != null);
+            row2 = (matcher.group(12) == null) ? 0 : Integer.parseInt(matcher.group(12));
             
             // Build cell reference object and get it's R1C1 representation
             formulaCellRef = new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB);
