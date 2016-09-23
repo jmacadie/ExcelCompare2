@@ -234,16 +234,11 @@ public class Formula {
         int rows = cell.getRow() - _cellRef.getRow();
         int cols = cell.getCol() - _cellRef.getCol();
         CellRef trans;
-        String find;
-        String replace;
         
         // Loop through the references moving them and replacing them in formula
         for (CellRef orig : _references) {
             trans = orig.move(rows, cols);
-            // Escape the dollars in the cell ref
-            find = orig.toString().replaceAll("\\$", "\\\\\\$");
-            replace = trans.toString().replaceAll("\\$", "\\\\\\$");
-            newFormula = newFormula.replaceAll(find, replace);
+            newFormula = replaceCellRef(newFormula, orig.toString(), trans.toString());
         }
         return new Formula(newFormula, cell, this._text);
     }
