@@ -146,7 +146,7 @@ public class Formula {
         int row2;
         boolean colAbs2;
         boolean rowAbs2;
-        CellRefExt formulaCellRef;
+        String[] tmp;
         
         while (matcher.find(posn)) {
             
@@ -164,40 +164,21 @@ public class Formula {
             rowAbs2 = (matcher.group(11) != null);
             row2 = (matcher.group(12) == null) ? 0 : Integer.parseInt(matcher.group(12));
             
-            // Build cell reference object and get it's R1C1 representation
-            formulaCellRef = new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB);
-            _references.add(formulaCellRef);
-            _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
+            // Build cell reference list and get the shell & R1C1 representation
+            tmp = processCell(new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB),
+                              editFormula, shellFormula);
+            editFormula = tmp[0];
+            shellFormula = tmp[1];
             
-            // Finally replace the A1 style reference with its R1C1 counterpart
-            editFormula = replaceCellRef(editFormula,
-                                         formulaCellRef.toString(),
-                                         formulaCellRef.toR1C1(_cellRef).toString());
-            
-            // ... and just strip the cell ref for the shell
-            shellFormula = replaceCellRef(shellFormula,
-                                          formulaCellRef.toString(),
-                                          "");
             // If we have a multi-cell range, add the other part
             // Important to do it like this as the same sheet and wb part that
             // was only attached initial refence needs to be applied to the
             // second refernce too
             if (col2 != null) {
-                
-                formulaCellRef = new CellRefExt(col2, row2, colAbs2, rowAbs2, sheet, extWB);
-                _references.add(formulaCellRef);
-                _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
-
-                // Finally replace the A1 style reference with its R1C1 counterpart
-                editFormula = replaceCellRef(editFormula,
-                                             formulaCellRef.toString(),
-                                             formulaCellRef.toR1C1(_cellRef).toString());
-
-                // ... and just strip the cell ref for the shell
-                shellFormula = replaceCellRef(shellFormula,
-                                              formulaCellRef.toString(),
-                                              "");
-                
+                tmp = processCell(new CellRefExt(col2, row2, colAbs2, rowAbs2, sheet, extWB),
+                                  editFormula, shellFormula);
+                editFormula = tmp[0];
+                shellFormula = tmp[1];
             }
             
             // TODO: can we short-curcuit the fact we might have replaced the
@@ -208,6 +189,23 @@ public class Formula {
             // delimiter for the next cell ref
             posn = matcher.end() - 1; 
         }
+        
+        return new String[] {editFormula, shellFormula};
+    }
+    
+    private String[] processCell(CellRefExt formulaCellRef, String editFormula, String shellFormula) {
+        _references.add(formulaCellRef);
+        _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
+
+        // Replace the A1 style reference with its R1C1 counterpart
+        editFormula = replaceCellRef(editFormula,
+                                     formulaCellRef.toString(),
+                                     formulaCellRef.toR1C1(_cellRef).toString());
+
+        // Strip the cell ref for the shell
+        shellFormula = replaceCellRef(shellFormula,
+                                      formulaCellRef.toString(),
+                                      "");
         
         return new String[] {editFormula, shellFormula};
     }
