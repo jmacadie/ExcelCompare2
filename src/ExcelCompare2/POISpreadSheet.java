@@ -100,7 +100,7 @@ public class POISpreadSheet implements ISpreadSheet {
         }
         // Construct the Condensed Formulae object from the array of Formulae
         // on the sheet
-        return new CondensedFormulae(f);
+        return new CondensedFormulae(f, true);
     }
     
     private Iterator<POISheet> getSheetIterator() {

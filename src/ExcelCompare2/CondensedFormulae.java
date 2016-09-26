@@ -48,6 +48,11 @@ public class CondensedFormulae {
     
     // Build condensed formulae map from an array of Formulae
     public CondensedFormulae(List<Formula> formulae) {
+        this(formulae, false);
+    }
+    
+    // Build condensed formulae map from an array of Formulae
+    public CondensedFormulae(List<Formula> formulae, boolean buildSubsets) {
         this._uniqueFormulae = new LinkedList<>();
         this._refMap = new HashMap<>();
         this._maxCols = 0;
@@ -55,15 +60,61 @@ public class CondensedFormulae {
         this._rows = new HashMap<>();
         this._columns = new HashMap<>();
         
-        // Loop through all rows
+        // Optionally build two lists (rows & cols) of lists of formuale
+        // for pre-populating the memoised store of subsetted rows and columns
+        // Think the sheet translations are sucking too much time as the way
+        // they subset rows and cols (which they have to do on all rows and cols
+        // anyway) is less efficient than just creating them upfront
+        Formula f;
+        Integer i;
+        Integer j;
+        Map<Integer, List<Formula>> columns = new HashMap<>();
+        Map<Integer, List<Formula>> rows = new HashMap<>();
+        
+        // Loop through all formulae
         ListIterator<Formula> iter = formulae.listIterator();
         while (iter.hasNext()) {
+            
+            // Get the formula
+            f = iter.next();
+            
             // Add cell to condensed formulae map
-            add(iter.next());
+            add(f);
+            
+            // Build the hash maps of lists for each of the rows and columns in
+            // the sheet
+            if (buildSubsets) {
+                // Get the rows and cols of this formula
+                i = f.getCellRef().getRow();
+                j = f.getCellRef().getCol();
+                // Create new linked lists if the row / column not previously
+                // been seen
+                if (!rows.containsKey(i)) 
+                    rows.put(i, new LinkedList<>());
+                if (!columns.containsKey(j)) 
+                    columns.put(j, new LinkedList<>());
+                // Add the formula to the right row and column
+                rows.get(i).add(f);
+                columns.get(j).add(f);
+            }
+            
         }
         
         // and then finally build the ref map
         buildRefMap();
+        
+        // Build rows and columns from the hash maps collated
+        if (buildSubsets) {
+            CondensedFormulae cf;
+            for (Map.Entry<Integer, List<Formula>> entry : rows.entrySet()) {
+                cf = new CondensedFormulae(entry.getValue(), false);
+                this._rows.put(entry.getKey(), cf);
+            }
+            for (Map.Entry<Integer, List<Formula>> entry : columns.entrySet()) {
+                cf = new CondensedFormulae(entry.getValue(), false);
+                this._columns.put(entry.getKey(), cf);
+            }
+        }
     }
     
     private void add(Formula formula) {
