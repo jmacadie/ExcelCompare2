@@ -254,7 +254,9 @@ public class Formula {
             if (orig.getSheet().equals("") &&
                 orig.getExtWB().equals("")) {
                 translated = TranslatedCondensedFormulae.applyTranslations(orig, trans);
-                newFormula = replaceCellRef(newFormula, orig, translated);
+                // If null then the cell has been deleted so no point translating
+                if (translated != null)
+                    newFormula = replaceCellRef(newFormula, orig, translated);
             }
         }
         return new Formula(newFormula, cell, this._text);
