@@ -266,7 +266,11 @@ public class CellTranslations {
         for (int i = maxTo + 1; i < map._to.size(); i++) {
             e = new CellTransInsertDelete(
                         CellTransInsertDelete.CellTranslationType.INSERTED, map._from.size(), 1);
-            this._rowInserts.add(e);
+            if(type == RowCol.ROW) {
+                this._rowInserts.add(e);
+            } else {
+                this._columnInserts.add(e);
+            }
         }
     }
     
