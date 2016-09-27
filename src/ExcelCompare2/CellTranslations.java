@@ -206,7 +206,9 @@ public class CellTranslations {
                     // in which case assume row not moved just edited
                     // Add changed match to map
                     map.add(fromPos, t.pos());
-                    // & than increment the target counter
+                    // Record the to match in the Max to variable
+                    maxTo = Math.max(t.pos(), maxTo);;
+                    // & then increment the target counter
                     t.match();
                 }
             } else {
