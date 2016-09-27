@@ -89,7 +89,7 @@ public class Formula {
         // Delimiters
         String delimiters = getCellRefDelimiters(false);
         // Create the full regex for finding cell ref parts in any formulae
-        return "(\"[^\"]*\")|" +
+        return "(\"[^\"]*\")|" + // First find anything in double quotes. Find so we can make sure we can ignore
                 "(?<=" + delimiters + ")" +
                 extWBUnit + "?" +
                 sheetUnit + "?" + 
@@ -119,43 +119,36 @@ public class Formula {
         return output;
     }
     
-    // Convert formula to R1C1
     private String[] convertToR1C1() {
+        // Convert formula to R1C1
         
         // Only interpret formulae
         if (this._formula.length() > 0 &&
             !this._formula.substring(0, 1).equals("="))
             return new String[] {this._formula, this._formula};
         
-        String editFormula;
-        editFormula = this._formula;
-        
-        String shellFormula;
-        shellFormula = this._formula;
+        StringBuffer edit = new StringBuffer(this._formula.length());
+        String shellFormula = "";
         
         Pattern cellPat = Pattern.compile(getCellRefRegex());
         Matcher matcher = cellPat.matcher(_formula);
         
-        int posn = 0;
         String sheet;
         String extWB;
         String col;
         int row;
         boolean colAbs;
         boolean rowAbs;
-        String col2;
-        int row2;
-        boolean colAbs2;
-        boolean rowAbs2;
-        String[] tmp;
+        CellRefExt cell;
+        String replaceText;
+        int lastPos = 0;
         
-        while (matcher.find(posn)) {
+        while (matcher.find()) {
             
             // If no cell ref found move straight onto next match
-            if (matcher.group(5) == null) {
-                posn = matcher.end();
+            // This catches the instance where we've found text in double quotes
+            if (matcher.group(5) == null)
                 continue;
-            }
             
             // Extract the formula parts
             extWB = (matcher.group(2) == null) ? "" : matcher.group(2);
@@ -165,56 +158,46 @@ public class Formula {
             rowAbs = (matcher.group(6) != null);
             row = Integer.parseInt(matcher.group(7));
             
-            // Get second part in a multi-cell range
-            colAbs2 = (matcher.group(10) != null);
-            col2 = matcher.group(11);
-            rowAbs2 = (matcher.group(12) != null);
-            row2 = (matcher.group(13) == null) ? 0 : Integer.parseInt(matcher.group(13));
+            // Build Cell object and add it to our refernces
+            cell = new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB);
+            _references.add(cell);
+            _referencesR1C1.add(cell.toR1C1(_cellRef));
             
-            // Build cell reference list and get the shell & R1C1 representation
-            tmp = processCell(new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB),
-                              editFormula, shellFormula);
-            editFormula = tmp[0];
-            shellFormula = tmp[1];
+            // Build replacement text
+            replaceText = extWB + sheet + cell.toR1C1(_cellRef).toString();
+            
+            // Get second part in a multi-cell range
+            colAbs = (matcher.group(10) != null);
+            col = matcher.group(11);
+            rowAbs = (matcher.group(12) != null);
+            row = (matcher.group(13) == null) ? 0 : Integer.parseInt(matcher.group(13));
             
             // If we have a multi-cell range, add the other part
             // Important to do it like this as the same sheet and wb part that
             // was only attached initial refence needs to be applied to the
             // second refernce too
-            if (col2 != null) {
-                tmp = processCell(new CellRefExt(col2, row2, colAbs2, rowAbs2, sheet, extWB),
-                                  editFormula, shellFormula);
-                editFormula = tmp[0];
-                shellFormula = tmp[1];
+            if (col != null) {
+                // Build Cell object and add it to our refernces
+                cell = new CellRefExt(col, row, colAbs, rowAbs, sheet, extWB);
+                _references.add(cell);
+                _referencesR1C1.add(cell.toR1C1(_cellRef));
+                
+                replaceText += ":" + cell.toR1C1(_cellRef).toString();
             }
             
-            // TODO: can we short-curcuit the fact we might have replaced the
-            // same cell reference multiple times?
+            // Escape any dollars in the replacement text
+            matcher.appendReplacement(edit, Matcher.quoteReplacement(replaceText));
             
-            // Move position index back 1 from the current end match
-            // Need this as the trailing delimiter can be the starting
-            // delimiter for the next cell ref
-            posn = matcher.end() - 1;
+            // Build the shell formula
+            shellFormula += extWB + sheet + _formula.subSequence(lastPos, matcher.start());
+            lastPos = matcher.end();
+            
         }
         
-        return new String[] {editFormula, shellFormula};
-    }
-    
-    private String[] processCell(CellRefExt formulaCellRef, String editFormula, String shellFormula) {
-        _references.add(formulaCellRef);
-        _referencesR1C1.add(formulaCellRef.toR1C1(_cellRef));
+        matcher.appendTail(edit);
+        shellFormula += _formula.substring(lastPos);
 
-        // Replace the A1 style reference with its R1C1 counterpart
-        editFormula = replaceCellRef(editFormula,
-                                     formulaCellRef.toString(),
-                                     formulaCellRef.toR1C1(_cellRef).toString());
-
-        // Strip the cell ref for the shell
-        shellFormula = replaceCellRef(shellFormula,
-                                      formulaCellRef.toString(),
-                                      "");
-        
-        return new String[] {editFormula, shellFormula};
+        return new String[] {edit.toString(), shellFormula};
     }
     
     public String getR1C1() {
