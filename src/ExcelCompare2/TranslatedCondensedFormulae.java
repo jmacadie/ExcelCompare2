@@ -81,6 +81,12 @@ public class TranslatedCondensedFormulae {
                 af = iter.next();
                 r = af.getRange();
                 origFormula = af.getFormula();
+                // TODO: copying and then translating for every cell is not good
+                // for performance in the current set-up. Should consider
+                // refactoring.
+                // The static cell ref find seems to be signifacntly more
+                // performant so maybe we just shouldn't bother storing a list
+                // of refences on the Formual object in the first place
                 // Loop through every cell in the analysed formula
                 r.moveFirst();
                 while (r.hasNext()) {
