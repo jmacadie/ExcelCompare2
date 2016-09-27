@@ -495,7 +495,7 @@ public class CellTranslations {
             RowCol searching) {
         // Assumes we're comparing a row or column to one another
         
-        ListIterator<AnalysedFormula> iterTo;
+        ListIterator<AnalysedFormula> iterTo = to.listIterator();
         ListIterator<AnalysedFormula> iterFrom = from.listIterator();
         Formula fTo;
         Formula fFrom;
@@ -508,11 +508,9 @@ public class CellTranslations {
         while (iterFrom.hasNext()) {
             fFrom = iterFrom.next().getFormula();
             // Loop through every TO formula
-            // Need to double loop as can't be sure of pairwise order
-            // TODO: pairwise order is most likely though so should fan search
-            // out from matching position and ignore already found matches
+            // As underlying formulae are sorted don't need to re-set the to
+            // itertor & check earlier formulae
             match = false;
-            iterTo = to.listIterator();
             while (iterTo.hasNext()) {
                 fTo = iterTo.next().getFormula();
                 // If there's a match then move to next FROM formula
