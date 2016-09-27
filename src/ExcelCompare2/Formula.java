@@ -99,6 +99,10 @@ public class Formula {
                              
     }
     
+    private static String replaceCellRef(String formula, CellRef oldCell, CellRef replaceCell) {
+        return replaceCellRef(formula, oldCell.toString(), replaceCell.toString());
+    }
+    
     private static String replaceCellRef(String formula, String oldCell, String replaceCell) {
         String delimiters = getCellRefDelimiters(true);
         String cellPat = "(" + delimiters + ")" +
@@ -226,9 +230,13 @@ public class Formula {
         CellRef trans;
         
         // Loop through the references moving them and replacing them in formula
-        for (CellRef orig : _references) {
-            trans = orig.move(rows, cols);
-            newFormula = replaceCellRef(newFormula, orig.toString(), trans.toString());
+        for (CellRefExt orig : _references) {
+            // Only move references on sheet
+            if (orig.getSheet().equals("") &&
+                orig.getExtWB().equals("")) {
+                trans = orig.move(rows, cols);
+                newFormula = replaceCellRef(newFormula, orig, trans);
+            }
         }
         return new Formula(newFormula, cell, this._text);
     }
@@ -239,16 +247,15 @@ public class Formula {
         
         String newFormula = _formula;
         CellRef translated;
-        String find;
-        String replace;
         
         // Loop through the references moving them and replacing them in formula
-        for (CellRef orig : _references) {
-            translated = TranslatedCondensedFormulae.applyTranslations(orig, trans);
-            // Escape the dollars in the cell ref
-            find = orig.toString().replaceAll("\\$", "\\\\\\$");
-            replace = translated.toString().replaceAll("\\$", "\\\\\\$");
-            newFormula = newFormula.replaceAll(find, replace);
+        for (CellRefExt orig : _references) {
+            // Only translate references on sheet
+            if (orig.getSheet().equals("") &&
+                orig.getExtWB().equals("")) {
+                translated = TranslatedCondensedFormulae.applyTranslations(orig, trans);
+                newFormula = replaceCellRef(newFormula, orig, translated);
+            }
         }
         return new Formula(newFormula, cell, this._text);
     }
