@@ -44,13 +44,19 @@ public class Formula {
     public Formula(String formula, CellRef cellRef, String text) {
         this._formula = formula;
         this._cellRef = cellRef;
+        this._text = text;
+        
         this._references = new LinkedList<>();
         this._referencesR1C1 = new LinkedList<>();
         
-        String[] tmp = convertToR1C1();
-        this._formulaR1C1 = tmp[0];
-        this._shellFormula = tmp[1];
-        this._text = text;
+        if (formula != null) {
+            String[] tmp = convertToR1C1();
+            this._formulaR1C1 = tmp[0];
+            this._shellFormula = tmp[1];
+        } else {
+            this._formulaR1C1 = text;
+            this._shellFormula = text;
+        }
     }
     
     private static String getCellRefDelimiters(boolean incExtSheet) {
@@ -359,5 +365,9 @@ public class Formula {
         
         // If we get here then all cells match
         return true;
+    }
+    
+    public boolean hasFormula() {
+        return (_formula != null);
     }
 }

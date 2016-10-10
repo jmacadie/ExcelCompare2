@@ -226,7 +226,11 @@ public class SheetDiff {
                 case NEW:
                     to = d.getTo();
                     System.out.println("New formula found at " + to.getRange().toString());
-                    System.out.println("  NEW: " + to.getFormula().getA1() + " (" + to.getFormula().getText() + ")");
+                    if (to.getFormula().hasFormula()) {
+                        System.out.println("  NEW: " + to.getFormula().getA1() + " (" + to.getFormula().getText() + ")");
+                    } else {
+                        System.out.println("  NEW: " + to.getFormula().getText());
+                    };
                     System.out.println("  OLD: ");
                     break;
                 case CLEARED:
@@ -236,7 +240,11 @@ public class SheetDiff {
                     if (!preTrans.equals(from.getRange()))
                         System.out.println("- translated from " + preTrans.toString() + " originally");
                     System.out.println("  NEW: ");
-                    System.out.println("  OLD: " + from.getFormula().getA1() + " (" + from.getFormula().getText() + ")");
+                    if (from.getFormula().hasFormula()) {
+                        System.out.println("  OLD: " + from.getFormula().getA1() + " (" + from.getFormula().getText() + ")");
+                    } else {
+                        System.out.println("  OLD: " + from.getFormula().getText());
+                    }
                     break;
                 case CHANGED:
                     from = d.getFrom();
@@ -245,8 +253,16 @@ public class SheetDiff {
                     System.out.println("Changed formula found at " + to.getRange().toString());
                     if (!preTrans.equals(from.getRange()))
                         System.out.println("- translated from " + preTrans.toString() + " originally");
-                    System.out.println("  NEW: " + to.getFormula().getA1() + " (" + to.getFormula().getText() + ")");
-                    System.out.println("  OLD: " + from.getFormula().getA1() + " (" + from.getFormula().getText() + ")");
+                    if (to.getFormula().hasFormula()) {
+                        System.out.println("  NEW: " + to.getFormula().getA1() + " (" + to.getFormula().getText() + ")");
+                    } else {
+                        System.out.println("  NEW: " + to.getFormula().getText());
+                    }
+                    if (from.getFormula().hasFormula()) {
+                        System.out.println("  OLD: " + from.getFormula().getA1() + " (" + from.getFormula().getText() + ")");
+                    } else {
+                        System.out.println("  OLD: " + from.getFormula().getText());
+                    }
                     break;
                 default:
                     System.out.println("Unknown difference type?");

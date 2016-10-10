@@ -35,6 +35,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
  *
@@ -45,12 +46,14 @@ public class POISpreadSheet implements ISpreadSheet {
     private final Workbook _wb;
     private final Iterator<POISheet> _iter;
     private POISheet _sheet;
+    final DataFormatter _formatter;
     
     public POISpreadSheet (String fName) throws Exception  {
         try {
             _wb = loadSpreadSheet(fName);
             _iter = getSheetIterator();
             _sheet = _iter.next();
+            _formatter = new DataFormatter(); //creating formatter using the default locale
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -219,20 +222,21 @@ public class POISpreadSheet implements ISpreadSheet {
         }
 
         public Formula getFormula() {
-            // TODO: store dates as dates not numbers
-            // might want to conside for other formatting types too e.g. pecenatges
-            boolean hasFormula = false;
             String formula = null;
             String value;
+            
             int cellType = _cell.getCellType();
             if (cellType == Cell.CELL_TYPE_FORMULA) {
-                hasFormula = true;
                 formula = "=" + _cell.getCellFormula();
                 cellType = _cell.getCachedFormulaResultType();
             }
             switch (cellType) {
                 case Cell.CELL_TYPE_NUMERIC:
-                    value = String.valueOf(_cell.getNumericCellValue());
+                    CellStyle style = _cell.getCellStyle();
+                    value = _formatter.formatRawCellContents(
+                                _cell.getNumericCellValue(), 
+                                style.getDataFormat(), 
+                                style.getDataFormatString());
                     break;
                 case Cell.CELL_TYPE_BOOLEAN:
                     value = String.valueOf(_cell.getBooleanCellValue());
@@ -244,13 +248,11 @@ public class POISpreadSheet implements ISpreadSheet {
                     value = _cell.getStringCellValue();
                     break;
             }
-            formula = !hasFormula ? value : formula;
-            DataFormatter formatter = new DataFormatter(); //creating formatter using the default locale
             
-            // TODO: extend Formula to hold value as well
+            // Create the formula and return it
             return new Formula(formula,
                     new CellRef(_cell.getRowIndex() + 1, _cell.getColumnIndex() + 1),
-                    formatter.formatCellValue(_cell));
+                    value);
         }
     }
 }
