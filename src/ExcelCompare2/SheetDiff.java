@@ -74,10 +74,8 @@ public class SheetDiff {
             // 1) Formula does not exist in FROM at all
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (fromRange == null) {
-                
                 // Find changed and new formulae over the TO range
                 findChangedAndNew(toRange, af, from);
-                
                 // Move to next unique formula in TO
                 continue;
             }
@@ -113,28 +111,18 @@ public class SheetDiff {
         // Loop through all the FROM unique formuale that were removed
         // TODO: make sure there aren't any unanalysed formualae in the main
         // TranslatedFormulae bit of FROM
-        findDeleted(from.getRemoved());
-    }
-    
-    private void findDeleted (CondensedFormulae from) {
-        
-        ListIterator<AnalysedFormula> iter = from.listIterator();
-        AnalysedFormula af;
         CellDiff diff;
-        
+        iter = from.getRemoved().listIterator();
         // Loop through all the FROM unique formuale
         while (iter.hasNext()) {
-            
             // Get the next FROM unique formula
             af = iter.next();
-            
             // Add the difference
             diff = new CellDiff(CellDiff.CellDiffType.CLEARED,
                                 af.getUniqueFormula(), null,
                                 af.getRange());
             _differences.add(diff);
         }
-        
     }
     
     private void findChangedAndNew (CompoundRange toRange, AnalysedFormula toFormula, TranslatedCondensedFormulae from) {
