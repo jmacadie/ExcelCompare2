@@ -24,21 +24,25 @@ ExecelCompare2 differs from ExcelCompare in two key ways:
 
 ## How it works
 
-There are a number of tricks / techniques employed:
+There are a number of tricks / techniques employed. Please also refer to the [class strucure map](https://github.com/jmacadie/ExcelCompare2/blob/master/class_structure.txt) for a visual guide to how all the classes fit togther.
 
+### Spreadsheet Access
   * Actual spreadsheet access is interfaced out as, in theory, it could be provided by some other means but currently the program relies only on Apache POI
 
+### Physical sheet structure
   * Formulae are blocked together by comparing the R1C1 representation of the formulae; in R1C1 notation "same" formulae will have the exactly the same formula. Unfortunately POI doesn't provide R1C1 notation formulae so to convert between the two, regex is used to parse the formula and find & replace all the cell references  
   * Formulae are stored in the Formula class, which holds the original formula, the cell the formula is in, the R1C1 representation of the formula and finally the "shell formula". The shell formula concept stores the text of the formula with all cell references stripped out and is useful for detecting translations as any translation may edit cell references but will always leave the shell of each formula untouched  
   * Next up, we have the UniqueFormulae class that stores a single formula plus a record of all other cells on the sheet that share the same formula  
   * Building on this we have the CondensedFormulae class that represents the entire sheet. This is just a list of all the UniqueFormulae on the sheet  
     Note CondensedFormulae can also be (and is) used to store subsets of sheet. For example rows and columns within a sheet are also represented in a CondensedFormulae object
-
+  
+### Translations
   * To detect translations, firstly a map is built for both rows and columns (read rows for columns and vice versa in the following explanation). The map is two directional and says which row in the 'to' sheet each row in the 'from' sheet goes to. An inserted row would be represented by row x in 'to' being mapped to `null` in 'from', likewise a deleted row would be represented by row x in 'from' being mapped to `null` in 'to'  
   * To build the map, row equivalence therefore needs to be determined. This is done by subsetting the CondensedFormulae of the sheet into a series of CondensedFormulae, one for each row. In turn each CondensedFormulae row from the 'from' sheet is taken. Matching is done by looking an identical "shell formula" match for all the UniqueFormulae in the target CondensedFormulae 'to' row  
   * Searching is done by fanning out from the expected position. This is based on the expectation that if 'from' row 7 is found on row 10 of 'to' then the most likely place to find 'from' row 8 is on row 11 of 'to'. The fanning process (from our example) will try row 11, 12, 10, 13, 9, etc... ignoring any rows already mapped and stopping when the match is found  
   * Finally the map is converted into a series of human-friendly translation actions, such as 2 rows inserted at row 4
   
+### Diff
   * The diff process works by firstly applying all the detected translations to the 'from' sheet. This produces a TranslatedCondensedFormulae object and moves all cells that have been translated as well as re-writing any formula that refers to a translated cell. Having done this, same cells that used to share the same formula (and therefore be part of the same UniqueFormulae object) may no longer be the same so the entire unique formulae grouping process is done over again  
   * Having translated the 'from' sheet all cells should now be lined up and we can get on with the business of determining the real differences  
   * Differences are determined by looping through the UniqueFormulae in the 'to' CondensedFormulae sheet
