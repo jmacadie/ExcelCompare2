@@ -8,10 +8,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,27 +27,27 @@ package ExcelCompare2;
  * @author james.macadie
  */
 public class CellTransMove {
-    
-    private final int _from;
-    private final int _to;
-    private final int _numberAffected;
-    
-    public CellTransMove(int from, int to, int numberAffected) {
-        this._from = from;
-        this._to = to;
-        this._numberAffected = numberAffected;
-    }
-    
-    public int getFrom() {
-        return _from;
-    }
-    
-    public int getTo() {
-        return _to;
-    }
-    
-    public int getNumber() {
-        return _numberAffected;
-    }
-    
+
+  private final int _from;
+  private final int _to;
+  private final int _numberAffected;
+
+  public CellTransMove(int from, int to, int numberAffected) {
+    this._from = from;
+    this._to = to;
+    this._numberAffected = numberAffected;
+  }
+
+  public int getFrom() {
+    return _from;
+  }
+
+  public int getTo() {
+    return _to;
+  }
+
+  public int getNumber() {
+    return _numberAffected;
+  }
+
 }

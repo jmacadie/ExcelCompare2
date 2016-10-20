@@ -8,10 +8,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,217 +42,217 @@ import org.apache.poi.ss.usermodel.CellStyle;
  * @author james.macadie
  */
 public class POISpreadSheet implements ISpreadSheet {
-    
-    private final Workbook _wb;
-    private final Iterator<POISheet> _iter;
-    private POISheet _sheet;
-    final DataFormatter _formatter;
-    
-    public POISpreadSheet (String fName) throws Exception  {
-        try {
-            _wb = loadSpreadSheet(fName);
-            _iter = getSheetIterator();
-            _sheet = _iter.next();
-            _formatter = new DataFormatter(); //creating formatter using the default locale
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+  private final Workbook _wb;
+  private final Iterator<POISheet> _iter;
+  private POISheet _sheet;
+  final DataFormatter _formatter;
+
+  public POISpreadSheet (String fName) throws Exception  {
+    try {
+      _wb = loadSpreadSheet(fName);
+      _iter = getSheetIterator();
+      _sheet = _iter.next();
+      _formatter = new DataFormatter(); //creating formatter using the default locale
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
-    
-    private static Workbook loadSpreadSheet(String file) throws Exception {
-        // assume file is excel by default
-        Exception readException;
-        try {
-            Workbook workbook = WorkbookFactory.create(new File(file));
-            return workbook;
-        } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
-            readException = e;
-        }
-        throw new RuntimeException("Failed to read as excel file: " + file, readException);
+  }
+
+  private static Workbook loadSpreadSheet(String file) throws Exception {
+    // assume file is excel by default
+    Exception readException;
+    try {
+      Workbook workbook = WorkbookFactory.create(new File(file));
+      return workbook;
+    } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
+      readException = e;
     }
-    
-    @Override
-    public boolean hasNext() {
-        return _iter.hasNext();
+    throw new RuntimeException("Failed to read as excel file: " + file, readException);
+  }
+
+  @Override
+  public boolean hasNext() {
+    return _iter.hasNext();
+  }
+
+  @Override
+  public void next() {
+    if (_iter.hasNext())
+      _sheet = _iter.next();
+  }
+
+  @Override
+  public String getSheetName() {
+    return _sheet.getName();
+  }
+
+  @Override
+  public CondensedFormulae getCondensedFormulae() {
+    Iterator<POIRow> iterRow = _sheet.getRowIterator();
+    Iterator<POICell> iterCell;
+    List<Formula> f = new LinkedList<> ();
+    // Loop through all rows
+    while (iterRow.hasNext()) {
+      // Loop through all cells in the row
+      iterCell = iterRow.next().getCellIterator();
+      while (iterCell.hasNext()) {
+        // Add each formula to the array list
+        f.add(iterCell.next().getFormula());
+      }
     }
-    
-    @Override
-    public void next() {
-        if (_iter.hasNext())
-            _sheet = _iter.next();
-    }
-    
-    @Override
-    public String getSheetName() {
-        return _sheet.getName();
-    }
-    
-    @Override
-    public CondensedFormulae getCondensedFormulae() {
-        Iterator<POIRow> iterRow = _sheet.getRowIterator();
-        Iterator<POICell> iterCell;
-        List<Formula> f = new LinkedList<> ();
-        // Loop through all rows
-        while (iterRow.hasNext()) {
-            // Loop through all cells in the row
-            iterCell = iterRow.next().getCellIterator();
-            while (iterCell.hasNext()) {
-                // Add each formula to the array list
-                f.add(iterCell.next().getFormula());
-            }
-        }
-        // Construct the Condensed Formulae object from the array of Formulae
-        // on the sheet
-        return new CondensedFormulae(f, true);
-    }
-    
-    private Iterator<POISheet> getSheetIterator() {
-        return new Iterator<POISheet>() {
+    // Construct the Condensed Formulae object from the array of Formulae
+    // on the sheet
+    return new CondensedFormulae(f, true);
+  }
 
-            private int currSheetIdx = 0;
+  private Iterator<POISheet> getSheetIterator() {
+    return new Iterator<POISheet>() {
 
-            @Override
-            public boolean hasNext() {
-                return currSheetIdx < _wb.getNumberOfSheets();
-            }
+      private int currSheetIdx = 0;
 
-            @Override
-            public POISheet next() {
-                Sheet sheet = _wb.getSheetAt(currSheetIdx);
-                POISheet poiSheet = new POISheet(sheet, currSheetIdx);
-                currSheetIdx++;
-                return poiSheet;
-            }
+      @Override
+      public boolean hasNext() {
+        return currSheetIdx < _wb.getNumberOfSheets();
+      }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
-    
-    class POISheet {
+      @Override
+      public POISheet next() {
+        Sheet sheet = _wb.getSheetAt(currSheetIdx);
+        POISheet poiSheet = new POISheet(sheet, currSheetIdx);
+        currSheetIdx++;
+        return poiSheet;
+      }
 
-        private final Sheet sheet;
-        private final int sheetIdx;
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
 
-        public POISheet(Sheet sheet, int sheetIdx) {
-            this.sheet = sheet;
-            this.sheetIdx = sheetIdx;
-        }
+  class POISheet {
 
-        public String getName() {
-            return sheet.getSheetName();
-        }
+    private final Sheet sheet;
+    private final int sheetIdx;
 
-        public int getSheetIndex() {
-            return sheetIdx;
-        }
-
-        public Iterator<POIRow> getRowIterator() {
-            final Iterator<Row> rowIterator = sheet.rowIterator();
-            return new Iterator<POIRow>() {
-
-                @Override
-                public boolean hasNext() {
-                    return rowIterator.hasNext();
-                }
-
-                @Override
-                public POIRow next() {
-                    return new POIRow(rowIterator.next());
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
-        }
+    public POISheet(Sheet sheet, int sheetIdx) {
+      this.sheet = sheet;
+      this.sheetIdx = sheetIdx;
     }
 
-    class POIRow {
-
-        private final Row _row;
-
-        public POIRow(Row row) {
-            this._row = row;
-        }
-
-        public int getRowIndex() {
-            return _row.getRowNum();
-        }
-
-        public Iterator<POICell> getCellIterator() {
-            final Iterator<Cell> cellIterator = _row.cellIterator();
-            return new Iterator<POICell>() {
-
-                @Override
-                public boolean hasNext() {
-                    return cellIterator.hasNext();
-                }
-
-                @Override
-                public POICell next() {
-                    return new POICell(cellIterator.next());
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
-        }
+    public String getName() {
+      return sheet.getSheetName();
     }
 
-    class POICell {
-
-        private final Cell _cell;
-
-        public POICell(Cell cell) {
-            this._cell = cell;
-        }
-
-        public int getRowIndex() {
-            return _cell.getRowIndex();
-        }
-
-        public int getColumnIndex() {
-            return _cell.getColumnIndex();
-        }
-
-        public Formula getFormula() {
-            String formula = null;
-            String value;
-            
-            int cellType = _cell.getCellType();
-            if (cellType == Cell.CELL_TYPE_FORMULA) {
-                formula = "=" + _cell.getCellFormula();
-                cellType = _cell.getCachedFormulaResultType();
-            }
-            switch (cellType) {
-                case Cell.CELL_TYPE_NUMERIC:
-                    CellStyle style = _cell.getCellStyle();
-                    value = _formatter.formatRawCellContents(
-                                _cell.getNumericCellValue(), 
-                                style.getDataFormat(), 
-                                style.getDataFormatString());
-                    break;
-                case Cell.CELL_TYPE_BOOLEAN:
-                    value = String.valueOf(_cell.getBooleanCellValue());
-                    break;
-                case Cell.CELL_TYPE_ERROR:
-                    value = String.valueOf(_cell.getErrorCellValue());
-                    break;
-                default:
-                    value = _cell.getStringCellValue();
-                    break;
-            }
-            
-            // Create the formula and return it
-            return new Formula(formula,
-                    new CellRef(_cell.getRowIndex() + 1, _cell.getColumnIndex() + 1),
-                    value);
-        }
+    public int getSheetIndex() {
+      return sheetIdx;
     }
+
+    public Iterator<POIRow> getRowIterator() {
+      final Iterator<Row> rowIterator = sheet.rowIterator();
+      return new Iterator<POIRow>() {
+
+        @Override
+        public boolean hasNext() {
+          return rowIterator.hasNext();
+        }
+
+        @Override
+        public POIRow next() {
+          return new POIRow(rowIterator.next());
+        }
+
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException();
+        }
+      };
+    }
+  }
+
+  class POIRow {
+
+    private final Row _row;
+
+    public POIRow(Row row) {
+      this._row = row;
+    }
+
+    public int getRowIndex() {
+      return _row.getRowNum();
+    }
+
+    public Iterator<POICell> getCellIterator() {
+      final Iterator<Cell> cellIterator = _row.cellIterator();
+      return new Iterator<POICell>() {
+
+        @Override
+        public boolean hasNext() {
+          return cellIterator.hasNext();
+        }
+
+        @Override
+        public POICell next() {
+          return new POICell(cellIterator.next());
+        }
+
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException();
+        }
+      };
+    }
+  }
+
+  class POICell {
+
+    private final Cell _cell;
+
+    public POICell(Cell cell) {
+      this._cell = cell;
+    }
+
+    public int getRowIndex() {
+      return _cell.getRowIndex();
+    }
+
+    public int getColumnIndex() {
+      return _cell.getColumnIndex();
+    }
+
+    public Formula getFormula() {
+      String formula = null;
+      String value;
+
+      int cellType = _cell.getCellType();
+      if (cellType == Cell.CELL_TYPE_FORMULA) {
+        formula = "=" + _cell.getCellFormula();
+        cellType = _cell.getCachedFormulaResultType();
+      }
+      switch (cellType) {
+        case Cell.CELL_TYPE_NUMERIC:
+          CellStyle style = _cell.getCellStyle();
+          value = _formatter.formatRawCellContents(
+                      _cell.getNumericCellValue(),
+                      style.getDataFormat(),
+                      style.getDataFormatString());
+          break;
+        case Cell.CELL_TYPE_BOOLEAN:
+          value = String.valueOf(_cell.getBooleanCellValue());
+          break;
+        case Cell.CELL_TYPE_ERROR:
+          value = String.valueOf(_cell.getErrorCellValue());
+          break;
+        default:
+          value = _cell.getStringCellValue();
+          break;
+      }
+
+      // Create the formula and return it
+      return new Formula(formula,
+              new CellRef(_cell.getRowIndex() + 1, _cell.getColumnIndex() + 1),
+              value);
+    }
+  }
 }

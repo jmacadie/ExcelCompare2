@@ -8,18 +8,18 @@ ExecelCompare2 differs from ExcelCompare in two key ways:
 
   1. Translations
 
-    Translations are row or column inserts, deletes and moves. Individual cell moves (insert / delete cells) could/should fall under here but are too difficult to detect currently.  
-    Translation detection is important as otherwise a row insert on the first row of a sheet would make every subsequent cell on the sheet look different when all that's happened is that they've all been shifted down one row.  
+    Translations are row or column inserts, deletes and moves. Individual cell moves (insert / delete cells) could/should fall under here but are too difficult to detect currently.
+    Translation detection is important as otherwise a row insert on the first row of a sheet would make every subsequent cell on the sheet look different when all that's happened is that they've all been shifted down one row.
     If a translation is detected then the "from" spreadsheet will be re-written (in memory), including moving the cell references of all shifted cells as well as re-writing the cell references within any formula that refer to shifted cells. Following the re-write for all detected translations, the re-written 'from' spreadsheet and the 'to' spreadsheet are compared for any remaining formulae differences
-  
+
   2. Blocks of like formulae are grouped together and reported as a single change
 
-    Blocks of formulae are formulae that are identical as if they were copied from one cell to another. For example:  
-    `=A1` in cell `B1` is the same as `=G7` in cell `H7`  
-    `=$A1` in cell `B1` is the same as `=$A7` in cell `H7`  
-    `=$A1` in cell `B1` is *not* the same as `=$G7` in cell `H7` 
+    Blocks of formulae are formulae that are identical as if they were copied from one cell to another. For example:
+    `=A1` in cell `B1` is the same as `=G7` in cell `H7`
+    `=$A1` in cell `B1` is the same as `=$A7` in cell `H7`
+    `=$A1` in cell `B1` is *not* the same as `=$G7` in cell `H7`
 
-    This can be important in large Excel files where the formulae are structured in blocks. For example, in financial models it is common practice to have a time dimension in the top row(s) of each sheet. In a file structured this way each successive row down the page will be the next step in the calculation and will be computing that step for all time periods of the model. When structured like this, each individual row of the spreadsheet should have the same formula across all its cells.  
+    This can be important in large Excel files where the formulae are structured in blocks. For example, in financial models it is common practice to have a time dimension in the top row(s) of each sheet. In a file structured this way each successive row down the page will be the next step in the calculation and will be computing that step for all time periods of the model. When structured like this, each individual row of the spreadsheet should have the same formula across all its cells.
     If one block is changed, rather than repeatedly report the many changes made, the single change is reported once for all cells affected
 
 ## How it works
@@ -30,21 +30,21 @@ There are a number of tricks / techniques employed. Please also refer to the [cl
   * Actual spreadsheet access is interfaced out as, in theory, it could be provided by some other means but currently the program relies only on Apache POI
 
 ### Physical sheet structure
-  * Formulae are blocked together by comparing the R1C1 representation of the formulae; in R1C1 notation "same" formulae will have the exactly the same formula. Unfortunately POI doesn't provide R1C1 notation formulae so to convert between the two, regex is used to parse the formula and find & replace all the cell references  
-  * Formulae are stored in the Formula class, which holds the original formula, the cell the formula is in, the R1C1 representation of the formula and finally the "shell formula". The shell formula concept stores the text of the formula with all cell references stripped out and is useful for detecting translations as any translation may edit cell references but will always leave the shell of each formula untouched  
-  * Next up, we have the UniqueFormulae class that stores a single formula plus a record of all other cells on the sheet that share the same formula  
-  * Building on this we have the CondensedFormulae class that represents the entire sheet. This is just a list of all the UniqueFormulae on the sheet  
+  * Formulae are blocked together by comparing the R1C1 representation of the formulae; in R1C1 notation "same" formulae will have the exactly the same formula. Unfortunately POI doesn't provide R1C1 notation formulae so to convert between the two, regex is used to parse the formula and find & replace all the cell references
+  * Formulae are stored in the Formula class, which holds the original formula, the cell the formula is in, the R1C1 representation of the formula and finally the "shell formula". The shell formula concept stores the text of the formula with all cell references stripped out and is useful for detecting translations as any translation may edit cell references but will always leave the shell of each formula untouched
+  * Next up, we have the UniqueFormulae class that stores a single formula plus a record of all other cells on the sheet that share the same formula
+  * Building on this we have the CondensedFormulae class that represents the entire sheet. This is just a list of all the UniqueFormulae on the sheet
     Note CondensedFormulae can also be (and is) used to store subsets of sheet. For example rows and columns within a sheet are also represented in a CondensedFormulae object
-  
+
 ### Translations
-  * To detect translations, firstly a map is built for both rows and columns (read rows for columns and vice versa in the following explanation). The map is two directional and says which row in the 'to' sheet each row in the 'from' sheet goes to. An inserted row would be represented by row x in 'to' being mapped to `null` in 'from', likewise a deleted row would be represented by row x in 'from' being mapped to `null` in 'to'  
-  * To build the map, row equivalence therefore needs to be determined. This is done by subsetting the CondensedFormulae of the sheet into a series of CondensedFormulae, one for each row. In turn each CondensedFormulae row from the 'from' sheet is taken. Matching is done by looking an identical "shell formula" match for all the UniqueFormulae in the target CondensedFormulae 'to' row  
-  * Searching is done by fanning out from the expected position. This is based on the expectation that if 'from' row 7 is found on row 10 of 'to' then the most likely place to find 'from' row 8 is on row 11 of 'to'. The fanning process (from our example) will try row 11, 12, 10, 13, 9, etc... ignoring any rows already mapped and stopping when the match is found  
+  * To detect translations, firstly a map is built for both rows and columns (read rows for columns and vice versa in the following explanation). The map is two directional and says which row in the 'to' sheet each row in the 'from' sheet goes to. An inserted row would be represented by row x in 'to' being mapped to `null` in 'from', likewise a deleted row would be represented by row x in 'from' being mapped to `null` in 'to'
+  * To build the map, row equivalence therefore needs to be determined. This is done by subsetting the CondensedFormulae of the sheet into a series of CondensedFormulae, one for each row. In turn each CondensedFormulae row from the 'from' sheet is taken. Matching is done by looking an identical "shell formula" match for all the UniqueFormulae in the target CondensedFormulae 'to' row
+  * Searching is done by fanning out from the expected position. This is based on the expectation that if 'from' row 7 is found on row 10 of 'to' then the most likely place to find 'from' row 8 is on row 11 of 'to'. The fanning process (from our example) will try row 11, 12, 10, 13, 9, etc... ignoring any rows already mapped and stopping when the match is found
   * Finally the map is converted into a series of human-friendly translation actions, such as 2 rows inserted at row 4
-  
+
 ### Diff
-  * The diff process works by firstly applying all the detected translations to the 'from' sheet. This produces a TranslatedCondensedFormulae object and moves all cells that have been translated as well as re-writing any formula that refers to a translated cell. Having done this, same cells that used to share the same formula (and therefore be part of the same UniqueFormulae object) may no longer be the same so the entire unique formulae grouping process is done over again  
-  * Having translated the 'from' sheet all cells should now be lined up and we can get on with the business of determining the real differences  
+  * The diff process works by firstly applying all the detected translations to the 'from' sheet. This produces a TranslatedCondensedFormulae object and moves all cells that have been translated as well as re-writing any formula that refers to a translated cell. Having done this, same cells that used to share the same formula (and therefore be part of the same UniqueFormulae object) may no longer be the same so the entire unique formulae grouping process is done over again
+  * Having translated the 'from' sheet all cells should now be lined up and we can get on with the business of determining the real differences
   * Differences are determined by looping through the UniqueFormulae in the 'to' CondensedFormulae sheet
     1. If the formula does not exist in the 'from' sheet
       1. 'To' range is on the 'from' sheet: log a changed formula
