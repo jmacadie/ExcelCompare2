@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -225,23 +226,25 @@ public class POISpreadSheet implements ISpreadSheet {
       String formula = null;
       String value;
 
-      int cellType = _cell.getCellType();
-      if (cellType == Cell.CELL_TYPE_FORMULA) {
+      CellType cellType = _cell.getCellTypeEnum();
+      // TODO: drop Enum suffix if upgrade beyond POI 4.0
+      if (cellType == CellType.FORMULA) {
         formula = "=" + _cell.getCellFormula();
-        cellType = _cell.getCachedFormulaResultType();
+        cellType = _cell.getCachedFormulaResultTypeEnum();
+        // TODO: drop Enum suffix if upgrade beyond POI 4.0
       }
       switch (cellType) {
-        case Cell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
           CellStyle style = _cell.getCellStyle();
           value = _formatter.formatRawCellContents(
                       _cell.getNumericCellValue(),
                       style.getDataFormat(),
                       style.getDataFormatString());
           break;
-        case Cell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
           value = String.valueOf(_cell.getBooleanCellValue());
           break;
-        case Cell.CELL_TYPE_ERROR:
+        case ERROR:
           value = String.valueOf(_cell.getErrorCellValue());
           break;
         default:
