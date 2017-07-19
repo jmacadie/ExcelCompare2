@@ -58,9 +58,10 @@ There are a number of tricks / techniques employed. Please also refer to the [cl
 
 ## Dependencies
 
-ExcelCompare2 depends only on [Apache POI](https://poi.apache.org/) and its child dependencies
+ExcelCompare2 depends only on [Apache POI OOXML](https://poi.apache.org/) (3.17-beta1) and its child dependencies
+I'm building and running this project in NetBeans. I'm not using Maven or Ant (as I don't know how). I downloaded the files from [JAR Download](https://jar-download.com/?detail_search=a%3A%22poi-ooxml%22&a=poi-ooxml&p=1) then manually added the JARs as external libraries to the project
 
-The Test suites additionally rely on `JUnit 4.12` and `Hamcrest 1.3`
+The Test suites additionally rely on `JUnit 4.10`
 
 ## Further work
 
